@@ -23,13 +23,24 @@ begin
 	dbfile = "wit-db-es.jld2"
 	indexfile = "wit-index.jld2"
 	with_terminal() do
-		println("downloading $dbfile")
-		!isfile(dbfile) && Downloads.download("$url/$dbfile", dbfile)
-		println("downloading $indexfile")
-		!isfile(indexfile) && Downloads.download("$url/$indexfile", indexfile)
+		if !isfile(dbfile)
+			println("downloading $dbfile")
+			Downloads.download("$url/$dbfile", dbfile)
+		else
+			println("using cached $dbfile")
+		end
+		if !isfile(indexfile)
+			println("downloading $indexfile")
+			Downloads.download("$url/$indexfile", indexfile)
+		else
+			println("using cached $indexfile")
+		end
 	end
-	db, map_ = load(dbfile, "db", "map")
+end
 
+# ╔═╡ df4f6c26-2ead-432d-96a9-f6b7b7b73dd4
+begin
+	db, map_ = load(dbfile, "db", "map")
 	index = load(indexfile, "index")
 end
 
@@ -765,7 +776,8 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # ╔═╡ Cell order:
 # ╠═2dfd9512-72d1-11ec-02b6-1f9c02939a5c
-# ╟─701efbd1-9103-488d-a133-8046d27a1607
+# ╠═701efbd1-9103-488d-a133-8046d27a1607
+# ╠═df4f6c26-2ead-432d-96a9-f6b7b7b73dd4
 # ╟─ef51024e-3022-4981-90f2-7f085d0b862d
 # ╠═3f0b1230-0f49-46c6-a4f4-cfeb3a79e739
 # ╟─00000000-0000-0000-0000-000000000001
