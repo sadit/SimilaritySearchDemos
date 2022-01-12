@@ -19,19 +19,24 @@ using PlutoUI, SimilaritySearch, JLD2, DataFrames,CSV, HypertextLiteral, Downloa
 
 # ╔═╡ 701efbd1-9103-488d-a133-8046d27a1607
 begin
-	url = "http://geo.ingeotec.mx/~sadit/similarity-search-demos/navigating-wit"
+	url_ = "http://geo.ingeotec.mx/~sadit/similarity-search-demos/navigating-wit"
 	dbfile = "wit-db-es.jld2"
 	indexfile = "wit-index.jld2"
+	function progress(total, now)
+		if (now >> 23) != ((now+1) >> 23)
+			println("total: $total, now: $now")
+		end
+	end
 	with_terminal() do
 		if !isfile(dbfile)
 			println("downloading $dbfile")
-			Downloads.download("$url/$dbfile", dbfile)
+			Downloads.download("$url_/$dbfile", dbfile; progress)
 		else
 			println("using cached $dbfile")
 		end
 		if !isfile(indexfile)
 			println("downloading $indexfile")
-			Downloads.download("$url/$indexfile", indexfile)
+			Downloads.download("$url_/$indexfile", indexfile; progress)
 		else
 			println("using cached $indexfile")
 		end
@@ -776,7 +781,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # ╔═╡ Cell order:
 # ╠═2dfd9512-72d1-11ec-02b6-1f9c02939a5c
-# ╠═701efbd1-9103-488d-a133-8046d27a1607
+# ╟─701efbd1-9103-488d-a133-8046d27a1607
 # ╠═df4f6c26-2ead-432d-96a9-f6b7b7b73dd4
 # ╟─ef51024e-3022-4981-90f2-7f085d0b862d
 # ╠═3f0b1230-0f49-46c6-a4f4-cfeb3a79e739
