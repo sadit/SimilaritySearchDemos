@@ -2,9 +2,18 @@
 
 The dataset is composed of more than 300K embeddings for the (URL)[WIT dataset] that capture visual and language semantics of several wikipedia articles.
 
+## Demonstrations
+`nav-wit.jl`
 
 We use the Spanish sample of WIT to demostrate a simple navigation on it using the Pluto notebook. Pluto must retrive the correct package versions so it must work out of the box.
 
+`umap-wit.jl`
+
+Parallel UMAP construction using SimilaritySearch to create the all k nearest neighbor graph. It uses the `wit-index.jld2` downloaded by `nav-wit.jl` 
+
+`visualize-umap.jl`
+
+Pluto notebook to visualize the output of `umap-wit.jl`
 
 ## Usage:
 Install the [Julia](https://julialang.org/downloads/) language (recommended v1.6 or later) and also install the Pluto notebook (lastest version)
