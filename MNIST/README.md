@@ -1,13 +1,12 @@
 # Using MNIST
 
-
 This directory contains the Pluto MNIST searching demo `searchmnist.jl` and a UMAP construction demo `umapmnist.jl`.
 
 
 Before using both demos you must create the index and the UMAP embeddings running the following script.
 
 ```
-julia -t64 --project=. create-mnist-index.jl
+julia -t64 --project=. create-index-and-umap.jl
 ```
 
 

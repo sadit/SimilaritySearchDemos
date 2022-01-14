@@ -3,20 +3,24 @@
 The dataset is composed of more than 300K embeddings for the (URL)[WIT dataset] that capture visual and language semantics of several wikipedia articles.
 
 ## Demonstrations
-`nav-wit.jl`
+`search.jl`
 
-We use the Spanish sample of WIT to demostrate a simple navigation on it using the Pluto notebook. Pluto must retrive the correct package versions so it must work out of the box.
-
-`umap-wit.jl`
-
-Parallel UMAP construction using SimilaritySearch to create the all k nearest neighbor graph. It uses the `wit-index.jld2` downloaded by `nav-wit.jl` 
+We use the Spanish sample of WIT to demostrate a search on it using the Pluto notebook. 
 
 `visualize-umap.jl`
 
-Pluto notebook to visualize the output of `umap-wit.jl`
+Pluto notebook to visualize the output of UMAP (UMAP's input is an all-knn graph created with SimilaritySearch.jl)
+
+Both scripts need to run first the script `create-index-and-umap.jl` that creates the index and also projects the dataset into 2d and 3d using UMAP.
+
+```bash
+
+julia -t64 --project=.. create-index-and-umap.jl
+```
 
 ## Usage:
 Install the [Julia](https://julialang.org/downloads/) language (recommended v1.6 or later) and also install the Pluto notebook (lastest version)
+
 
 
 ```
@@ -29,9 +33,8 @@ julia> using Pluto
 julia> Pluto.run()
 ```
 
+If you use Julia v1.7 then the first instruction is not necessary. The demostration need to retrieve the dataset and the embeddings, so please start and be calm while these files are retrieved.
 
-If you use Julia v1.7 then the first instruction is not necessary. The demostration need to retrieve the dataset and the index to work (>1G), so please start and be calm while these files are retrieved.
-
-Use the notebook, test and change the code as you wish. Happy navigation!
+Use the notebook, test and change the code as you wish. Happy searches!
 
 
