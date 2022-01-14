@@ -15,39 +15,16 @@ macro bind(def, element)
 end
 
 # ╔═╡ 2dfd9512-72d1-11ec-02b6-1f9c02939a5c
-using PlutoUI, SimilaritySearch, JLD2, DataFrames,CSV, HypertextLiteral, Downloads
-
-# ╔═╡ 701efbd1-9103-488d-a133-8046d27a1607
-begin
-	url_ = "http://geo.ingeotec.mx/~sadit/similarity-search-demos/navigating-wit"
-	dbfile = "wit-db-es.jld2"
-	indexfile = "wit-index.jld2"
-	function progress(total, now)
-		if (now >> 23) != ((now+1) >> 23)
-			println("total: $total, now: $now")
-		end
-	end
-	with_terminal() do
-		if !isfile(dbfile)
-			println("downloading $dbfile")
-			Downloads.download("$url_/$dbfile", dbfile; progress)
-		else
-			println("using cached $dbfile")
-		end
-		if !isfile(indexfile)
-			println("downloading $indexfile")
-			Downloads.download("$url_/$indexfile", indexfile; progress)
-		else
-			println("using cached $indexfile")
-		end
-	end
-end
+using PlutoUI, SimilaritySearch, JLD2, DataFrames, HypertextLiteral
 
 # ╔═╡ df4f6c26-2ead-432d-96a9-f6b7b7b73dd4
 begin
-	db, map_ = load(dbfile, "db", "map")
-	index = load(indexfile, "index")
+	db, map_ = load("wit-es.jld2", "context", "map")
+	index = load("wit-index.jld2", "index")
 end
+
+# ╔═╡ 4b2d8ab4-45d7-4802-a96f-de82d3ec42b2
+
 
 # ╔═╡ ef51024e-3022-4981-90f2-7f085d0b862d
 begin
@@ -57,7 +34,7 @@ begin
 	@htl("""
 	<h1> Searching nearest neighbors based on WIT embeddings </h1>
 	Select the document ID on the left slide and set the number of nearest neighbors to retrieve
-	<div>
+	<div id="my_controls">
 	doc: $(docID_list) , k: $(k_list)
 	</div>
 	
@@ -71,7 +48,6 @@ end
 begin
 	results = []
 	R = search(index, index[docID], KnnResult(k))
-	link = @bind id_ Button("Similar to ")
 	
 	for (id, dist) in R.res
 		i = map_[id]
@@ -79,36 +55,36 @@ begin
 		title = db.page_title[i]
 		url = db.page_url[i]
 		context = db.context_page_description[i]
-
-		push!(results, """<div>
+		h = @htl """<div>
 		<img alt="$title" src="$image" width="30%" /> - <a href="$url">$title</a> : dist: $(round(dist, digits=4))
 		<div>
 		</div>
-		<h2>$title</h2>
+		<h2>$title <button onclick='var elem = document.getElementById("my_controls").querySelector("bond > input"); elem.value = $id; elem.dispatchEvent(new CustomEvent("input")); '>search for similar objects</button></h2>
 		<p>
 		$context
 		</p>
 		</div>
 		<hr/>
-		""")
+		"""
+		push!(results, h)
 	end
 
-	HTML(join(results, '\n'))
+	@htl """
+	
+		$(results)
+	"""
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 SimilaritySearch = "053f045d-5466-53fd-b400-a066f88fe02a"
 
 [compat]
-CSV = "~0.9.11"
 DataFrames = "~1.3.1"
 HypertextLiteral = "~0.9.3"
 JLD2 = "~0.4.17"
@@ -162,12 +138,6 @@ git-tree-sha1 = "87b0c9c6ee0124d6c1f4ce8cb035dcaf9f90b803"
 uuid = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
 version = "0.1.6"
 
-[[deps.CSV]]
-deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings"]
-git-tree-sha1 = "49f14b6c56a2da47608fe30aed711b5882264d7a"
-uuid = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-version = "0.9.11"
-
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "926870acb6cbcf029396f2f2de030282b6bc1941"
@@ -185,12 +155,6 @@ deps = ["ArrayInterface", "Static"]
 git-tree-sha1 = "7b8f09d58294dc8aa13d91a8544b37c8a1dcbc06"
 uuid = "fb6a15b2-703c-40df-9091-08a04967cfa9"
 version = "0.1.4"
-
-[[deps.CodecZlib]]
-deps = ["TranscodingStreams", "Zlib_jll"]
-git-tree-sha1 = "ded953804d019afa9a3f98981d99b33e3db7b6da"
-uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
-version = "0.7.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
@@ -287,12 +251,6 @@ git-tree-sha1 = "67551df041955cc6ee2ed098718c8fcd7fc7aebe"
 uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 version = "1.12.0"
 
-[[deps.FilePathsBase]]
-deps = ["Compat", "Dates", "Mmap", "Printf", "Test", "UUIDs"]
-git-tree-sha1 = "04d13bfa8ef11720c24e4d840c0033d145537df7"
-uuid = "48062228-2e41-5def-b9a4-89aafe57970f"
-version = "0.9.17"
-
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
 git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"
@@ -354,12 +312,6 @@ version = "0.2.2"
 git-tree-sha1 = "debdd00ffef04665ccbb3e150747a77560e8fad1"
 uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
 version = "0.1.1"
-
-[[deps.InlineStrings]]
-deps = ["Parsers"]
-git-tree-sha1 = "8d70835a3759cdd75881426fced1508bb7b7e1b6"
-uuid = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
-version = "1.1.1"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -619,12 +571,6 @@ git-tree-sha1 = "1134625e07755b1d00f8c722cdffa884c66d6ca3"
 uuid = "0e966ebe-b704-4a65-8279-db954bfe5da0"
 version = "0.3.0"
 
-[[deps.SentinelArrays]]
-deps = ["Dates", "Random"]
-git-tree-sha1 = "244586bc07462d22aed0113af9c731f2a518c93e"
-uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
-version = "1.3.10"
-
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 
@@ -756,12 +702,6 @@ git-tree-sha1 = "98002b227603e41e4aac8dc6ea5a19ccf25d191d"
 uuid = "33b4df10-0173-11e9-2a0c-851a7edac40e"
 version = "0.2.13"
 
-[[deps.WeakRefStrings]]
-deps = ["DataAPI", "InlineStrings", "Parsers"]
-git-tree-sha1 = "c69f9da3ff2f4f02e811c3323c22e5dfcb584cfa"
-uuid = "ea10d353-3f73-51f8-a26c-33c1cb351aa5"
-version = "1.4.1"
-
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
@@ -781,9 +721,9 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 
 # ╔═╡ Cell order:
 # ╠═2dfd9512-72d1-11ec-02b6-1f9c02939a5c
-# ╟─701efbd1-9103-488d-a133-8046d27a1607
-# ╠═df4f6c26-2ead-432d-96a9-f6b7b7b73dd4
+# ╟─df4f6c26-2ead-432d-96a9-f6b7b7b73dd4
+# ╠═4b2d8ab4-45d7-4802-a96f-de82d3ec42b2
 # ╟─ef51024e-3022-4981-90f2-7f085d0b862d
-# ╠═3f0b1230-0f49-46c6-a4f4-cfeb3a79e739
+# ╟─3f0b1230-0f49-46c6-a4f4-cfeb3a79e739
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
