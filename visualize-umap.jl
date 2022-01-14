@@ -15,7 +15,16 @@ macro bind(def, element)
 end
 
 # ╔═╡ 57c7fc18-7428-11ec-20e0-9b272a04ee45
-using StatsPlots, JLD2, StatsBase, Statistics, PlutoUI, Glob,HypertextLiteral
+using StatsPlots, JLD2, StatsBase, Statistics, PlutoUI, Glob, HypertextLiteral
+
+# ╔═╡ fcbb5841-6296-41f1-a4da-9940dcbc2b2a
+html"""
+<style>
+	pluto-notebook {
+		width: 800pt;
+	}
+</style>
+"""
 
 # ╔═╡ 3291bcb7-c733-41d8-97a4-aa09acf3e552
 md"""
@@ -76,7 +85,7 @@ begin
 
 	colors = [RGB(R[i], G[i], B[i]) for i in eachindex(R)]
 	S = scatter(X, Y, c=colors, ms=1, fa=0.5, la=0.5, alpha=0.5, label="")
-	plot(H, S, layout=grid(2, 1), size=(500, 800), title="UMAP $(dirname(embfile))")
+	plot(H, S, layout=grid(1, 2), size=(1000, 400), title="UMAP $(dirname(embfile))")
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1226,6 +1235,7 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
+# ╠═fcbb5841-6296-41f1-a4da-9940dcbc2b2a
 # ╠═57c7fc18-7428-11ec-20e0-9b272a04ee45
 # ╟─3291bcb7-c733-41d8-97a4-aa09acf3e552
 # ╟─a2a8710b-f7ed-4454-b00d-f0e92c78298a
