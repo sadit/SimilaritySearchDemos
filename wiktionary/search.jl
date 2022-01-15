@@ -82,7 +82,7 @@ end
 
 # ╔═╡ 899b5620-5e7e-4728-9054-43b4c81b83bf
 begin
-	displayresults(query == "_random" ? index[rand(1:n)] : query)
+	displayresults(query == "_random" ? index[rand(1:n)] : UTF32Str(query))
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
