@@ -2,14 +2,6 @@
 # julia -t64 create-mnist-index.jl
 
 
-using Pkg
-Pkg.add([
-    PackageSpec(name="SimilaritySearch", version="0.8.5"),
-    PackageSpec(name="MLDatasets"),
-    PackageSpec(name="JLD2"),
-    PackageSpec(url="https://github.com/sadit/UMAP.jl", rev="master")
-])
-
 using SimilaritySearch, MLDatasets, UMAP, JLD2
 
 function create_or_load_index(indexfile)
@@ -23,9 +15,9 @@ function create_or_load_index(indexfile)
 	else
 		index = SearchGraph(; dist, db=X)
 		index.neighborhood.reduce = SatNeighborhood()
-		push!(index.callbacks, OptimizeParameters(; kind=:pareto_recall_searchtime))
+		push!(index.callbacks, OptimizeParameters(; kind=ParetoRecall()))
 		index!(index)
-		optimize!(index, OptimizeParameters(; kind=:minimum_recall_searchtime, minrecall=0.9))
+		optimize!(index, OptimizeParameters(; kind=MinRecall(), minrecall=0.9))
 		jldsave(indexfile, index=index)
 		index
 	end

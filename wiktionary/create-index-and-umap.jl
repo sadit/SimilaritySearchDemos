@@ -34,14 +34,13 @@ end
 
 function main()
     println(stderr, "The construction of this index and umap is a bit more costly than vector datasets")
-    println(stderr, "and therefore I will download everything.")
-    println(stderr, "If you want to compute index and umap, please comment them and re-run")
+    println(stderr, "You can download the index and UMAP's projection uncommenting them in the download list")
     umapfile = "enwiktionary-umap-embeddings.jld2"
     indexfile = "enwiktionary-index.jld2"
     for filename in [
         dbfile,
-        umapfile,
-        indexfile
+        #umapfile,
+        #indexfile
         ]
         download_dataset(filename)
     end

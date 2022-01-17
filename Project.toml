@@ -1,6 +1,7 @@
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+Embeddings = "c5bfea45-b7f1-5224-a596-15500f5db411"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
@@ -14,4 +15,4 @@ Strs = "7bddbee9-b4ee-5d4f-bf0b-c84b4398bbf6"
 UMAP = "c4f8c510-2410-5be4-91d7-4fbaeb39457e"
 
 [compat]
-SimilaritySearch = "0.8.5"
+SimilaritySearch = "0.8.8"

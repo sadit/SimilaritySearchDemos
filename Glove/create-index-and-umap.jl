@@ -1,15 +1,6 @@
 # run as:
 # julia -t64 create-glove-index-and-umap.jl
 
-using Pkg
-Pkg.add([
-    PackageSpec(name="SimilaritySearch", version="0.8.5"),
-    PackageSpec(name="Embeddings"),
-    PackageSpec(name="JLD2"),
-    PackageSpec(name="LinearAlgebra"),
-    PackageSpec(url="https://github.com/sadit/UMAP.jl", rev="master")
-])
-
 using SimilaritySearch, Embeddings, UMAP, LinearAlgebra, JLD2
 
 
@@ -26,9 +17,9 @@ function create_or_load_index(indexfile)
 	else
 		index = SearchGraph(; dist, db=X)
 		index.neighborhood.reduce = SatNeighborhood()
-		push!(index.callbacks, OptimizeParameters(; kind=:pareto_recall_searchtime))
+		push!(index.callbacks, OptimizeParameters(; kind=ParetoRecall()))
 		index!(index)
-		optimize!(index, OptimizeParameters(; kind=:minimum_recall_searchtime, minrecall=0.9))
+		optimize!(index, OptimizeParameters(; kind=MinRecall(), minrecall=0.9))
 		jldsave(indexfile, index=index, vocab=emb.vocab)
 		index
 	end

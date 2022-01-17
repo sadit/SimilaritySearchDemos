@@ -41,9 +41,9 @@ function create_or_load_index(indexfile)
         end
 		index = SearchGraph(; dist, db=MatrixDatabase(X))
 		index.neighborhood.reduce = SatNeighborhood()
-		push!(index.callbacks, OptimizeParameters(; kind=:pareto_recall_searchtime))
+		push!(index.callbacks, OptimizeParameters(; kind=ParetoRecall()))
 		index!(index)
-		optimize!(index, OptimizeParameters(; kind=:minimum_recall_searchtime, minrecall=0.9))
+		optimize!(index, OptimizeParameters(; kind=MinRecall(), minrecall=0.9))
 		jldsave(indexfile, index=index)
 		index
 	end
