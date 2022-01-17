@@ -75,4 +75,4 @@ The versions used in the demonstrations are not splitted in train and test, but 
 For WIT and Twitter-2M, please use the following HDF5 files, they follow a similar structure than those found in the ann-benchmarks.
 
 - [WIT-300K](http://ingeotec.mx/~sadit/similarity-search-demos/WIT-Clip-angular.h5)
-- [Twitter-2M](http://ingeotec.mx/~sadit/similarity-search-demos/twitter-es-300d-angular.h5). This word embeddings corresponds to that labeled as LARGE in the [Regional Spanish Models](https://ingeotec.github.io/regional-spanish-models/) site, yet partitioned for using as similarity search benchmark.
+- [Twitter-2M](http://ingeotec.mx/~sadit/similarity-search-demos/twitter-es-300d-angular.h5). These word embeddings corresponds to that model labeled as LARGE in the [Regional Spanish Models](https://ingeotec.github.io/regional-spanish-models/) site, yet partitioned for using as similarity search benchmark.
