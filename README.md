@@ -69,7 +69,7 @@ The UMAP visualization is also a Pluto notebook called `visualize-umap.jl`. The 
 - WIT-300K. From Clip and WIT, we downloaded the first 300K annotated images for the Spanish Wikipedia and take the Clip embeddings of them. Available from the demo subfolder.
 
 
-### Partitions
+### Dataset partitions
 The versions used in the demonstrations are not splitted in train and test, but those used in the paper are splitted. If you want to reproduce the same results, please use the datasets by [ann-benchmarks](http://ann-benchmarks.com/) and [its repo](https://github.com/erikbern/ann-benchmarks/).
 
 For WIT and Twitter-2M, please use the following HDF5 files, they follow a similar structure than those found in the ann-benchmarks.
