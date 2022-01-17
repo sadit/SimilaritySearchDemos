@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -100,8 +100,8 @@ SimilaritySearch = "053f045d-5466-53fd-b400-a066f88fe02a"
 Colors = "~0.12.8"
 HypertextLiteral = "~0.9.3"
 JLD2 = "~0.4.17"
-PlutoUI = "~0.7.29"
-SimilaritySearch = "~0.8.5"
+PlutoUI = "~0.7.30"
+SimilaritySearch = "~0.8.8"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -466,9 +466,9 @@ version = "0.12.3"
 
 [[deps.Parsers]]
 deps = ["Dates"]
-git-tree-sha1 = "d7fa6237da8004be601e19bd6666083056649918"
+git-tree-sha1 = "92f91ba9e5941fc781fecf5494ac1da87bdac775"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.1.3"
+version = "2.2.0"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
@@ -476,9 +476,9 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
-git-tree-sha1 = "7711172ace7c40dc8449b7aed9d2d6f1cf56a5bd"
+git-tree-sha1 = "5c0eb9099596090bb3215260ceca687b888a1575"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.29"
+version = "0.7.30"
 
 [[deps.PolyesterWeave]]
 deps = ["BitTwiddlingConvenienceFunctions", "CPUSummary", "IfElse", "Static", "ThreadingUtilities"]
@@ -550,9 +550,9 @@ uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[deps.SimilaritySearch]]
 deps = ["Dates", "Distances", "Intersections", "LinearAlgebra", "Parameters", "Random", "SearchModels", "StatsBase", "StrideArrays", "Test"]
-git-tree-sha1 = "f59600172bb1c22a9bed4b0fbbf73d81da659427"
+git-tree-sha1 = "12e0b985f1f448542c4b704e4e69524fd78b3871"
 uuid = "053f045d-5466-53fd-b400-a066f88fe02a"
-version = "0.8.5"
+version = "0.8.8"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
@@ -681,12 +681,12 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─5cd87a9e-5506-11eb-2744-6f02144677ff
 # ╠═c5af5d4a-455b-11eb-0b57-4d8d63615b85
 # ╟─d8d27dbc-5507-11eb-20e9-0f16ddba080b
-# ╠═1ce583f6-54fb-11eb-10ad-b5dc9328ca3b
-# ╠═5b743cbc-54fa-11eb-1be4-4b619e1070b2
+# ╟─1ce583f6-54fb-11eb-10ad-b5dc9328ca3b
+# ╟─5b743cbc-54fa-11eb-1be4-4b619e1070b2
 # ╠═899b5620-5e7e-4728-9054-43b4c81b83bf
-# ╠═def63abc-45e7-11eb-231d-11d94709acd3
+# ╟─def63abc-45e7-11eb-231d-11d94709acd3
 # ╟─da00cb34-33b1-4320-a748-9677c523601e
 # ╠═358b3640-dff0-4cd5-a373-6452a929562f
-# ╠═feb5befa-546d-4328-93d0-5dd6fc86ea88
+# ╟─feb5befa-546d-4328-93d0-5dd6fc86ea88
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -88,8 +88,8 @@ SimilaritySearch = "053f045d-5466-53fd-b400-a066f88fe02a"
 DataFrames = "~1.3.1"
 HypertextLiteral = "~0.9.3"
 JLD2 = "~0.4.17"
-PlutoUI = "~0.7.29"
-SimilaritySearch = "~0.8.5"
+PlutoUI = "~0.7.30"
+SimilaritySearch = "~0.8.8"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -352,9 +352,9 @@ version = "0.4.17"
 
 [[deps.JLLWrappers]]
 deps = ["Preferences"]
-git-tree-sha1 = "642a199af8b68253517b80bd3bfd17eb4e84df6e"
+git-tree-sha1 = "22df5b96feef82434b07327e2d3c770a9b21e023"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
-version = "1.3.0"
+version = "1.4.0"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -484,9 +484,9 @@ version = "0.12.3"
 
 [[deps.Parsers]]
 deps = ["Dates"]
-git-tree-sha1 = "d7fa6237da8004be601e19bd6666083056649918"
+git-tree-sha1 = "92f91ba9e5941fc781fecf5494ac1da87bdac775"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.1.3"
+version = "2.2.0"
 
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
@@ -494,9 +494,9 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
-git-tree-sha1 = "7711172ace7c40dc8449b7aed9d2d6f1cf56a5bd"
+git-tree-sha1 = "5c0eb9099596090bb3215260ceca687b888a1575"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.29"
+version = "0.7.30"
 
 [[deps.PolyesterWeave]]
 deps = ["BitTwiddlingConvenienceFunctions", "CPUSummary", "IfElse", "Static", "ThreadingUtilities"]
@@ -541,9 +541,9 @@ version = "1.2.2"
 
 [[deps.Requires]]
 deps = ["UUIDs"]
-git-tree-sha1 = "8f82019e525f4d5c669692772a6f4b0a58b06a6a"
+git-tree-sha1 = "838a3a4188e2ded87a4f9f184b4b0d78a1e91cb7"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
-version = "1.2.0"
+version = "1.3.0"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -580,9 +580,9 @@ uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[deps.SimilaritySearch]]
 deps = ["Dates", "Distances", "Intersections", "LinearAlgebra", "Parameters", "Random", "SearchModels", "StatsBase", "StrideArrays", "Test"]
-git-tree-sha1 = "f59600172bb1c22a9bed4b0fbbf73d81da659427"
+git-tree-sha1 = "12e0b985f1f448542c4b704e4e69524fd78b3871"
 uuid = "053f045d-5466-53fd-b400-a066f88fe02a"
-version = "0.8.5"
+version = "0.8.8"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
@@ -611,9 +611,9 @@ version = "0.4.1"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "88a559da57529581472320892576a486fa2377b9"
+git-tree-sha1 = "2ae4fe21e97cd13efd857462c1869b73c9f61be3"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.3.1"
+version = "1.3.2"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]

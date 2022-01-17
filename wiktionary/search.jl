@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -103,7 +103,7 @@ DataFrames = "~1.3.1"
 HypertextLiteral = "~0.9.3"
 JLD2 = "~0.4.17"
 PlutoUI = "~0.7.30"
-SimilaritySearch = "~0.8.7"
+SimilaritySearch = "~0.8.8"
 Strs = "~1.1.0"
 """
 
@@ -676,9 +676,9 @@ uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[deps.SimilaritySearch]]
 deps = ["Dates", "Distances", "Intersections", "LinearAlgebra", "Parameters", "Random", "SearchModels", "StatsBase", "StrideArrays", "Test"]
-git-tree-sha1 = "ef933f31c13f4f17fc672c981b78e128deb867c1"
+git-tree-sha1 = "12e0b985f1f448542c4b704e4e69524fd78b3871"
 uuid = "053f045d-5466-53fd-b400-a066f88fe02a"
-version = "0.8.7"
+version = "0.8.8"
 
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
@@ -878,12 +878,12 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╔═╡ Cell order:
 # ╟─5cd87a9e-5506-11eb-2744-6f02144677ff
 # ╠═c5af5d4a-455b-11eb-0b57-4d8d63615b85
-# ╠═714dbb65-971d-482e-8d4d-099326f71fd6
+# ╟─714dbb65-971d-482e-8d4d-099326f71fd6
 # ╟─d8d27dbc-5507-11eb-20e9-0f16ddba080b
-# ╠═1ce583f6-54fb-11eb-10ad-b5dc9328ca3b
+# ╟─1ce583f6-54fb-11eb-10ad-b5dc9328ca3b
 # ╟─5b743cbc-54fa-11eb-1be4-4b619e1070b2
 # ╟─d29ba738-75b4-433f-9147-9598bb9c04f3
-# ╠═899b5620-5e7e-4728-9054-43b4c81b83bf
+# ╟─899b5620-5e7e-4728-9054-43b4c81b83bf
 # ╟─def63abc-45e7-11eb-231d-11d94709acd3
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
