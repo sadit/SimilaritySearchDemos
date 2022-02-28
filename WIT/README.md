@@ -13,6 +13,11 @@ Pluto notebook to visualize the output of UMAP (UMAP's input is an all-knn graph
 
 Both scripts need to run first the script `create-index-and-umap.jl` that creates the index and also projects the dataset into 2d and 3d using UMAP.
 
+An static version is [here](https://raw.githubusercontent.com/sadit/SimilaritySearchDemos/main/WIT/search.jl-WIT.html)
+(Note: running at binder will not work since it needs the precomputed models)
+
+
+
 ```bash
 
 julia -t64 --project=.. create-index-and-umap.jl
