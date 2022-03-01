@@ -1,8 +1,12 @@
 # SimilaritySearchDemos
 
-Demos for the [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package. We use popular notebooks like Jupyter and Pluto
+Demos for the [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package. We use popular notebooks like Jupyter and Pluto. This notebooks can be accessed from Github's [repository](https://github.com/sadit/SimilaritySearchDemos).
 
 The examples contains three main parts: the index construction, the umap projection, and a search demo
+
+
+
+<img src="umap.gif" /> <img src="wit.gif" height="228" />
 
 ## Initializing the environment
 `SimilaritySearch.jl` is writen in the [Julia language](https://julialang.org/) you need to install it first in order to run them.
