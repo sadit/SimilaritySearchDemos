@@ -112,7 +112,7 @@ StatsPlots = "~0.14.30"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.7.0"
+julia_version = "1.7.2"
 manifest_format = "2.0"
 
 [[deps.AbstractFFTs]]
@@ -1203,9 +1203,9 @@ version = "1.6.38+0"
 
 [[deps.libvorbis_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Ogg_jll", "Pkg"]
-git-tree-sha1 = "c45f4e40e7aafe9d086379e5578947ec8b95a8fb"
+git-tree-sha1 = "b910cb81ef3fe6e78bf6acee440bda86fd6ae00c"
 uuid = "f27f6e37-5d2b-51aa-960f-b287f2bc3b7a"
-version = "1.3.7+0"
+version = "1.3.7+1"
 
 [[deps.nghttp2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1241,6 +1241,6 @@ version = "0.9.1+5"
 # ╟─a2a8710b-f7ed-4454-b00d-f0e92c78298a
 # ╟─ddaab60b-c756-448d-8df5-867a1a8acf36
 # ╟─ba051e23-314c-4531-9092-7dcb670b0627
-# ╟─3fe2b452-98be-40e1-b893-839bc45cbd3f
+# ╠═3fe2b452-98be-40e1-b893-839bc45cbd3f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
