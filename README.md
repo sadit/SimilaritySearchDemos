@@ -23,7 +23,10 @@ If you are seeing this page from Github's, the presentation can be improved from
 ### Demonstrations
 - [Synthetic random](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb) - more detailed
 - [2D synthetic](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb)
-
+- [Glove](Glove/)
+- [MNIST](MNIST/)
+- [Wiktionary](wiktionary/)
+- [WIT](WIT/)
 ## Initializing the environment
 `SimilaritySearch.jl` is writen in the [Julia language](https://julialang.org/) you need to install it first in order to run them.
 
