@@ -21,7 +21,8 @@ The `SearchGraph` index in the `SimilaritySearch.jl` package is competitive alte
 If you are seeing this page from Github's, the presentation can be improved from [https://sadit.github.io/SimilaritySearchDemos/](https://sadit.github.io/SimilaritySearchDemos/).
 
 ### Demonstrations
-- [Synthetic random]()
+- [Synthetic random](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb) - more detailed
+- [2D synthetic](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb)
 
 ## Initializing the environment
 `SimilaritySearch.jl` is writen in the [Julia language](https://julialang.org/) you need to install it first in order to run them.
