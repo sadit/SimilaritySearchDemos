@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SimilaritySearchDemos/css/franklin.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/pure.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/side-menu.css">
+<!-- style adjustments -->
+<style>
+.franklin-content{padding-left:10%;}
+@media (min-width: 940px) {
+  .franklin-content {width: 640px; margin-left: 0px; padding-left: 80px;}
+  .header {width: 700px;}
+}
+</style>
+<link rel="icon" href="/SimilaritySearchDemos/assets/favicon.png">
+
+   <title>Demonstrations</title>  
+</head>
+<body>
+  <div id="layout">
+    <!-- Menu toggle / hamburger icon -->
+    <a href="#menu" id="menuLink" class="menu-link"><span></span></a>
+    <div id="menu">
+      <div class="pure-menu">
+        <a class="pure-menu-heading" href="#">Menu</a>
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/" class="pure-menu-link">Home</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/demos/" class="pure-menu-link">Demonstrations</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/datasets/" class="pure-menu-link">Datasets</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tags/" class="pure-menu-link">Tags</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="main"> <!-- Closed in foot -->
+      <div class="header">
+        <h1>Demonstrations</h1>
+        <h2>Usage demonstrations of `SimilaritySearch` with synthetic and real world data</h2>
+      </div>
+
+
+<!-- Content appended here -->
+<div class="franklin-content">
+<p>tableofcontents</p>
+<h2 id="introduction"><a href="#introduction" class="header-anchor">Introduction</a></h2>
+<p>Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use <code>SimilaritySearch</code>. To make the demonstrations more attractive, we also make use intensive use of <code>UMAP</code> visualization. More detailed, UMAP is a non-linear dimension reduction technique that uses the graph of all-nearest neighbors, and here is the place for <code>SimilaritySearch</code>.</p>
+<ul>
+<li><p><code>Pluto</code> notebooks require to run firstly an script to work, since they are the more interactive and work with already computed structures.</p>
+</li>
+<li><p><code>Jupyter</code> notebooks are less interactive but they are great to visualize directly on github without running.</p>
+</li>
+</ul>
+
+<div style="text-align: center;">
+<img src="/SimilaritySearchDemos/umap.gif" /><img src="/SimilaritySearchDemos/wit.gif" />
+</div>
+
+<h2 id="list_of_demonstrations"><a href="#list_of_demonstrations" class="header-anchor">List of demonstrations</a></h2>
+<ul>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb">Synthetic 8D</a>: Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb">Synthetic 2D</a>: Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb">Integers as prime factors</a>: Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> integers; different user defined distances.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/">Glove</a>: Pluto notebook to navigate on semantic representations &#40;Glove word embeddings&#41;. A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/">MNIST</a>: Pluto notebook to navigate on MNIST hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;. It also produces UMAP maps.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/wiktionary/">Wiktionary</a>: Pluto notebook to navigate and query Wiktionary vocabulary using Levenshtein distance. ~1M words. It also produces UMAP maps.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/">WIT</a>: Pluto notebook to navigate and query the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps.</p>
+</li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/emojispace/">Emojispace</a> Produces UMAP maps for a document collection of Twitter&#39;s Spanish messages with emojis using bag of words representations. 50K items.</p>
+</li>
+<li><p>The <em>Visualize UMAP</em> Pluto <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/visualize-umap.jl">notebook</a>. It visualizes UMAP embeddings created by the rest of the demonstrations &#40;Glove, MNIST, Wiktionary, WIT, and emojispace.&#41;</p>
+</li>
+</ul>
+<p>TODO: References and cites</p>
+<h2 id="initializing_the_environment"><a href="#initializing_the_environment" class="header-anchor">Initializing the environment</a></h2>
+<p><code>SimilaritySearch.jl</code> is writen in the <a href="https://julialang.org/">Julia language</a> you need to install it first in order to run them.</p>
+<p>The repo has two files: <code>Project.toml</code> and <code>Manifest.toml</code>, both lists the packages, and their versions, used by the demos; both describe the working environment. Note: it is quite important to use the <code>Manifest.toml</code> since the examples use a modified <a href="https://github.com/sadit/UMAP.jl">UMAP.jl version</a> of the Dillon&#39;s <a href="https://github.com/dillondaudert/UMAP.jl">UMAP.jl</a> that uses <code>SimilaritySearch.jl</code> instead of the <code>NearestNeighborDescend.jl</code>. If you want to change Manifest.toml just make sure you use the correct <code>UMAP.jl</code> &#40;https://github.com/sadit/UMAP.jl&#41;.</p>
+<p>The environment needs to be instantiated and this is done with the following commands:</p>
+<pre><code class="language-bash">&#36;julia --project&#61;.
+...
+
+julia&gt; &#93; instantiate</code></pre>
+<p>The <code>--project&#61;.</code> tells julia that our enviroment/project is described in the current directory, so you must call this inside the root of the repository. Note: you need an active internet connection to do this.</p>
+<p>The <code>&#93;</code> character inits the package manager of Julia. You can output using ctrl&#43;d &#40;repeat it to get out of Julia&#41;</p>
+<h2 id="index_construction_and_umap_projection"><a href="#index_construction_and_umap_projection" class="header-anchor">Index construction and umap projection</a></h2>
+<p>All examples contains a script <code>create-index-and-umap.jl</code>. It should be run using al your cores, to achieve faster computing times.</p>
+<p>For example you can create MNIST index and UMAP&#39;s embeddings using the following commands</p>
+<pre><code class="language-bash">cd MNIST
+&#36; julia -t64 --project&#61;.. create-index-and-umap.jl
+...</code></pre>
+<p>The first time you run a script Julia will load and compile packages, this take some time. The <code>-t64</code> flag says julia to use 64 threads; the <code>--project&#61;..</code> also tells that the parent directory describes the environment &#40;previosly instantiated&#41;.</p>
+<p>The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.</p>
+<p>The script will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;.</p>
+<h2 id="search_demos_and_umap_visualization"><a href="#search_demos_and_umap_visualization" class="header-anchor">Search demos and UMAP visualization</a></h2>
+<p>The demos are <a href="https://github.com/fonsp/Pluto.jl">Pluto</a> notebooks and work over the previously created indexes and projections. Inside the repo&#39;s root run the following commands.</p>
+<pre><code class="language-bash">&#36; julia --project&#61;.
+...
+
+julia&gt; using Pluto
+...
+julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/search.jl&quot;&#41;
+...</code></pre>
+<p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, this will cause installing and compiling this packages. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
+<p>Note: Pluto interface also allows loading notebooks, so you don&#39;t need to exit and re-run to explore examples.</p>
+<h2 id="umap_visualization"><a href="#umap_visualization" class="header-anchor">UMAP visualization</a></h2>
+<p>The UMAP visualization is also a Pluto notebook called <code>visualize-umap.jl</code>. The example looks for umap-projections in sub-directories. Note that even when projections are already created, they are plotted and some datasets contains many points. Please be patient.</p>
+<div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 03, 2022.
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+      </div> <!-- end of id=main -->
+  </div> <!-- end of id=layout -->
+  <script src="/SimilaritySearchDemos/libs/pure/ui.min.js"></script>
+  
+      
+
+
+
+  
+  
+      <script src="/SimilaritySearchDemos/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+  
+</body>
+</html>
