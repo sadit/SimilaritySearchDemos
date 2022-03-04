@@ -25,9 +25,9 @@ and here is the place for `SimilaritySearch`.
 
 
 ## List of demonstrations
-- [Synthetic 8D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb): Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.
-- [Synthetic 2D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb): Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.
-- [Integers as prime factors](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb): Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the $n$ integers; different user defined distances.
+- [Synthetic 8D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb): A tutorial-like Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.
+- [Synthetic 2D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb): A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.
+- [Integers as prime factors](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb): A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the $n$ integers; different user defined distances.
 - [Glove](https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/): Pluto notebook to navigate on semantic representations (Glove word embeddings). A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps.
 - [MNIST](https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/): Pluto notebook to navigate on MNIST hand drawing numbers. It uses images directly as objects (28x28 matrices). It also produces UMAP maps.
 - [Wiktionary](https://github.com/sadit/SimilaritySearchDemos/tree/main/wiktionary/): Pluto notebook to navigate and query Wiktionary vocabulary using Levenshtein distance. ~1M words. It also produces UMAP maps.
