@@ -3,7 +3,7 @@ title = "Demonstrations"
 hascode = false
 
 +++
-@def tags = ["Similarity search demos"]
+@def tags = ["Demos", "Glove", "MNIST", "Wiktionary", "WIT", "Emojispace", "UMAP"]
 
 tableofcontents
 
@@ -44,11 +44,11 @@ TODO: References and cites
 
 The repo has two files: `Project.toml` and `Manifest.toml`, both lists the packages, and their versions, used by the demos; both describe the working environment. Note: it is quite important to use the `Manifest.toml` since the examples use a modified [UMAP.jl version](https://github.com/sadit/UMAP.jl) of the Dillon's [UMAP.jl](https://github.com/dillondaudert/UMAP.jl) that uses `SimilaritySearch.jl` instead of the `NearestNeighborDescend.jl`. If you want to change Manifest.toml just make sure you use the correct `UMAP.jl` (https://github.com/sadit/UMAP.jl).
 
-The environment needs to be instantiated and this is done with the following commands:
+The environment needs to be instantiated and this is made with the following commands:
 
 ```bash
 
-$julia --project=.
+$ julia --project=.
 ...
 
 julia> ] instantiate
@@ -90,7 +90,7 @@ julia> Pluto.run(notebook="WIT/search.jl")
 ...
 ```
 
-Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, this will cause installing and compiling this packages. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.
+Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.
 
 Note: Pluto interface also allows loading notebooks, so you don't need to exit and re-run to explore examples.
 

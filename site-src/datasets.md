@@ -1,7 +1,7 @@
 @def title = "Datasets"
 @def hascode = false
 
-@def tags = ["datasets", "Glove", "FastText", "MNIST"]
+@def tags = ["datasets", "Glove", "FastText", "MNIST", "WIT", "Word embeddings"]
 
 # Datasets
 

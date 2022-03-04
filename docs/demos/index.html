@@ -85,8 +85,8 @@
 <h2 id="initializing_the_environment"><a href="#initializing_the_environment" class="header-anchor">Initializing the environment</a></h2>
 <p><code>SimilaritySearch.jl</code> is writen in the <a href="https://julialang.org/">Julia language</a> you need to install it first in order to run them.</p>
 <p>The repo has two files: <code>Project.toml</code> and <code>Manifest.toml</code>, both lists the packages, and their versions, used by the demos; both describe the working environment. Note: it is quite important to use the <code>Manifest.toml</code> since the examples use a modified <a href="https://github.com/sadit/UMAP.jl">UMAP.jl version</a> of the Dillon&#39;s <a href="https://github.com/dillondaudert/UMAP.jl">UMAP.jl</a> that uses <code>SimilaritySearch.jl</code> instead of the <code>NearestNeighborDescend.jl</code>. If you want to change Manifest.toml just make sure you use the correct <code>UMAP.jl</code> &#40;https://github.com/sadit/UMAP.jl&#41;.</p>
-<p>The environment needs to be instantiated and this is done with the following commands:</p>
-<pre><code class="language-bash">&#36;julia --project&#61;.
+<p>The environment needs to be instantiated and this is made with the following commands:</p>
+<pre><code class="language-bash">&#36; julia --project&#61;.
 ...
 
 julia&gt; &#93; instantiate</code></pre>
@@ -110,12 +110,12 @@ julia&gt; using Pluto
 ...
 julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/search.jl&quot;&#41;
 ...</code></pre>
-<p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, this will cause installing and compiling this packages. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
+<p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
 <p>Note: Pluto interface also allows loading notebooks, so you don&#39;t need to exit and re-run to explore examples.</p>
 <h2 id="umap_visualization"><a href="#umap_visualization" class="header-anchor">UMAP visualization</a></h2>
 <p>The UMAP visualization is also a Pluto notebook called <code>visualize-umap.jl</code>. The example looks for umap-projections in sub-directories. Note that even when projections are already created, they are plotted and some datasets contains many points. Please be patient.</p>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 03, 2022.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 04, 2022.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->

@@ -3,7 +3,13 @@
 
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/index.html</loc>
-    <lastmod>2022-03-03</lastmod>
+    <lastmod>2022-03-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tags/index.html</loc>
+    <lastmod>2022-03-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
@@ -15,19 +21,13 @@
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos/index.html</loc>
-    <lastmod>2022-03-03</lastmod>
+    <lastmod>2022-03-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/datasets/index.html</loc>
-    <lastmod>2022-03-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-</url>
-<url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/menu3/index.html</loc>
-    <lastmod>2022-03-02</lastmod>
+    <lastmod>2022-03-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
