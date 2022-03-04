@@ -14,7 +14,7 @@ To make the demonstrations more attractive, we also make use intensive use of `U
 More detailed, UMAP is a non-linear dimension reduction technique that uses the graph of all-nearest neighbors,
 and here is the place for `SimilaritySearch`.
 
-- `Pluto` notebooks require to run firstly an script to work, since they are the more interactive and work with already computed structures.
+- `Pluto` notebooks require to run firstly an script to work, and use already computed structures.
 - `Jupyter` notebooks are less interactive but they are great to visualize directly on github without running.
 
 ~~~
