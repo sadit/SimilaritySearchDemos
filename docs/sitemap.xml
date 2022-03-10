@@ -32,6 +32,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/primegaps-demo.jl</loc>
+    <lastmod>2022-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/wit-demo.jl</loc>
     <lastmod>2022-03-10</lastmod>
     <changefreq>monthly</changefreq>

@@ -68,6 +68,8 @@
 </li>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb">Integers as prime factors</a>: A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> integers; different user defined distances.</p>
 </li>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/">Prime gaps</a>: A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections. A static version of the notebook is available here <a href="/SimilaritySearchDemos/demos-pluto/primegaps-demo.jl/">primegaps-demo.jl</a>, you can run run on mybinder.</p>
+</li>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/">WIT</a>: Pluto notebook to navigate, query, and visualize the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/wit-demo.jl/">wit-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
 </li>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/">Glove</a>: Pluto notebook to navigate and visualize semantic representations &#40;Glove word embeddings&#41;. A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/glove-demo.jl/">glove-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
@@ -93,14 +95,13 @@ julia&gt; &#93; instantiate</code></pre>
 <p>The <code>--project&#61;.</code> tells julia that our enviroment/project is described in the current directory, so you must call this inside the root of the repository. Note: you need an active internet connection to do this.</p>
 <p>The <code>&#93;</code> character inits the package manager of Julia. You can output using ctrl&#43;d &#40;repeat it to get out of Julia&#41;</p>
 <h2 id="index_construction_and_umap_projection"><a href="#index_construction_and_umap_projection" class="header-anchor">Index construction and umap projection</a></h2>
-<p>All examples contains a script <code>create-index-and-umap.jl</code>. It should be run using al your cores, to achieve faster computing times.</p>
-<p>For example you can create MNIST index and UMAP&#39;s embeddings using the following commands</p>
-<pre><code class="language-bash">cd MNIST
-&#36; julia -t64 --project&#61;.. create-index-and-umap.jl
-...</code></pre>
+<p>Some examples contain a <code>create-index-and-umap.jl</code> script. It should be run using all your cores, to achieve faster computing times.</p>
+<pre><code class="language-bash">&#36; julia -t64 --project&#61;.. create-index-and-umap.jl</code></pre>
+<p>or alternatively from the julia&#39;s REPL</p>
+<pre><code class="language-julia">julia&gt; include&#40;&quot;create-index-and-umap.jl&quot;&#41;</code></pre>
 <p>The first time you run a script Julia will load and compile packages, this take some time. The <code>-t64</code> flag says julia to use 64 threads; the <code>--project&#61;..</code> also tells that the parent directory describes the environment &#40;previosly instantiated&#41;.</p>
 <p>The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.</p>
-<p>The script will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;.</p>
+<p>When the <code>create-index-and-umap.jl</code> is present, then it will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;. </p>
 <h2 id="search_demos_and_umap_visualization"><a href="#search_demos_and_umap_visualization" class="header-anchor">Search demos and UMAP visualization</a></h2>
 <p>The demos are <a href="https://github.com/fonsp/Pluto.jl">Pluto</a> notebooks and work over the previously created indexes and projections. Inside the repo&#39;s root run the following commands.</p>
 <pre><code class="language-bash">&#36; julia --project&#61;.
@@ -108,7 +109,7 @@ julia&gt; &#93; instantiate</code></pre>
 
 julia&gt; using Pluto
 ...
-julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/search.jl&quot;&#41;
+julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/wit-demo.jl&quot;&#41;
 ...</code></pre>
 <p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
 <p>Note: Pluto interface also allows loading notebooks, so you don&#39;t need to exit and re-run to explore examples.</p>

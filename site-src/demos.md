@@ -28,6 +28,7 @@ and here is the place for `SimilaritySearch`.
 - [Synthetic 8D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb): A tutorial-like Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.
 - [Synthetic 2D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb): A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.
 - [Integers as prime factors](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb): A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the $n$ integers; different user defined distances.
+- [Prime gaps](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/): A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections. A static version of the notebook is available here [primegaps-demo.jl](/demos-pluto/primegaps-demo.jl/), you can run run on mybinder.
 - [WIT](https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/): Pluto notebook to navigate, query, and visualize the WIT dataset using Clip embeddings (vision \& language). ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps. A static version of the demo is available here [wit-demo](/demos-pluto/wit-demo.jl/), you can also run it on mybinder, but it can take a long time since it requires large downloads.
 - [Glove](https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/): Pluto notebook to navigate and visualize semantic representations (Glove word embeddings). A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps. A static version of the demo is available here [glove-demo](/demos-pluto/glove-demo.jl/), you can also run it on mybinder, but it can take a long time since it requires large downloads.
 - [MNIST](https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/): Pluto notebook to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects (28x28 matrices). It also produces UMAP maps. A static version of the demo is available here [mnist-demo](/demos-pluto/mnist-demo.jl/), you can also run it on mybinder, but it can take a long time since it requires large downloads. 
@@ -62,12 +63,14 @@ The `]` character inits the package manager of Julia. You can output using ctrl+
 ## Index construction and umap projection
 Some examples contain a `create-index-and-umap.jl` script. It should be run using all your cores, to achieve faster computing times.
 
-For example you can create MNIST index and UMAP's embeddings using the following commands
 
 ```bash 
-cd MNIST
 $ julia -t64 --project=.. create-index-and-umap.jl
-...
+```
+or alternatively from the julia's REPL
+
+```
+julia> include("create-index-and-umap.jl")
 ```
 
 The first time you run a script Julia will load and compile packages, this take some time.
