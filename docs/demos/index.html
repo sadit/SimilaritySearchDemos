@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="stylesheet" href="/libs/katex/katex.min.css">
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/katex/katex.min.css">
      
-   <link rel="stylesheet" href="/libs/highlight/github.min.css">
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/highlight/github.min.css">
    
-  <link rel="stylesheet" href="/css/franklin.css">
-<link rel="stylesheet" href="/css/pure.css">
-<link rel="stylesheet" href="/css/side-menu.css">
+  <link rel="stylesheet" href="/SimilaritySearchDemos/css/franklin.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/pure.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/side-menu.css">
 <!-- style adjustments -->
 <style>
 .franklin-content{padding-left:10%;}
@@ -18,7 +18,7 @@
   .header {width: 700px;}
 }
 </style>
-<link rel="icon" href="/assets/favicon.png">
+<link rel="icon" href="/SimilaritySearchDemos/assets/favicon.png">
 
    <title>Demonstrations</title>  
 </head>
@@ -30,10 +30,10 @@
       <div class="pure-menu">
         <a class="pure-menu-heading" href="#">Menu</a>
         <ul class="pure-menu-list">
-          <li class="pure-menu-item "><a href="/" class="pure-menu-link">Home</a></li>
-          <li class="pure-menu-item "><a href="/demos/" class="pure-menu-link">Demonstrations</a></li>
-          <li class="pure-menu-item "><a href="/datasets/" class="pure-menu-link">Datasets</a></li>
-          <li class="pure-menu-item "><a href="/tags/" class="pure-menu-link">Tags</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/" class="pure-menu-link">Home</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/demos/" class="pure-menu-link">Demonstrations</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/datasets/" class="pure-menu-link">Datasets</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tags/" class="pure-menu-link">Tags</a></li>
         </ul>
       </div>
     </div>
@@ -57,7 +57,7 @@
 </ul>
 
 <div style="text-align: center;">
-<img src="/umap.gif" /><img src="/wit.gif" />
+<img src="/SimilaritySearchDemos/umap.gif" /><img src="/SimilaritySearchDemos/wit.gif" />
 </div>
 
 <h2 id="list_of_demonstrations"><a href="#list_of_demonstrations" class="header-anchor">List of demonstrations</a></h2>
@@ -66,13 +66,13 @@
 </li>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb">Synthetic 2D</a>: A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.</p>
 </li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb">Integers as prime factors</a>: A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the \(n\) integers; different user defined distances.</p>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb">Integers as prime factors</a>: A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> integers; different user defined distances.</p>
 </li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/">WIT</a>: Pluto notebook to navigate, query, and visualize the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/demos-pluto/wit-demo.jl/">wit-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/">WIT</a>: Pluto notebook to navigate, query, and visualize the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/wit-demo.jl/">wit-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
 </li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/">Glove</a>: Pluto notebook to navigate and visualize semantic representations &#40;Glove word embeddings&#41;. A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/demos-pluto/glove-demo.jl/">glove-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/">Glove</a>: Pluto notebook to navigate and visualize semantic representations &#40;Glove word embeddings&#41;. A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/glove-demo.jl/">glove-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
 </li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/">MNIST</a>: Pluto notebook to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;. It also produces UMAP maps. A static version of the demo is available here <a href="/demos-pluto/mnist-demo.jl/">mnist-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads. </p>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/">MNIST</a>: Pluto notebook to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo.jl/">mnist-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads. </p>
 </li>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/wiktionary/">Wiktionary</a>: Pluto notebook to navigate and query Wiktionary vocabulary using Levenshtein distance. ~1M words. It also produces UMAP maps.</p>
 </li>
@@ -121,15 +121,15 @@ julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/search.jl&quot;&#41;
 </div><!-- CONTENT ENDS HERE -->
       </div> <!-- end of id=main -->
   </div> <!-- end of id=layout -->
-  <script src="/libs/pure/ui.min.js"></script>
+  <script src="/SimilaritySearchDemos/libs/pure/ui.min.js"></script>
   
-      <script src="/libs/katex/katex.min.js"></script>
-<script src="/libs/katex/auto-render.min.js"></script>
-<script>renderMathInElement(document.body)</script>
+      
+
+
 
   
   
-      <script src="/libs/highlight/highlight.pack.js"></script>
+      <script src="/SimilaritySearchDemos/libs/highlight/highlight.pack.js"></script>
 <script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
 
   
