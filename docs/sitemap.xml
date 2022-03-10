@@ -21,13 +21,31 @@
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos/index.html</loc>
-    <lastmod>2022-03-04</lastmod>
+    <lastmod>2022-03-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/datasets/index.html</loc>
     <lastmod>2022-03-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/wit-demo.jl</loc>
+    <lastmod>2022-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/mnist-demo.jl</loc>
+    <lastmod>2022-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/glove-demo.jl</loc>
+    <lastmod>2022-03-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

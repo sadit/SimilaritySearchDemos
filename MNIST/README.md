@@ -1,13 +1,29 @@
-# Using MNIST
 
-This directory contains the Pluto MNIST searching demo `searchmnist.jl` and a UMAP construction demo `umapmnist.jl`.
+# Visualizing and navigating the MNIST dataset
 
+The dataset is composed of 60K 28x28 hand-written digits in gray scale. This demonstration will generate UMAP visualizations and will let you search for similarity of digits.
 
-Before using both demos you must create the index and the UMAP embeddings running the following script.
+Run using Pluto, use as many threads/cores you have to speed up computations.
+
+## Usage:
+Install the [Julia](https://julialang.org/downloads/) language (recommended v1.6 or later). Also install the Pluto notebook (lastest version)
+
 
 ```
-julia -t64 --project=.. create-index-and-umap.jl
+julia> ] add Pluto
+
+julia> using Pluto
 ```
 
 
-You will be asked to accept MNIST terms and conditions before downloading. The `-t64` specifies the number of threads to use; you can omit for using one thread or specify any other number to take advantage of your hardware.
+Run the notebook with all available cores in your computer (perhaps 2x if your system supports hyperthreading)
+```
+julia> Pluto.run(notebook="mnist-demo.jl", threads=64)  
+```
+
+The demostration retrieves the MNIST dataset, please be calm while these files are retrieved, you may also be asked to accept MNIST terms and conditions before downloading. 
+
+Use the notebook, test and change the code as you wish. Happy searches!
+
+
+
