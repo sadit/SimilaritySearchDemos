@@ -60,7 +60,7 @@ The `]` character inits the package manager of Julia. You can output using ctrl+
 
 
 ## Index construction and umap projection
-All examples contains a script `create-index-and-umap.jl`. It should be run using al your cores, to achieve faster computing times.
+Some examples contain a `create-index-and-umap.jl` script. It should be run using all your cores, to achieve faster computing times.
 
 For example you can create MNIST index and UMAP's embeddings using the following commands
 
@@ -75,7 +75,7 @@ The `-t64` flag says julia to use 64 threads; the `--project=..` also tells that
 
 The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.
 
-The script will download dataset, create the index, and create the UMAP projections (2d and 3d).
+When the `create-index-and-umap.jl` is present, then it will download dataset, create the index, and create the UMAP projections (2d and 3d). 
 ## Search demos and UMAP visualization
 The demos are [Pluto](https://github.com/fonsp/Pluto.jl) notebooks and work over the previously created indexes and projections. Inside the repo's root run the following commands.
 
@@ -86,7 +86,7 @@ $ julia --project=.
 
 julia> using Pluto
 ...
-julia> Pluto.run(notebook="WIT/search.jl")
+julia> Pluto.run(notebook="WIT/wit-demo.jl")
 ...
 ```
 
