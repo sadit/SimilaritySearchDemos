@@ -17,12 +17,6 @@ and here is the place for `SimilaritySearch`.
 - `Pluto` notebooks require to run firstly an script to work, and use already computed structures.
 - `Jupyter` notebooks are less interactive but they are great to visualize directly on github without running.
 
-~~~
-<div style="text-align: center;">
-<img src="/umap.gif" /><img src="/wit.gif" />
-</div>
-~~~
-
 
 ## List of examples
 We separate the examples by the kind of data, since some of the datasets are quite large and will require a lot of computer power. We also list how to connect `SimilaritySearch` with other packages that require solving `k` nearest neighbor queries.
