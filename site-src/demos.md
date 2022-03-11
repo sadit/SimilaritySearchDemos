@@ -46,7 +46,7 @@ The followin examples work on large and high dimensional datasets. It is recomme
 
 TODO: References and cites
 ### Interoperating with other packages
-- Working with `ManifoldLearning`. A Pluto notebook that implements the necessary structs and functions to solve `knn` queries for `ManifoldLearning` algorithms. Two datasets are used, the first corresponding to the scurve and the second is for `Prime gaps` as time series. [ManifoldLearning notebook](/demos-pluto/primegaps-manifoldlearning.jl/), you can run it on mybinder.
+- Working with `ManifoldLearning`. This Pluto [notebook](/demos-pluto/primegaps-manifoldlearning.jl/) implements the necessary structs and functions to solve `knn` queries for `ManifoldLearning` algorithms. We used two datasets, the first corresponding to the scurve and the second is for `Prime gaps` as time series. 
 
 ### Visualization
 
