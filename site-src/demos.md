@@ -5,7 +5,7 @@ hascode = false
 +++
 @def tags = ["Demos", "Glove", "MNIST", "Wiktionary", "WIT", "Emojispace", "UMAP"]
 
-tableofcontents
+\tableofcontents
 
 ## Introduction
 
