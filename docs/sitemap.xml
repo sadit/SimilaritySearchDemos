@@ -21,7 +21,7 @@
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos/index.html</loc>
-    <lastmod>2022-03-10</lastmod>
+    <lastmod>2022-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
@@ -32,8 +32,14 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/primegaps-manifoldlearning.jl</loc>
+    <lastmod>2022-03-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/primegaps-demo.jl</loc>
-    <lastmod>2022-03-10</lastmod>
+    <lastmod>2022-03-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

@@ -24,20 +24,33 @@ and here is the place for `SimilaritySearch`.
 ~~~
 
 
-## List of demonstrations
+## List of examples
+We separate the examples by the kind of data, since some of the datasets are quite large and will require a lot of computer power. We also list how to connect `SimilaritySearch` with other packages that require solving `k` nearest neighbor queries.
+
+### Indexing and visualizing synthetic and easily generated data 
+
 - [Synthetic 8D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb): A tutorial-like Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.
 - [Synthetic 2D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb): A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.
 - [Integers as prime factors](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb): A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the $n$ integers; different user defined distances.
-- [Prime gaps](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/): A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections. A static version of the notebook is available here [primegaps-demo.jl](/demos-pluto/primegaps-demo.jl/), you can run run on mybinder.
+- [Prime gaps](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/): A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections. A static version of the notebook is available here [primegaps-demo.jl](/demos-pluto/primegaps-demo.jl/), you can run it on mybinder.
+
+### Indexing and visualizing real high dimensional datasets
+
+The followin examples work on large and high dimensional datasets. It is recommended to work locally since they could be costly to compute and requires to download large databases.
+
 - [WIT](https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/): Pluto notebook to navigate, query, and visualize the WIT dataset using Clip embeddings (vision \& language). ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps. A static version of the demo is available here [wit-demo](/demos-pluto/wit-demo.jl/), you can also run it on mybinder, but it can take a long time since it requires large downloads.
 - [Glove](https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/): Pluto notebook to navigate and visualize semantic representations (Glove word embeddings). A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps. A static version of the demo is available here [glove-demo](/demos-pluto/glove-demo.jl/), you can also run it on mybinder, but it can take a long time since it requires large downloads.
 - [MNIST](https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/): Pluto notebook to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects (28x28 matrices). It also produces UMAP maps. A static version of the demo is available here [mnist-demo](/demos-pluto/mnist-demo.jl/), you can also run it on mybinder, but it can take a long time since it requires large downloads. 
 - [Wiktionary](https://github.com/sadit/SimilaritySearchDemos/tree/main/wiktionary/): Pluto notebook to navigate and query Wiktionary vocabulary using Levenshtein distance. ~1M words. It also produces UMAP maps.
 - [Emojispace](https://github.com/sadit/SimilaritySearchDemos/tree/main/emojispace/) Produces UMAP maps for a document collection of Twitter's Spanish messages with emojis using bag of words representations. 50K items.
-- The _Visualize UMAP_ Pluto [notebook](https://github.com/sadit/SimilaritySearchDemos/blob/main/visualize-umap.jl). It visualizes UMAP embeddings created by the rest of the demonstrations (Glove, MNIST, Wiktionary, WIT, and emojispace.)
 
 TODO: References and cites
+### Interoperating with other packages
+- Working with `ManifoldLearning`. A Pluto notebook that implements the necessary structs and functions to solve `knn` queries for `ManifoldLearning` algorithms. Two datasets are used, the first corresponding to the scurve and the second is for `Prime gaps` as time series. [ManifoldLearning notebook](/demos-pluto/primegaps-manifoldlearning.jl/), you can run it on mybinder.
 
+### Visualization
+
+Some examples only create indexes and and UMAP projections without any kind of graphical interface. Mostly, because they could require a lot of time, even in multithreading. environments. We develop notebooks for navigation and visualization of the computed structures, in particular, the [visualization notebook](https://github.com/sadit/SimilaritySearchDemos/blob/main/visualize-umap.jl) may work for all saved embeddings for all examples. 
 
 
 ## Initializing the environment
