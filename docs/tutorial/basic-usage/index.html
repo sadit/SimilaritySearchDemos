@@ -85,7 +85,7 @@ SimilaritySearch.SearchGraph{SimilaritySearch.L2Distance, SimilaritySearch.Matri
   db: SimilaritySearch.MatrixDatabase{Matrix{Float64}}
   links: Array{Vector{Int32}}((100000,))
   locks: Array{Base.Threads.SpinLock}((100000,))
-  hints: Array{Int32}((117,)) Int32[752, 951, 1493, 1611, 1878, 1947, 2156, 2189, 2316, 2522  …  6707, 6838, 6898, 6909, 6924, 6929, 7005, 7013, 7070, 7077]
+  hints: Array{Int32}((117,)) Int32[1189, 1498, 1510, 1792, 2266, 2454, 2591, 2786, 2795, 3004  …  6913, 6914, 6997, 7101, 7116, 7123, 7239, 7274, 7296, 7316]
   search_algo: SimilaritySearch.BeamSearch
   neighborhood: SimilaritySearch.Neighborhood
   verbose: Bool true
@@ -112,7 +112,8 @@ end
 <img src="/SimilaritySearchDemos/assets/tutorial/basic-usage/code/output/fig-2d-t1.png" alt="">
 <p>Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored with an automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.</p>
 <h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
-<pre><code class="plaintext code-output">  No Matches in `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+<pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.8.12
 </code></pre>
 
 <div class="page-foot">

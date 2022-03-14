@@ -90,7 +90,7 @@ SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
-7.543537538</code></pre>
+5.846011515</code></pre>
 <p>Using <code>ParetoRadius</code>: which should be faster since it doesn&#39;t needs a costly computation as the recall score but can be easily fool by distances distribution</p>
 <pre><code class="language-julia">G2 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;&#41;
 callbacks2 &#61; SearchGraphCallbacks&#40;hyperparameters&#61;OptimizeParameters&#40;kind&#61;ParetoRadius&#40;&#41;&#41;&#41;  # it uses distances instead of recall, it will be faster but lower quality
@@ -117,7 +117,7 @@ SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
-3.729185335</code></pre>
+3.87048816</code></pre>
 <p>Using <code>MinRecall</code>: It ensures a minimum quality in a small validation set</p>
 <pre><code class="language-julia">G3 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;&#41;
 callbacks3 &#61; SearchGraphCallbacks&#40;hyperparameters&#61;OptimizeParameters&#40;kind&#61;MinRecall&#40;0.95&#41;&#41;&#41;
@@ -144,22 +144,22 @@ SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
-6.797095343</code></pre>
+6.599433916</code></pre>
 <p><code>index&#33;</code>, <code>append&#33;</code>, and <code>push&#33;</code> accept callbacks.</p>
 <h2 id="performances"><a href="#performances" class="header-anchor">Performances</a></h2>
 <p>searching times</p>
 <pre><code class="language-julia">@time I1, D1 &#61; searchbatch&#40;G1, queries, k&#41;
 @time I2, D2 &#61; searchbatch&#40;G2, queries, k&#41;
-@time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">  0.154765 seconds (349.15 k allocations: 17.708 MiB, 81.51% compilation time)
-  0.012624 seconds (9 allocations: 79.094 KiB)
-  0.047241 seconds (7 allocations: 78.312 KiB)
+@time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">  0.201547 seconds (340.26 k allocations: 17.226 MiB, 23.31% gc time, 87.69% compilation time)
+  0.013877 seconds (7 allocations: 78.312 KiB)
+  0.030301 seconds (7 allocations: 78.312 KiB)
 </code></pre>
 <p>the recall &#40;0-1, one is the best&#41;</p>
 <pre><code class="language-julia">@show macrorecall&#40;goldI, I1&#41;
 @show macrorecall&#40;goldI, I2&#41;
-@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">macrorecall(goldI, I1) = 0.7764999999999967
-macrorecall(goldI, I2) = 0.14999999999999955
-macrorecall(goldI, I3) = 0.9449999999999952
+@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">macrorecall(goldI, I1) = 0.6911999999999984
+macrorecall(goldI, I2) = 0.24679999999999963
+macrorecall(goldI, I3) = 0.8753999999999936
 </code></pre>
 <p>here we can see smaller recalls than expected, but we also can appreciate the differences  among them.</p>
 <h2>Optimizing <code>SearchGraph</code> without inserting</h2>
@@ -173,16 +173,16 @@ optimize&#33;&#40;G3, callbacks3.hyperparameters&#41;
 @time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
-  0.026569 seconds (7 allocations: 78.312 KiB)
-  0.012405 seconds (9 allocations: 79.094 KiB)
-  0.032291 seconds (7 allocations: 78.312 KiB)
+  0.021043 seconds (7 allocations: 78.312 KiB)
+  0.013669 seconds (7 allocations: 78.312 KiB)
+  0.031344 seconds (7 allocations: 78.312 KiB)
 </code></pre>
 <p>the recall &#40;<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>, where one is the best&#41;</p>
 <pre><code class="language-julia">@show macrorecall&#40;goldI, I1&#41;
 @show macrorecall&#40;goldI, I2&#41;
-@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">macrorecall(goldI, I1) = 0.7504999999999982
-macrorecall(goldI, I2) = 0.14999999999999955
-macrorecall(goldI, I3) = 0.8619999999999932
+@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">macrorecall(goldI, I1) = 0.6840999999999977
+macrorecall(goldI, I2) = 0.24679999999999963
+macrorecall(goldI, I3) = 0.8606999999999941
 </code></pre>
 <p>The optimization is made using objects of the dataset as queries to compute the objective function.  If it is possible to get external queries to optimize &#40;not in the database and not in the query set,  but also following the expected distrbiution&#41;, they can be provided as follows:</p>
 <pre><code class="language-julia">equeries &#61; MatrixDatabase&#40;rand&#40;dim, 64&#41;&#41;
@@ -199,12 +199,12 @@ optimize&#33;&#40;G3, callbacks3.hyperparameters, queries&#61;equeries&#41;
 @show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
-  0.031221 seconds (7 allocations: 78.312 KiB)
-  0.016789 seconds (7 allocations: 78.312 KiB)
-  0.053531 seconds (7 allocations: 78.312 KiB)
-macrorecall(goldI, I1) = 0.7930999999999971
-macrorecall(goldI, I2) = 0.20379999999999934
-macrorecall(goldI, I3) = 0.9494999999999956
+  0.027483 seconds (7 allocations: 78.312 KiB)
+  0.014905 seconds (7 allocations: 78.312 KiB)
+  0.046765 seconds (7 allocations: 78.312 KiB)
+macrorecall(goldI, I1) = 0.7892999999999954
+macrorecall(goldI, I2) = 0.24669999999999961
+macrorecall(goldI, I3) = 0.9564999999999956
 </code></pre>
 <p>Finally, we create our index with any hyperparameter optimization strategy, and optimize for quality, as follows:</p>
 <pre><code class="language-julia">minrecall &#61; callbacks3.hyperparameters
@@ -221,12 +221,12 @@ optimize&#33;&#40;G3, minrecall, queries&#61;equeries&#41;
 @show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
 SearchModels> reached maximum number of iterations 16
-  0.062447 seconds (7 allocations: 78.312 KiB)
-  0.630025 seconds (3.88 k allocations: 10.867 MiB, 19.02% gc time)
-  0.050130 seconds (7 allocations: 78.312 KiB)
-macrorecall(goldI, I1) = 0.9659999999999956
-macrorecall(goldI, I2) = 0.9822999999999976
-macrorecall(goldI, I3) = 0.9544999999999955
+  0.054412 seconds (7 allocations: 78.312 KiB)
+  0.183549 seconds (4.01 k allocations: 4.135 MiB)
+  0.044613 seconds (7 allocations: 78.312 KiB)
+macrorecall(goldI, I1) = 0.9491999999999948
+macrorecall(goldI, I2) = 0.949399999999994
+macrorecall(goldI, I3) = 0.9505999999999952
 </code></pre>
 <p>Please that faster searches are expected for indexes created for higher qualities since.</p>
 <h2 id="optimizeparameters"><a href="#optimizeparameters" class="header-anchor"><code>OptimizeParameters</code></a></h2>
