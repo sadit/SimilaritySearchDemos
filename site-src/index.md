@@ -3,9 +3,7 @@
 
 # Demonstrations for the `SimilaritySearch.jl` package
 
-Demos for the [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package. We use popular notebooks like Jupyter and Pluto. This notebooks can be accessed from Github's [repository](https://github.com/sadit/SimilaritySearchDemos).
-
-~~~<img src="/umap-primes-1M.png" />~~~
+Demos for the [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package. We use popular notebooks like Jupyter and Pluto. These notebooks can be accessed from Github's [repository](https://github.com/sadit/SimilaritySearchDemos).
 
 
 ## Problem statement

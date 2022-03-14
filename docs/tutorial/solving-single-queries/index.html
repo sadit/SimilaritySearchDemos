@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SimilaritySearchDemos/css/franklin.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/pure.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/side-menu.css">
+<!-- style adjustments -->
+<style>
+.franklin-content{padding-left:10%;}
+@media (min-width: 940px) {
+  .franklin-content {width: 640px; margin-left: 0px; padding-left: 80px;}
+  .header {width: 700px;}
+}
+</style>
+<link rel="icon" href="/SimilaritySearchDemos/assets/favicon.png">
+
+   <title>Solving single queries</title>  
+</head>
+<body>
+  <div id="layout">
+    <!-- Menu toggle / hamburger icon -->
+    <a href="#menu" id="menuLink" class="menu-link"><span></span></a>
+    <div id="menu">
+      <div class="pure-menu">
+        <a class="pure-menu-heading" href="#">Menu</a>
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/" class="pure-menu-link">Home</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tutorials/" class="pure-menu-link">Tutorials</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/demos/" class="pure-menu-link">Demonstrations</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/datasets/" class="pure-menu-link">Datasets</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tags/" class="pure-menu-link">Tags</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="main"> <!-- Closed in foot -->
+      <div class="header">
+        <h1>Solving single queries</h1>
+        <h2>Usage demonstrations of `SimilaritySearch` with synthetic and real world data</h2>
+      </div>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#solving_single_queries_and_knnresult">Solving single queries and <code>KnnResult</code></a></li><li><a href="#knnresult"><code>KnnResult</code></a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
+
+<h2 id="solving_single_queries_and_knnresult"><a href="#solving_single_queries_and_knnresult" class="header-anchor">Solving single queries and <code>KnnResult</code></a></h2>
+<p>By Eric S. Téllez</p>
+<pre><code class="language-julia">using SimilaritySearch</code></pre>
+<p>This example shows how to perform single queries instead of solving a batch of them. This is particularly useful for some applications, and they are also how they are solved, and therefore, it could be used to avoid some memory allocations.</p>
+<pre><code class="language-julia">const dim &#61; 8
+
+db &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 10^4&#41;&#41;
+dist &#61; SqL2Distance&#40;&#41;
+G &#61; SearchGraph&#40;; dist, db&#41;
+index&#33;&#40;G&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+</code></pre>
+<p>Suppose you want to compute some <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> nearest neighbors, for this we use the structure <code>KnnResult</code> which is a priority queue of maximum size <code>k</code>.</p>
+<pre><code class="language-julia">res &#61; KnnResult&#40;3&#41; # allocates memory for 10 nearest neighbors
+for v in rand&#40;db, 10&#41;
+    reuse&#33;&#40;res&#41;  # reuses the res object
+    @time search&#40;G, v, res&#41;
+    @show minimum&#40;res&#41;, maximum&#40;res&#41;, argmin&#40;res&#41;, argmax&#40;res&#41;
+    @show res.id, res.dist
+end</code></pre><pre><code class="plaintext code-output">  0.008702 seconds (6.55 k allocations: 374.779 KiB, 99.70% compilation time)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.8649927f0, 1254, 8194)
+(res.id, res.dist) = (Int32[1254, 9870, 8194], Float32[0.0, 0.73696804, 0.8649927])
+  0.000016 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.6008855f0, 3555, 9450)
+(res.id, res.dist) = (Int32[3555, 4049, 9450], Float32[0.0, 1.4759588, 1.6008855])
+  0.000013 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.5776496f0, 3363, 5024)
+(res.id, res.dist) = (Int32[3363, 1338, 5024], Float32[0.0, 1.3136482, 1.5776496])
+  0.000008 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.2750218f0, 3742, 5790)
+(res.id, res.dist) = (Int32[3742, 7344, 5790], Float32[0.0, 0.9028454, 1.2750218])
+  0.000009 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 2.2221298f0, 4019, 2764)
+(res.id, res.dist) = (Int32[4019, 9665, 2764], Float32[0.0, 1.8540574, 2.2221298])
+  0.000007 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.9896621f0, 7830, 4650)
+(res.id, res.dist) = (Int32[7830, 9512, 4650], Float32[0.0, 0.79707247, 0.9896621])
+  0.000006 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.8961028f0, 547, 9245)
+(res.id, res.dist) = (Int32[547, 4326, 9245], Float32[0.0, 1.3366681, 1.8961028])
+  0.000008 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.5589366f0, 8545, 1168)
+(res.id, res.dist) = (Int32[8545, 3561, 1168], Float32[0.0, 0.53675187, 0.5589366])
+  0.000006 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.0194906f0, 3232, 2806)
+(res.id, res.dist) = (Int32[3232, 8760, 2806], Float32[0.0, 0.91542107, 1.0194906])
+  0.000009 seconds (1 allocation: 48 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.7101679f0, 4918, 7783)
+(res.id, res.dist) = (Int32[4918, 2344, 7783], Float32[0.0, 0.64886296, 0.7101679])
+</code></pre>
+<h2 id="knnresult"><a href="#knnresult" class="header-anchor"><code>KnnResult</code></a></h2>
+<p>This structure is the container for the result and it is also used to specify the number of elements to retrieve. As mentioned before, it is a priority queue</p>
+<pre><code class="language-julia">reuse&#33;&#40;res&#41;
+push&#33;&#40;res, 1, 10&#41;
+push&#33;&#40;res, 2, 9&#41;
+push&#33;&#40;res, 3, 8&#41;
+push&#33;&#40;res, 4, 7&#41;
+push&#33;&#40;res, 6, 5&#41;
+@show res</code></pre><pre><code class="plaintext code-output">res = SimilaritySearch.KnnResult(Int32[6, 4, 3], Float32[5.0, 7.0, 8.0], 3)
+</code></pre>
+<p>it also supports removals</p>
+<pre><code class="language-julia">@show popfirst&#33;&#40;res&#41;
+@show res
+push&#33;&#40;res, 7, 0.1&#41;
+@show res
+pop&#33;&#40;res&#41;
+@show res</code></pre><pre><code class="plaintext code-output">popfirst!(res) = 6 => 5.0f0
+res = SimilaritySearch.KnnResult(Int32[4, 3], Float32[7.0, 8.0], 3)
+res = SimilaritySearch.KnnResult(Int32[7, 4, 3], Float32[0.1, 7.0, 8.0], 3)
+res = SimilaritySearch.KnnResult(Int32[7, 4], Float32[0.1, 7.0], 3)
+</code></pre>
+<p>It can be iterated</p>
+<pre><code class="language-julia">for &#40;id, d&#41; in res
+    @show id &#61;&gt; d
+end</code></pre><pre><code class="plaintext code-output">id => d = 7 => 0.1f0
+id => d = 4 => 7.0f0
+</code></pre>
+<h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
+<pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.8.12
+</code></pre>
+
+<div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 14, 2022.
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+      </div> <!-- end of id=main -->
+  </div> <!-- end of id=layout -->
+  <script src="/SimilaritySearchDemos/libs/pure/ui.min.js"></script>
+  
+      
+
+
+
+  
+  
+      <script src="/SimilaritySearchDemos/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+  
+</body>
+</html>
