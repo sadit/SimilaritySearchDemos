@@ -42,12 +42,11 @@ push!(res, 6, 5)
 @show res
 
 # it also supports removals
-@show popfirst!(res)
-@show res
+@show :popfirst! => popfirst!(res)
 push!(res, 7, 0.1)
-@show res
-pop!(res)
-@show res
+@show :push! => res
+@show :pop! => pop!(res)
+res
 # It can be iterated
 
 for (id, d) in res
