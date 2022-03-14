@@ -19,4 +19,4 @@ TextSearch = "7f6f6c8a-3b03-11e9-223d-e7d88259bd6c"
 UMAP = "c4f8c510-2410-5be4-91d7-4fbaeb39457e"
 
 [compat]
-SimilaritySearch = "0.8.8"
+SimilaritySearch = "0.8.12"
