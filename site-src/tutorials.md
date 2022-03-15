@@ -13,5 +13,5 @@ hascode = false
 - [Solving single queries](/tutorial/solving-single-queries/) - Euclidean distance, Random 
 - [Parallel construction and search](/tutorial/parallel-construction-and-search/) - Euclidean distance, Random 
 8D points.
-- All $k$ nearest neighbors
-- Parallel construction and parallel search
+- [All-KNN](/tutorial/allknn/) - Euclidean distance, Random 
+8D points.

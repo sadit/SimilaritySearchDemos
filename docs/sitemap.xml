@@ -3,7 +3,13 @@
 
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorials/index.html</loc>
-    <lastmod>2022-03-14</lastmod>
+    <lastmod>2022-03-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/allknn/index.html</loc>
+    <lastmod>2022-03-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

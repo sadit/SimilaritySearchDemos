@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/katex/katex.min.css">
+     
+   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/highlight/github.min.css">
+   
+  <link rel="stylesheet" href="/SimilaritySearchDemos/css/franklin.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/pure.css">
+<link rel="stylesheet" href="/SimilaritySearchDemos/css/side-menu.css">
+<!-- style adjustments -->
+<style>
+.franklin-content{padding-left:10%;}
+@media (min-width: 940px) {
+  .franklin-content {width: 640px; margin-left: 0px; padding-left: 80px;}
+  .header {width: 700px;}
+}
+</style>
+<link rel="icon" href="/SimilaritySearchDemos/assets/favicon.png">
+
+   <title>Incremental construction</title>  
+</head>
+<body>
+  <div id="layout">
+    <!-- Menu toggle / hamburger icon -->
+    <a href="#menu" id="menuLink" class="menu-link"><span></span></a>
+    <div id="menu">
+      <div class="pure-menu">
+        <a class="pure-menu-heading" href="#">Menu</a>
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/" class="pure-menu-link">Home</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tutorials/" class="pure-menu-link">Tutorials</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/demos/" class="pure-menu-link">Demonstrations</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/datasets/" class="pure-menu-link">Datasets</a></li>
+          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tags/" class="pure-menu-link">Tags</a></li>
+        </ul>
+      </div>
+    </div>
+    <div id="main"> <!-- Closed in foot -->
+      <div class="header">
+        <h1>Incremental construction</h1>
+        <h2>Usage demonstrations of `SimilaritySearch` with synthetic and real world data</h2>
+      </div>
+
+
+<!-- Content appended here -->
+<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#all-knn">All-KNN</a></li><li><a href="#differences_between_allknng_k_and_searchbatchg_x_k">Differences between <code>allknn&#40;G, k&#41;</code> and <code>searchbatch&#40;G, X, k&#41;</code></a></li><li><a href="#about_the_cost_of_construction_allknn_instead_of_a_brute_force_computation">About the cost of construction &#43; <code>allknn</code> instead of a brute force computation.</a></li><li><a href="#final_notes">Final notes:</a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
+
+<h2 id="all-knn"><a href="#all-knn" class="header-anchor">All-KNN</a></h2>
+<p>By Eric S. Téllez</p>
+<pre><code class="language-julia">using SimilaritySearch</code></pre>
+<p>Computing the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> nearest neighbors of a dataset &#40;all vs all&#41; is a useful task to take knowledge of of a given dataset. This is a core task for some clustering algorithms and non-linear dimensional reduction algorithms.</p>
+<p>Given a metric database <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>X</mi><mo separator="true">,</mo><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(X, dist)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mord mathnormal">i</span><span class="mord mathnormal">s</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span>  and a relatively small <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> value, the goal is to compute <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><mi>k</mi><mi>n</mi><mi>n</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>∣</mo><mi>x</mi><mo>∈</mo><mi>X</mi><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\{ knn(x) \mid x \in X \}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord mathnormal">knn</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mclose">}</span></span></span></span> taking into account that each <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>∈</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">x_i \in X</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6891em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span></span></span></span> and therefore it should be removed from <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mi>n</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">knn</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">knn</span></span></span></span> result.</p>
+<p>Solving fast and accuratelly <code>allknn</code> is the goal of this example.</p>
+<pre><code class="language-julia">const dim &#61; 16
+k &#61; 15
+db &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 10^5&#41;&#41;
+dist &#61; SqL2Distance&#40;&#41;
+G &#61; SearchGraph&#40;; dist, db&#41;
+opt &#61; OptimizeParameters&#40;kind&#61;MinRecall&#40;0.9&#41;&#41;
+itime &#61; @elapsed &#40;index&#33;&#40;G&#41;; optimize&#33;&#40;G, opt&#41;&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+5.660541867</code></pre>
+<p>Now we can solve all <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>nn</p>
+<pre><code class="language-julia">allknntime &#61; @elapsed knns, dists &#61; allknn&#40;G, k; parallel&#61;true&#41;</code></pre><pre><code class="plaintext code-output">4.122189415</code></pre>
+<h2 id="differences_between_allknng_k_and_searchbatchg_x_k"><a href="#differences_between_allknng_k_and_searchbatchg_x_k" class="header-anchor">Differences between <code>allknn&#40;G, k&#41;</code> and <code>searchbatch&#40;G, X, k&#41;</code></a></h2>
+<p>We can solve similarly with <code>searchbatch</code> but self-references should be removed later, and more important, <code>allknn</code> use special pivoting/boosting strategies that yields to faster searches.</p>
+<pre><code class="language-julia">searchtime &#61; @elapsed sknns, sdists &#61; searchbatch&#40;G, db, k; parallel&#61;true&#41;</code></pre><pre><code class="plaintext code-output">4.975990412</code></pre>
+<h2 id="about_the_cost_of_construction_allknn_instead_of_a_brute_force_computation"><a href="#about_the_cost_of_construction_allknn_instead_of_a_brute_force_computation" class="header-anchor">About the cost of construction &#43; <code>allknn</code> instead of a brute force computation.</a></h2>
+<p><code>allknn</code> for <code>ExhaustiveSearch</code> doesn&#39;t perform any optimization but removes self references.</p>
+<pre><code class="language-julia">etime &#61; @elapsed eknns, edists &#61; allknn&#40;ExhaustiveSearch&#40;; db, dist&#41;, k; parallel&#61;true&#41;
+
+display&#40;md&quot;&quot;&quot;
+
+Solution times:
+
+- indexing time: &#36;itime sec.
+- allknn &#40;&#36;allknntime sec.&#41; vs searchbatch &#40;&#36;searchtime sec.&#41;
+- allknn full cost &#40;indexing &#43; allknn&#41;: &#36;&#40;itime &#43; allknntime&#41;
+- allknn full cost &#40;indexing &#43; searchbatch&#41;: &#36;&#40;itime &#43; searchtime&#41;
+- exhaustive allknn: &#36;etime
+
+# Quality
+- macro recall of &#96;allknn&#96;: &#36;&#40;macrorecall&#40;eknns, knns&#41;&#41;
+- macro recall of &#96;searchbatch&#96;: &#36;&#40;macrorecall&#40;eknns, sknns&#41;&#41;
+
+&quot;&quot;&quot;&#41;</code></pre>
+<h2 id="final_notes"><a href="#final_notes" class="header-anchor">Final notes:</a></h2>
+<p>Exhaustive search will fetch the exact solution but it has a higher cost and this could be more notorious as dataset&#39;s size increases. Also note that even when we pass <code>parallel&#61;true</code> it runs in a single thread due to the html generation pipeline.</p>
+<h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
+<pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.8.12
+</code></pre>
+
+<div class="page-foot">
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 15, 2022.
+    Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
+</div>
+</div><!-- CONTENT ENDS HERE -->
+      </div> <!-- end of id=main -->
+  </div> <!-- end of id=layout -->
+  <script src="/SimilaritySearchDemos/libs/pure/ui.min.js"></script>
+  
+      
+
+
+
+  
+  
+      <script src="/SimilaritySearchDemos/libs/highlight/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
+
+  
+</body>
+</html>
