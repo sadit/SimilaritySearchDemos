@@ -1,0 +1,1 @@
+SimilaritySearch.KnnResult(Int32[7, 4], Float32[0.1, 7.0], 3)

@@ -8,13 +8,7 @@
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/incremental-construction/index.html</loc>
-    <lastmod>2022-03-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-</url>
-<url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/automatic-hyperparameter-opt/index.html</loc>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/parallel-construction-and-search/index.html</loc>
     <lastmod>2022-03-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -32,14 +26,20 @@
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tags/index.html</loc>
-    <lastmod>2022-03-04</lastmod>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/basic-usage/index.html</loc>
+    <lastmod>2022-03-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/404/index.html</loc>
-    <lastmod>2022-03-02</lastmod>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/automatic-hyperparameter-opt/index.html</loc>
+    <lastmod>2022-03-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tags/index.html</loc>
+    <lastmod>2022-03-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
@@ -50,14 +50,20 @@
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/datasets/index.html</loc>
-    <lastmod>2022-03-04</lastmod>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/404/index.html</loc>
+    <lastmod>2022-03-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
 <url>
-    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/basic-usage/index.html</loc>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/incremental-construction/index.html</loc>
     <lastmod>2022-03-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/datasets/index.html</loc>
+    <lastmod>2022-03-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

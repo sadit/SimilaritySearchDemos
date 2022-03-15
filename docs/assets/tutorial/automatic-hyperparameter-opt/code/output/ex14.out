@@ -1,0 +1,9 @@
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+SearchModels> reached maximum number of iterations 16
+  0.054412 seconds (7 allocations: 78.312 KiB)
+  0.183549 seconds (4.01 k allocations: 4.135 MiB)
+  0.044613 seconds (7 allocations: 78.312 KiB)
+macrorecall(goldI, I1) = 0.9491999999999948
+macrorecall(goldI, I2) = 0.949399999999994
+macrorecall(goldI, I3) = 0.9505999999999952

@@ -1,0 +1,3 @@
+:popfirst! => popfirst!(res) = :popfirst! => (6 => 5.0f0)
+:push! => res = :push! => SimilaritySearch.KnnResult(Int32[7, 4, 3], Float32[0.1, 7.0, 8.0], 3)
+:pop! => pop!(res) = :pop! => (3 => 8.0f0)

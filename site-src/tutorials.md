@@ -11,6 +11,7 @@ hascode = false
 - [Incremental construction](/tutorial/incremental-construction/)  - Manhattan distance, Random 8D points.
 - [Automatic hyperparameter optimization](/tutorial/automatic-hyperparameter-opt/)  - Squared Euclidean distance Random 16D points.
 - [Solving single queries](/tutorial/solving-single-queries/) - Euclidean distance, Random 
+- [Parallel construction and search](/tutorial/parallel-construction-and-search/) - Euclidean distance, Random 
 8D points.
 - All $k$ nearest neighbors
 - Parallel construction and parallel search
