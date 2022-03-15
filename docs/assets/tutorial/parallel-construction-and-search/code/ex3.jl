@@ -2,6 +2,6 @@
 const dim = 16
 
 db = MatrixDatabase(randn(Float32, dim, 10^5))
-Q = MatrixDatabase(randn(Float32, dim, 10^3))
+Q = MatrixDatabase(randn(Float32, dim, 30))
 dist = SqL2Distance()
 G = SearchGraph(; dist, db)
