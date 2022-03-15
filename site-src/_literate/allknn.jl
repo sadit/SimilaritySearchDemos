@@ -17,33 +17,36 @@ using SimilaritySearch
 # 
 # Solving `allknn` fast and accuratelly is the goal of this example.
 
-const dim = 8
+const dim = 16
 k = 15
 db = MatrixDatabase(randn(Float32, dim, 10^5))
 dist = SqL2Distance()
 G = SearchGraph(; dist, db)
 opt = OptimizeParameters(kind=MinRecall(0.9))
 itime = @elapsed (index!(G); optimize!(G, opt))
-
+nothing # hide
 # Now we can solve all $k$nn
 
 allknntime = @elapsed knns, dists = allknn(G, k; parallel=true)
+nothing # hide
 # ## Differences between `allknn(G, k)` and `searchbatch(G, X, k)`
 #
 # We can solve similarly with `searchbatch` but self-references should be removed later, and more important,
 # `allknn` use special pivoting/boosting strategies that yields to faster searches.
 
 searchtime = @elapsed sknns, sdists = searchbatch(G, db, k; parallel=true)
+nothing # hide
 
 # ## About the cost of construction + `allknn` instead of a brute force computation.
 # `allknn` for `ExhaustiveSearch` doesn't perform any optimization but removes self references.
 etime = @elapsed eknns, edists = allknn(ExhaustiveSearch(; db, dist), k; parallel=true)
+nothing # hide
 
 # ## Comparing solution times
 #
-#indexing time:
+# indexing, allknn, and searchbatch times
+itime, allknntime, searchtime
 
-print("""indexingtime: $itime, allknn ($(allknntime) sec.) vs searchbatch ($(searchtime) sec.)""")
 # full cost `allknn`
 itime + allknntime
 # full cost `searchbatch`

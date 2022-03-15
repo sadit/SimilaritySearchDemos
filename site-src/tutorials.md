@@ -14,4 +14,4 @@ hascode = false
 - [Parallel construction and search](/tutorial/parallel-construction-and-search/) - Euclidean distance, Random 
 8D points.
 - [All-KNN](/tutorial/allknn/) - Euclidean distance, Random 
-8D points.
+16D points.
