@@ -12,10 +12,10 @@ using SimilaritySearch
 # algorithms.
 # 
 # Given a metric database $(X, dist)$  and a relatively small $k$ value, the goal is
-# to compute $\{ knn(x) \mid x \in X \}$ taking into account that each $x_i \in X$ and therefore it should be
-# removed from $knn$ result.
+# to compute $\{ knn(x) \mid x \in X \}$ taking into account that each $x_i \in X$, and therefore, it $x_i$ should be
+# removed from the $i$-th $knn$ result set.
 # 
-# Solving fast and accuratelly `allknn` is the goal of this example.
+# Solving `allknn` fast and accuratelly is the goal of this example.
 
 const dim = 16
 k = 15
@@ -39,7 +39,7 @@ searchtime = @elapsed sknns, sdists = searchbatch(G, db, k; parallel=true)
 # `allknn` for `ExhaustiveSearch` doesn't perform any optimization but removes self references.
 etime = @elapsed eknns, edists = allknn(ExhaustiveSearch(; db, dist), k; parallel=true)
 
-display(md"""
+println(md"""
 
 Solution times:
 
@@ -52,8 +52,8 @@ Solution times:
 ## Quality
 - macro recall of `allknn`: $(macrorecall(eknns, knns))
 - macro recall of `searchbatch`: $(macrorecall(eknns, sknns))
-
 """)
+
 # ## Final notes:
 # Exhaustive search will fetch the exact solution but it has a higher cost and this could be more
 # notorious as dataset's size increases.

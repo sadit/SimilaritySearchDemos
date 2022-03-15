@@ -1,7 +1,7 @@
 # This file was generated, do not modify it. # hide
 etime = @elapsed eknns, edists = allknn(ExhaustiveSearch(; db, dist), k; parallel=true)
 
-display(md"""
+println(md"""
 
 Solution times:
 
@@ -14,5 +14,4 @@ Solution times:
 # Quality
 - macro recall of `allknn`: $(macrorecall(eknns, knns))
 - macro recall of `searchbatch`: $(macrorecall(eknns, sknns))
-
 """)
