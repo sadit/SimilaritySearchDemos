@@ -1,5 +1,5 @@
 # This file was generated, do not modify it. # hide
-const dim = 16
+const dim = 8
 k = 15
 db = MatrixDatabase(randn(Float32, dim, 10^5))
 dist = SqL2Distance()

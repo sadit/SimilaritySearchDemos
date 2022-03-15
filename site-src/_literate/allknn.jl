@@ -17,7 +17,7 @@ using SimilaritySearch
 # 
 # Solving `allknn` fast and accuratelly is the goal of this example.
 
-const dim = 16
+const dim = 8
 k = 15
 db = MatrixDatabase(randn(Float32, dim, 10^5))
 dist = SqL2Distance()
@@ -39,27 +39,29 @@ searchtime = @elapsed sknns, sdists = searchbatch(G, db, k; parallel=true)
 # `allknn` for `ExhaustiveSearch` doesn't perform any optimization but removes self references.
 etime = @elapsed eknns, edists = allknn(ExhaustiveSearch(; db, dist), k; parallel=true)
 
-println(md"""
+# ## Comparing solution times
+#
+#indexing time:
 
-Solution times:
+print("""indexingtime: $itime, allknn ($(allknntime) sec.) vs searchbatch ($(searchtime) sec.)""")
+# full cost `allknn`
+itime + allknntime
+# full cost `searchbatch`
+itime + searchtime
+# exhaustive `allknn`
+etime
 
-- indexing time: $itime sec.
-- allknn ($allknntime sec.) vs searchbatch ($searchtime sec.)
-- allknn full cost (indexing + allknn): $(itime + allknntime)
-- allknn full cost (indexing + searchbatch): $(itime + searchtime)
-- exhaustive allknn: $etime
-
-## Quality
-- macro recall of `allknn`: $(macrorecall(eknns, knns))
-- macro recall of `searchbatch`: $(macrorecall(eknns, sknns))
-""")
+# ## Quality
+# macro recall of `allknn`
+macrorecall(eknns, knns)
+# macro recall of `searchbatch`
+macrorecall(eknns, sknns)
 
 # ## Final notes:
 # Exhaustive search will fetch the exact solution but it has a higher cost and this could be more
 # notorious as dataset's size increases.
 # Also note that even when we pass `parallel=true` it runs in a single thread due to the html generation pipeline.
 #
-
 
 #- Using BeutifulMakie style
 # ## Dependencies
