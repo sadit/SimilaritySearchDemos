@@ -27,11 +27,9 @@ begin
 		PackageSpec(name="Plots", version="1.26"),
 		PackageSpec(name="SimilaritySearch", version="0.8.10"),
 		PackageSpec(name="MLDatasets", version="0.5"),
-		PackageSpec(name="Colors", version="0.12"),
-		PackageSpec(url="https://github.com/sadit/UMAP.jl",
-			rev="0eb586724de41b39dd46f7a3748970c464f57fe3")
+		PackageSpec(name="Colors", version="0.12"),		PackageSpec(url="https://github.com/sadit/UMAP.jl", 			rev="57803f25510ec1b9a1765719bc239b5f2da5b5c7")
 	])
-	
+	# Pkg.develop([PackageSpec(path="../../UMAP.jl")])
 	using PlutoUI, SimilaritySearch, JLD2, DataFrames, HypertextLiteral, LinearAlgebra, Plots, UMAP, MLDatasets
 end
 
@@ -69,35 +67,33 @@ function create_or_load_index(indexfile)
     dist = SqL2Distance()
 	
     if isfile(indexfile)
-		load(indexfile, "index")
+		load(indexfile, "index", "labels")
 	else
 		index = SearchGraph(; dist, db=X)
 		index!(index)
 		optimize!(index, OptimizeParameters(; kind=MinRecall(0.9)))
-		jldsave(indexfile, index=index)
-		index
+		jldsave(indexfile, index=index, labels=y)
+		index, y
 	end
 end
 
 # ╔═╡ de128463-0f01-4f79-9ba2-6b9d172ea871
 function load_or_create_umap_embeddings(index)
-	if isfile(umapfile)
+	if false && isfile(umapfile)
 		e2, e3 = load(umapfile, "e2", "e3")
 		(e2=e2, e3=e3)
 	else
 		#layout = RandomLayout()
-		layout = KnnGraphComponentsLayout()
-		n_neighbors = 50
+		layout = KnnGraphLayout()
+		#layout = SpectralLayout() ## the results are much better with Spectral layout
+		n_neighbors = 100
 		# increase both `n_epochs` and `neg_sample_rate` to improve projection
 		n_epochs = 50
 		neg_sample_rate = 3 # increase this number for 
-		#layout = SpectralLayout() ## the results are much better with Spectral layout
+
 		U2 = UMAP_(index, 2; n_neighbors, neg_sample_rate, layout, n_epochs)  # spectral layout is too slow for the input-data's size
-		L = vcat(U2.embedding, rand(-10f0:eps(Float32):10f0, 1, size(U2.embedding, 2)))
-		layout = PrecomputedLayout(L)
-	    U3 = UMAP_(U2, 3; neg_sample_rate, layout, n_epochs)  # reuses input data
-	    jldsave(umapfile, e2=U2.embedding, e3=U3.embedding)
-		(e2=U2.embedding, e3=U3.embedding)
+		jldsave(umapfile, e2=U2.embedding)
+		U2.embedding
 	end
 end
 
@@ -118,40 +114,30 @@ begin
 	@bind umap_button Button("UMAP projection")
 end
 
+# ╔═╡ 019111c1-c843-49c7-943a-72a7f1e96271
+
+
 # ╔═╡ 7dfd8c7f-1740-4676-b2aa-a3386cc5526a
 begin
 	res = KnnResult(10)
-	index = create_or_load_index(indexfile)
+	index, labels = create_or_load_index(indexfile)
 end
 
 # ╔═╡ 30d206ba-c971-4be1-92aa-653b2f15067f
 begin
 	umap_button
 	
-    #MNIST.download()
-    
-	function normcolors(V)
-	    min_, max_ = extrema(V)
-	    V .= (V .- min_) ./ (max_ - min_)
-	    V .= clamp.(V, 0, 1)
-	end
-
-	function plot_umap()
-		e2, e3 = load_or_create_umap_embeddings(index)
-	
-	    normcolors(@view e3[1, :])
-	    normcolors(@view e3[2, :])
-	    normcolors(@view e3[3, :])
-	
-	    C = [RGB(c...) for c in eachcol(e3)]
+	function plot_umap(index, labels)
+		e2 = load_or_create_umap_embeddings(index)
 		X = @view e2[1, :]
 	    Y = @view e2[2, :]
-		scatter(X, Y, c=C, fmt=:png, size=(600, 600), ma=0.3, a=0.3, ms=1, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
+
+		scatter(X, Y, c=labels, fmt=:png, size=(600, 600), ma=0.3, a=0.3, ms=1, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
+
 	end
 
 	if !first_time[]
-		
-		plot_umap()
+		plot_umap(index, labels)
 	else
 		first_time[] = false
 		md"click the button to compute umap"
@@ -191,17 +177,18 @@ note: the first symbol is the query object and its colors were inverted
 end
 
 # ╔═╡ Cell order:
-# ╟─5cd87a9e-5506-11eb-2744-6f02144677ff
-# ╟─8d7dbebb-55f7-45e8-84e0-e5e5f9502449
-# ╠═b7b1751d-45f5-41ca-876f-d195a6e8abf8
+# ╠═5cd87a9e-5506-11eb-2744-6f02144677ff
+# ╠═8d7dbebb-55f7-45e8-84e0-e5e5f9502449
+# ╟─b7b1751d-45f5-41ca-876f-d195a6e8abf8
 # ╟─c5af5d4a-455b-11eb-0b57-4d8d63615b85
 # ╟─d8d27dbc-5507-11eb-20e9-0f16ddba080b
-# ╟─1ce583f6-54fb-11eb-10ad-b5dc9328ca3b
-# ╟─de128463-0f01-4f79-9ba2-6b9d172ea871
+# ╠═1ce583f6-54fb-11eb-10ad-b5dc9328ca3b
+# ╠═de128463-0f01-4f79-9ba2-6b9d172ea871
 # ╠═040ccbd5-b6c0-4d8d-885e-0849480c0696
-# ╟─64e9d67a-7e16-4421-bc2f-c75d9fa77e31
+# ╠═64e9d67a-7e16-4421-bc2f-c75d9fa77e31
 # ╠═86358eba-9d99-4aff-a611-34e523bbd70a
-# ╟─30d206ba-c971-4be1-92aa-653b2f15067f
+# ╠═30d206ba-c971-4be1-92aa-653b2f15067f
+# ╠═019111c1-c843-49c7-943a-72a7f1e96271
 # ╟─7dfd8c7f-1740-4676-b2aa-a3386cc5526a
 # ╟─5b743cbc-54fa-11eb-1be4-4b619e1070b2
 # ╟─def63abc-45e7-11eb-231d-11d94709acd3
