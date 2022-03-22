@@ -47,11 +47,12 @@
 
 <!-- Content appended here -->
 <div class="franklin-content">
-<div class="franklin-toc"><ol><li><a href="#introduction">Introduction</a></li><li><a href="#list_of_examples">List of examples</a><ol><li><a href="#indexing_and_visualizing_synthetic_and_easily_generated_data">Indexing and visualizing synthetic and easily generated data </a></li><li><a href="#indexing_and_visualizing_real_high_dimensional_datasets">Indexing and visualizing real high dimensional datasets</a></li><li><a href="#interoperating_with_other_packages">Interoperating with other packages</a></li><li><a href="#visualization">Visualization</a></li></ol></li><li><a href="#initializing_the_environment">Initializing the environment</a></li><li><a href="#index_construction_and_umap_projection">Index construction and umap projection</a></li><li><a href="#search_demos_and_umap_visualization">Search demos and UMAP visualization</a></li><li><a href="#umap_visualization">UMAP visualization</a></li></ol></div>
+<div class="franklin-toc"><ol><li><a href="#introduction">Introduction</a></li><li><a href="#list_of_examples">List of examples</a><ol><li><a href="#indexing_and_visualizing_synthetic_and_easily_generated_data">Indexing and visualizing synthetic and easily generated data </a></li><li><a href="#indexing_and_visualizing_real_high_dimensional_datasets">Indexing and visualizing real high dimensional datasets</a></li><li><a href="#interoperating_with_other_packages">Interoperating with other packages</a></li></ol></li><li><a href="#search_demos_and_umap_visualization">Search demos and UMAP visualization</a><ol><li><a href="#visualization">Visualization</a></li></ol></li><li><a href="#initializing_the_environment">Initializing the environment</a></li><li><a href="#index_construction_and_umap_projection">Index construction and umap projection</a></li></ol></div>
 <h2 id="introduction"><a href="#introduction" class="header-anchor">Introduction</a></h2>
-<p>Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use <code>SimilaritySearch</code>. To make the demonstrations more attractive, we also make use intensive use of <code>UMAP</code> visualization. More detailed, UMAP is a non-linear dimension reduction technique that uses the graph of all-nearest neighbors, and here is the place for <code>SimilaritySearch</code>.</p>
+<p>Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use <code>SimilaritySearch</code>. To make the demonstrations more attractive, we also make use intensive use of visualizations based on non-linear dimensional reduction, These kind of algorithms use <code>k</code> nearest neighbors of a database as input to produce the low dimensional embedding. In particular, we use the <a href="https://github.com/sadit/SimSearchManifoldLearning.jl"><code>SimSearchManifoldLearning</code></a> which  provides an implementation of <code>UMAP</code> and also defines the necessary functions to interoperate with the <code>ManifoldLearning</code> package.</p>
+<p>We provide two kinds of examples:</p>
 <ul>
-<li><p><code>Pluto</code> notebooks require to run firstly an script to work, and use already computed structures.</p>
+<li><p><code>Pluto</code> reactive notebooks that can run locally or online.</p>
 </li>
 <li><p><code>Jupyter</code> notebooks are less interactive but they are great to visualize directly on github without running.</p>
 </li>
@@ -89,12 +90,23 @@
 <li><p>Working with <code>ManifoldLearning</code>. This Pluto <a href="/SimilaritySearchDemos/demos-pluto/primegaps-manifoldlearning.jl/">notebook</a> implements the necessary structs and functions to solve <code>knn</code> queries for <code>ManifoldLearning</code> algorithms. We used two datasets, the first corresponding to the scurve and the second is for <code>Prime gaps</code> as time series. </p>
 </li>
 </ul>
+<h2 id="search_demos_and_umap_visualization"><a href="#search_demos_and_umap_visualization" class="header-anchor">Search demos and UMAP visualization</a></h2>
+<p>The demos are <a href="https://github.com/fonsp/Pluto.jl">Pluto</a> notebooks and work over the previously created indexes and projections. Inside the repo&#39;s root run the following commands.</p>
+<pre><code class="language-bash">&#36; julia --project&#61;.
+...
+
+julia&gt; using Pluto
+...
+julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/wit-demo.jl&quot;&#41;
+...</code></pre>
+<p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
+<p>Note: Pluto interface also allows loading notebooks, so you don&#39;t need to exit and re-run to explore examples.</p>
 <h3 id="visualization"><a href="#visualization" class="header-anchor">Visualization</a></h3>
 <p>Some examples only create indexes and and UMAP projections without any kind of graphical interface. Mostly, because they could require a lot of time, even in multithreading. environments. We develop notebooks for navigation and visualization of the computed structures, in particular, the <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/visualize-umap.jl">visualization notebook</a> may work for all saved embeddings for all examples. </p>
 <h2 id="initializing_the_environment"><a href="#initializing_the_environment" class="header-anchor">Initializing the environment</a></h2>
 <p><code>SimilaritySearch.jl</code> is writen in the <a href="https://julialang.org/">Julia language</a> you need to install it first in order to run them.</p>
-<p>The repo has two files: <code>Project.toml</code> and <code>Manifest.toml</code>, both lists the packages, and their versions, used by the demos; both describe the working environment. Note: it is quite important to use the <code>Manifest.toml</code> since the examples use a modified <a href="https://github.com/sadit/UMAP.jl">UMAP.jl version</a> of the Dillon&#39;s <a href="https://github.com/dillondaudert/UMAP.jl">UMAP.jl</a> that uses <code>SimilaritySearch.jl</code> instead of the <code>NearestNeighborDescend.jl</code>. If you want to change Manifest.toml just make sure you use the correct <code>UMAP.jl</code> &#40;https://github.com/sadit/UMAP.jl&#41;.</p>
-<p>The environment needs to be instantiated and this is made with the following commands:</p>
+<p>The goal is that all demostrations contain a full specification of the packages such that they work out-of-the-box. Pluto has this feature natively and Jupyter notebooks use <code>PackageSpec</code> inside each notebook, both describe the working environment. While this may require extra time to always check/install the necessary packages, the examples should work out of the box. This is a work in progress.</p>
+<p>For now, there are a few scripts that should be run, for these the environment needs to be instantiated and this is made with the following commands:</p>
 <pre><code class="language-bash">&#36; julia --project&#61;.
 ...
 
@@ -109,21 +121,8 @@ julia&gt; &#93; instantiate</code></pre>
 <p>The first time you run a script Julia will load and compile packages, this take some time. The <code>-t64</code> flag says julia to use 64 threads; the <code>--project&#61;..</code> also tells that the parent directory describes the environment &#40;previosly instantiated&#41;.</p>
 <p>The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.</p>
 <p>When the <code>create-index-and-umap.jl</code> is present, then it will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;. </p>
-<h2 id="search_demos_and_umap_visualization"><a href="#search_demos_and_umap_visualization" class="header-anchor">Search demos and UMAP visualization</a></h2>
-<p>The demos are <a href="https://github.com/fonsp/Pluto.jl">Pluto</a> notebooks and work over the previously created indexes and projections. Inside the repo&#39;s root run the following commands.</p>
-<pre><code class="language-bash">&#36; julia --project&#61;.
-...
-
-julia&gt; using Pluto
-...
-julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/wit-demo.jl&quot;&#41;
-...</code></pre>
-<p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
-<p>Note: Pluto interface also allows loading notebooks, so you don&#39;t need to exit and re-run to explore examples.</p>
-<h2 id="umap_visualization"><a href="#umap_visualization" class="header-anchor">UMAP visualization</a></h2>
-<p>The UMAP visualization is also a Pluto notebook called <code>visualize-umap.jl</code>. The example looks for umap-projections in sub-directories. Note that even when projections are already created, they are plotted and some datasets contains many points. Please be patient.</p>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 11, 2022.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 22, 2022.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->

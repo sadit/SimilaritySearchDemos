@@ -5,85 +5,72 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 516d87d2-a0a5-11ec-08e6-11f0ecb5892b
-begin
-	using PlutoUI, SimilaritySearch, HypertextLiteral, LinearAlgebra, StatsPlots, ManifoldLearning, Primes, StatsAPI, KernelDensity, Interpolations
-end
+using PlutoUI, HypertextLiteral, LinearAlgebra, StatsPlots, ManifoldLearning, Primes, SimSearchManifoldLearning
+
 
 # ╔═╡ cb17b93d-41ec-491c-afbe-2d7e04ce8418
 md"""
-# This example shows how to use `SimilaritySearch` with the `ManifoldLearning` package
+# Using `SimilaritySearch` and `ManifoldLearning` 
+
+This example shows how to use `SimilaritySearch` with the `ManifoldLearning` package through the `SimSearchManifoldLearning` package.
+
+We will reproduce two small examples, please check the documentation of the respective packages to get access to more keywords and features.
 """
 
 # ╔═╡ 2960e610-d0b3-426a-aedb-24f33cf92d59
 md"""
 ## Parameters to generate the dataset
 
-Please feel free to move all parameters and look what happens with the visualization
+Please feel free to play with all parameters and look at what happens with the visualization
 """
-
-# ╔═╡ 170e159a-b121-40f1-8a96-c4a527d1c4e1
-begin # index and dataset parameters
-	dist = L2Distance() # L2Distance, CosineDistance
-	parallel = false  # small datasets will not take real advantage
-	parallel_block = 256
-end
-
-# ╔═╡ 7c838cff-a64f-40a1-9448-1a7700c605a4
-md"""
-## Implementing the `ManifoldLearning` interface for solving $k$ nearest neighbors
-
-We will implement the $k$ nearest neighbors interface to use `SimilaritySearch` with `ManifoldLearning`. `SimilaritySearch` is not designed to solve `range` queries, and therefore `inrange` function is not implemented.
-
-Note: Currently, `ManifoldLearning` only accepts real-valued matrices as input. To accept other kinds of objects (strings, sets, clouds of points, etc.) you can pass a fake input using them as identifiers (1:n) that index the real dataset (for example, stored in the SearchGraphIndex).
-
-"""
-
-# ╔═╡ 1f3764a3-fd92-4ef1-abe4-d7f316d1750c
-begin
-	struct SearchGraphIndex{T<:SearchGraph} <: ManifoldLearning.AbstractNearestNeighbors
-		index::T  # A simple wrapper
-	end
-	
-	Base.size(G::SearchGraphIndex) = (length(G.index[1]), length(G.index))
-
-	function StatsAPI.fit(::Type{<:SearchGraphIndex}, X)
-		G = SearchGraph(; dist=L2Distance(), db=MatrixDatabase(X))
-		# perform a parallel construction using 512-blocks
-		index!(G; parallel_block)
-		# optimize!(G, OptimizeParameters(; kind=MinRecall(0.9)))
-		SearchGraphIndex(G)
-	end
-		
-	function ManifoldLearning.knn(G::SearchGraphIndex, X::AbstractMatrix{T}, k::Integer; self::Bool=false, weights::Bool=true, kwargs...) where {T<:Real}
-	    m, n = size(X)
-	    @assert n > k "Number of observations must be more than $(k)"
-		Q = MatrixDatabase(X)
-		KNNS = [KnnResult(10) for _ in 1:length(Q)]
-	    @info @elapsed searchbatch(G.index, Q, KNNS; parallel)
-		@info "finished all-knn search"
-		E = [res.id for res in KNNS] # reusing the internal structure
-		# `KnnResult` distances are always Float32
-		W = weights ? [res.dist for res in KNNS] : Vector{Vector{Float32}}(undef, 0)
-		E, W
-	end
-end
 
 # ╔═╡ e2192545-29ed-481d-8bbf-3abe58435f8f
 md"""
-# Reproducing the documentation example
+# Reproducing the `ManifoldLearning` documentation example
 """
 
 # ╔═╡ 2a48c055-1307-40ce-9015-cf746af6c851
 begin
 	X, L = ManifoldLearning.scurve(segments=5)
-	scatter3d(X[1,:], X[2,:], X[3,:], c=L, palette=cgrad(:default), ms=2.5, leg=:none, camera=(10,10))
+	scatter3d(X[1,:], X[2,:], X[3,:], c=L, palette=cgrad(:darktest), ms=2.5, leg=:none, camera=(10,10))
 end
+
+# ╔═╡ 3aec5b93-4cb5-4c73-89b1-d5446dc0551f
+md"""
+`SimilaritySearch` support exact and approximate algorithms to solve `k` nearest neighbors. Also, it supports different metrics. For instance, let see how the selection of the distance function modifies the projection.
+
+## Manhattan distance ($L_1$)
+"""
 
 # ╔═╡ 8a0a55c0-dd37-4357-b3fe-67cc5abdf0d1
 begin
-	Y = predict(fit(Isomap, X, nntype=SearchGraphIndex))
+	Y = predict(fit(Isomap, X, nntype=ApproxManhattan))
 	# Y = predict(fit(Isomap, X))
-	scatter(Y[1,:], Y[2,:], c=L, palette=cgrad(:default), ms=2.5, leg=:none)
+	scatter(Y[1,:], Y[2,:], c=L, palette=cgrad(:darktest), ms=2.5, leg=:none)
+end
+
+# ╔═╡ fd48fbcb-6902-483b-b7aa-bcd1d269072b
+md"""
+## Euclidean distance ($L_2$)
+"""
+
+# ╔═╡ d45dd0f0-a17f-4c2a-935a-07acfa4c43b8
+begin
+	E = predict(fit(Isomap, X, nntype=ApproxEuclidean))
+	# Y = predict(fit(Isomap, X))
+	scatter(E[1,:], E[2,:], c=L, palette=cgrad(:darktest), ms=2.5, leg=:none)
+end
+
+# ╔═╡ 28046821-213e-4406-9415-c738fdb75f22
+md"""
+## Chebyshev distance ($L_\infty$)
+"""
+
+# ╔═╡ 53720143-2416-4394-bb81-bb010dadee44
+begin
+	Ch = predict(fit(Isomap, X, nntype=ApproxChebyshev))
+	# Y = predict(fit(Isomap, X))
+	scatter(Ch[1,:], Ch[2,:], c=L, palette=cgrad(:darktest), ms=2.5, leg=:none)
 end
 
 # ╔═╡ c70e35ab-d85b-472f-b4f6-85d8836aa1a5
@@ -114,8 +101,8 @@ end
 # ╔═╡ aaabaa89-67db-4618-a85f-f4bec4d723ff
 begin
 	P = create_database_primes_diff(3 * 10^4, 5)
-	primesgap = fit(LLE, P; k=12, maxoutdim=2, nntype=SearchGraphIndex, tol=1e-5)
-	#primesgap = fit(Isomap, P; k=12, maxoutdim=2, nntype=SearchGraphIndex)
+	# or LLE
+	primesgap = fit(Isomap, P; k=8, maxoutdim=2, nntype=ApproxEuclidean)
 end
 
 # ╔═╡ 0047f9ae-cca6-41a0-bdd6-3e785326b865
@@ -125,29 +112,26 @@ let
 	scatter(x, y, fmt=:png, size=(600, 300), ma=0.3, a=0.3, ms=1, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
 end
 
+# ╔═╡ 27b0e22a-0edd-4492-b73d-f59ae4925670
+# This example shows how to use `SimilaritySearch` with the `ManifoldLearning` package
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 ManifoldLearning = "06eb3307-b2af-5a2a-abea-d33192699d32"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Primes = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
-SimilaritySearch = "053f045d-5466-53fd-b400-a066f88fe02a"
-StatsAPI = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
+SimSearchManifoldLearning = "ca7ab67e-1aa0-420a-90d9-eb5aef468722"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 HypertextLiteral = "~0.9.3"
-Interpolations = "~0.13.5"
-KernelDensity = "~0.6.3"
 ManifoldLearning = "~0.9.0"
 PlutoUI = "~0.7.37"
 Primes = "~0.5.1"
-SimilaritySearch = "~0.8.10"
-StatsAPI = "~1.2.1"
+SimSearchManifoldLearning = "~0.2.0"
 StatsPlots = "~0.14.33"
 """
 
@@ -187,15 +171,21 @@ version = "0.2.0"
 
 [[deps.Arpack]]
 deps = ["Arpack_jll", "Libdl", "LinearAlgebra", "Logging"]
-git-tree-sha1 = "91ca22c4b8437da89b030f08d71db55a379ce958"
+git-tree-sha1 = "288d58589d4249a63095f3f41ece91bf34c32c19"
 uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
-version = "0.5.3"
+version = "0.5.0"
 
 [[deps.Arpack_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "OpenBLAS_jll", "Pkg"]
-git-tree-sha1 = "5ba6c757e8feccf03a1554dfaf3e26b3cfc7fd5e"
+git-tree-sha1 = "4c31b0101997beb213a9e6c39116b052e73ca38c"
 uuid = "68821587-b530-5797-8361-c406ea357684"
-version = "3.5.1+1"
+version = "3.8.0+0"
+
+[[deps.ArrayInterface]]
+deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
+git-tree-sha1 = "6e8fada11bb015ecf9263f64b156f98b546918c7"
+uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
+version = "5.0.5"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -229,9 +219,9 @@ version = "0.5.1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "c9a6160317d1abe9c44b3beb367fd448117679ca"
+git-tree-sha1 = "9950387274246d08af38f6eef8cb5480862a435f"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.13.0"
+version = "1.14.0"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
@@ -267,6 +257,12 @@ version = "0.12.8"
 git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
 uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 version = "1.0.2"
+
+[[deps.CommonSubexpressions]]
+deps = ["MacroTools", "Test"]
+git-tree-sha1 = "7b8a93dba8af7e3b42fecabf646260105ac373f7"
+uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
+version = "0.3.0"
 
 [[deps.Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
@@ -320,6 +316,18 @@ git-tree-sha1 = "80c3e8639e3353e5d2912fb3a1916b8455e2494b"
 uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
 version = "0.4.0"
 
+[[deps.DiffResults]]
+deps = ["StaticArrays"]
+git-tree-sha1 = "c18e98cba888c6c25d1c3b048e4b3380ca956805"
+uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
+version = "1.0.3"
+
+[[deps.DiffRules]]
+deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
+git-tree-sha1 = "dd933c4ef7b4c270aacd4eb88fa64c147492acf0"
+uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
+version = "1.10.0"
+
 [[deps.Distances]]
 deps = ["LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI"]
 git-tree-sha1 = "3258d0659f812acde79e8a74b11f17ac06d0ca04"
@@ -332,9 +340,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Distributions]]
 deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "9d3c0c762d4666db9187f363a76b47f7346e673b"
+git-tree-sha1 = "c43e992f186abaf9965cc45e372f4693b7754b22"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.49"
+version = "0.25.52"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -390,9 +398,15 @@ version = "3.3.10+0"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
-git-tree-sha1 = "0dbc5b9683245f905993b51d2814202d75b34f1a"
+git-tree-sha1 = "246621d23d1f43e3b9c368bf3b72b2331a27c286"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.13.1"
+version = "0.13.2"
+
+[[deps.FiniteDiff]]
+deps = ["ArrayInterface", "LinearAlgebra", "Requires", "SparseArrays", "StaticArrays"]
+git-tree-sha1 = "56956d1e4c1221000b7781104c58c34019792951"
+uuid = "6a86dc24-6348-571c-b903-95158fe2bd41"
+version = "2.11.0"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -411,6 +425,12 @@ deps = ["Printf"]
 git-tree-sha1 = "8339d61043228fdd3eb658d86c926cb282ae72a8"
 uuid = "59287772-0a20-5a39-b81b-1366585eb4c0"
 version = "0.4.2"
+
+[[deps.ForwardDiff]]
+deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions", "StaticArrays"]
+git-tree-sha1 = "1bd6fc0c344fc0cbee1f42f8d2e7ec8253dda2d2"
+uuid = "f6369f11-7733-5829-9624-2563aa707210"
+version = "0.10.25"
 
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Pkg", "Zlib_jll"]
@@ -511,6 +531,11 @@ deps = ["Logging", "Random"]
 git-tree-sha1 = "f7be53659ab06ddc986428d3a9dcc95f6fa6705a"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "0.2.2"
+
+[[deps.IfElse]]
+git-tree-sha1 = "debdd00ffef04665ccbb3e150747a77560e8fad1"
+uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
+version = "0.1.1"
 
 [[deps.Inflate]]
 git-tree-sha1 = "f5fc07d4e706b84f72d54eedcc1c13d92fb0871c"
@@ -695,12 +720,18 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
 deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "3f7cb7157ef860c637f3f4929c8ed5d9716933c6"
+git-tree-sha1 = "58f25e56b706f95125dcb796f39e1fb01d913a71"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.7"
+version = "0.3.10"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[deps.LsqFit]]
+deps = ["Distributions", "ForwardDiff", "LinearAlgebra", "NLSolversBase", "OptimBase", "Random", "StatsBase"]
+git-tree-sha1 = "91aa1442e63a77f101aff01dec5a821a17f43922"
+uuid = "2fda8390-95c7-5789-9bda-21331edee243"
+version = "0.12.1"
 
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
@@ -757,10 +788,16 @@ git-tree-sha1 = "7008a3412d823e29d370ddc77411d593bd8a3d03"
 uuid = "6f286f6a-111f-5878-ab1e-185364afe411"
 version = "0.9.1"
 
+[[deps.NLSolversBase]]
+deps = ["DiffResults", "Distributed", "FiniteDiff", "ForwardDiff"]
+git-tree-sha1 = "50310f934e55e5ca3912fb941dec199b49ca9b68"
+uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
+version = "7.8.2"
+
 [[deps.NaNMath]]
-git-tree-sha1 = "737a5957f387b17e74d4ad2f440eb330b39a62c5"
+git-tree-sha1 = "b086b7ea07f8e38cf122f5016af580881ac914fe"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
-version = "1.0.0"
+version = "0.3.7"
 
 [[deps.NearestNeighbors]]
 deps = ["Distances", "StaticArrays"]
@@ -798,15 +835,21 @@ uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "648107615c15d4e09f7eca16307bc821c1f718d8"
+git-tree-sha1 = "ab05aa4cc89736e95915b01e7279e61b1bfe33b8"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "1.1.13+0"
+version = "1.1.14+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "13652491f6856acfd2db29360e1bbcd4565d04f1"
 uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
 version = "0.5.5+0"
+
+[[deps.OptimBase]]
+deps = ["NLSolversBase", "Printf", "Reexport"]
+git-tree-sha1 = "9cb1fee807b599b5f803809e85c81b582d2009d6"
+uuid = "87e2bd06-a317-5318-96d9-3ecbac512eee"
+version = "2.0.2"
 
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -827,9 +870,9 @@ version = "8.44.0+0"
 
 [[deps.PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "7e2166042d1698b6072352c74cfd1fca2a968253"
+git-tree-sha1 = "e8185b83b9fc56eb6456200e873ce598ebc7f262"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.6"
+version = "0.11.7"
 
 [[deps.Parameters]]
 deps = ["OrderedCollections", "UnPack"]
@@ -861,15 +904,15 @@ version = "2.0.1"
 
 [[deps.PlotUtils]]
 deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Statistics"]
-git-tree-sha1 = "6f1b25e8ea06279b5689263cc538f51331d7ca17"
+git-tree-sha1 = "bb16469fd5224100e422f0b027d26c5a25de1200"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.1.3"
+version = "1.2.0"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "GeometryBasics", "JSON", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "2f041202ab4e47f4a3465e3993929538ea71bd48"
+git-tree-sha1 = "1690b713c3b460c955a2957cd7487b1b725878a7"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.26.1"
+version = "1.27.1"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
@@ -992,11 +1035,17 @@ git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
 uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
 version = "1.0.3"
 
+[[deps.SimSearchManifoldLearning]]
+deps = ["Arpack", "Distances", "LinearAlgebra", "LsqFit", "ManifoldLearning", "Random", "SimilaritySearch", "SparseArrays", "StatsAPI"]
+git-tree-sha1 = "42451632bfe0dae33984a9ae54368714aca93277"
+uuid = "ca7ab67e-1aa0-420a-90d9-eb5aef468722"
+version = "0.2.0"
+
 [[deps.SimilaritySearch]]
 deps = ["Dates", "Distances", "Intersections", "LinearAlgebra", "Parameters", "Random", "SearchModels", "StatsBase", "Test"]
-git-tree-sha1 = "d5415f286c8e0329c46159328606139ff5a3b5dc"
+git-tree-sha1 = "0b3ef3644550da96e91e3d1b3bc01f8b8391b34c"
 uuid = "053f045d-5466-53fd-b400-a066f88fe02a"
-version = "0.8.10"
+version = "0.8.12"
 
 [[deps.SimpleTraits]]
 deps = ["InteractiveUtils", "MacroTools"]
@@ -1023,11 +1072,17 @@ git-tree-sha1 = "5ba658aeecaaf96923dce0da9e703bd1fe7666f9"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
 version = "2.1.4"
 
+[[deps.Static]]
+deps = ["IfElse"]
+git-tree-sha1 = "87e9954dfa33fd145694e42337bdd3d5b07021a6"
+uuid = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
+version = "0.6.0"
+
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "74fb527333e72ada2dd9ef77d98e4991fb185f04"
+git-tree-sha1 = "6976fab022fea2ffea3d945159317556e5dad87c"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.4.1"
+version = "1.4.2"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -1356,15 +1411,18 @@ version = "0.9.1+5"
 # ╠═516d87d2-a0a5-11ec-08e6-11f0ecb5892b
 # ╟─cb17b93d-41ec-491c-afbe-2d7e04ce8418
 # ╟─2960e610-d0b3-426a-aedb-24f33cf92d59
-# ╠═170e159a-b121-40f1-8a96-c4a527d1c4e1
-# ╟─7c838cff-a64f-40a1-9448-1a7700c605a4
-# ╠═1f3764a3-fd92-4ef1-abe4-d7f316d1750c
 # ╟─e2192545-29ed-481d-8bbf-3abe58435f8f
 # ╠═2a48c055-1307-40ce-9015-cf746af6c851
+# ╟─3aec5b93-4cb5-4c73-89b1-d5446dc0551f
 # ╠═8a0a55c0-dd37-4357-b3fe-67cc5abdf0d1
+# ╟─fd48fbcb-6902-483b-b7aa-bcd1d269072b
+# ╠═d45dd0f0-a17f-4c2a-935a-07acfa4c43b8
+# ╟─28046821-213e-4406-9415-c738fdb75f22
+# ╠═53720143-2416-4394-bb81-bb010dadee44
 # ╟─c70e35ab-d85b-472f-b4f6-85d8836aa1a5
 # ╠═d8dc36b4-87c3-4bb6-9bea-a1e4b541043d
 # ╠═aaabaa89-67db-4618-a85f-f4bec4d723ff
 # ╠═0047f9ae-cca6-41a0-bdd6-3e785326b865
+# ╠═27b0e22a-0edd-4492-b73d-f59ae4925670
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
