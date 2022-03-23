@@ -51,7 +51,7 @@
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos/index.html</loc>
-    <lastmod>2022-03-22</lastmod>
+    <lastmod>2022-03-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>
@@ -98,6 +98,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/emojispace-demo.jl</loc>
+    <lastmod>2022-03-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/mnist-demo.jl</loc>
     <lastmod>2022-03-22</lastmod>
     <changefreq>monthly</changefreq>
@@ -106,6 +112,12 @@
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/glove-demo.jl</loc>
     <lastmod>2022-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos-pluto/mnist-demo-iterated.jl</loc>
+    <lastmod>2022-03-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

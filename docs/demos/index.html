@@ -65,26 +65,56 @@
 </li>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb">Synthetic 2D</a>: A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.</p>
 </li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb">Integers as prime factors</a>: A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> integers; different user defined distances.</p>
-</li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/">Prime gaps</a>: A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections. A static version of the notebook is available here <a href="/SimilaritySearchDemos/demos-pluto/primegaps-demo.jl/">primegaps-demo.jl</a>, you can run it on mybinder.</p>
-</li>
 </ul>
 <h3 id="indexing_and_visualizing_real_high_dimensional_datasets"><a href="#indexing_and_visualizing_real_high_dimensional_datasets" class="header-anchor">Indexing and visualizing real high dimensional datasets</a></h3>
-<p>The followin examples work on large and high dimensional datasets. It is recommended to work locally since they could be costly to compute and requires to download large databases.</p>
+<p>All Pluto notebooks can work on mybinder and run without install anything in your computer, however, some examples uses large datasets and some of them require high computational resources &#40;as many threads as you have&#41;; they could run slow in cloud computing services.</p>
 <ul>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/WIT/">WIT</a>: Pluto notebook to navigate, query, and visualize the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/wit-demo.jl/">wit-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
-</li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/Glove/">Glove</a>: Pluto notebook to navigate and visualize semantic representations &#40;Glove word embeddings&#41;. A vocabulary of 400K 100-dimensional vectors; cosine distance. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/glove-demo.jl/">glove-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads.</p>
-</li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/MNIST/">MNIST</a>: Pluto notebook to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;. It also produces UMAP maps. A static version of the demo is available here <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo.jl/">mnist-demo</a>, you can also run it on mybinder, but it can take a long time since it requires large downloads. </p>
-</li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/wiktionary/">Wiktionary</a>: Pluto notebook to navigate and query Wiktionary vocabulary using Levenshtein distance  &#40;~1M words&#41;.<a href="/SimilaritySearchDemos/demos-pluto/wiktionary-demo.jl/">Wiktionary-demo</a></p>
-</li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/tree/main/emojispace/">Emojispace</a> Produces UMAP maps for a document collection of Twitter&#39;s Spanish messages with emojis using bag of words representations. 50K items.</p>
+<li><p>Integers as prime factors: A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> integers; different user defined distances.</p>
+<ul>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb">Primes</a></p>
 </li>
 </ul>
-<p>TODO: References and cites</p>
+</li>
+<li><p>Prime gaps: A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections.</p>
+<ul>
+<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/primegaps-demo.jl/">Prime Gaps demo</a>. It generates the dataset.</p>
+</li>
+</ul>
+</li>
+<li><p>WIT: Pluto notebook to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. </p>
+<ul>
+<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/wit-demo.jl/">WIT demo</a>.</p>
+</li>
+</ul>
+</li>
+<li><p>Glove: Pluto notebook to navigate and visualize semantic representations &#40;Glove word embeddings&#41;. The vocabulary consists of 400K tokens represented as 100-dimensional vectors under the cosine distance.</p>
+<ul>
+<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/glove-demo.jl/">GloVe demo</a>.</p>
+</li>
+</ul>
+</li>
+<li><p>MNIST: Pluto notebooks to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;.</p>
+<ul>
+<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo.jl/">MNIST demo</a>.</p>
+</li>
+<li><p>Animation of UMAP projections <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo-iterated.jl/">MNIST animated projections</a>.</p>
+</li>
+</ul>
+</li>
+<li><p>Wiktionary: Pluto notebook to navigate and query the Wiktionary vocabulary using Levenshtein distance  &#40;~1M words&#41;</p>
+<ul>
+<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/wiktionary-demo.jl/">Wiktionary demo</a>.</p>
+</li>
+</ul>
+</li>
+<li><p>Tweets: Pluto notebook to visualize a collection of Twitter&#39;s Spanish messages with emojis using bag of words representations. 50K items.</p>
+<ul>
+<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/emojispace-demo.jl/">Emojispace demo</a>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>TODO: Cites and references</p>
 <h3 id="interoperating_with_other_packages"><a href="#interoperating_with_other_packages" class="header-anchor">Interoperating with other packages</a></h3>
 <ul>
 <li><p>Working with <code>ManifoldLearning</code>. This Pluto <a href="/SimilaritySearchDemos/demos-pluto/primegaps-manifoldlearning.jl/">notebook</a> implements the necessary structs and functions to solve <code>knn</code> queries for <code>ManifoldLearning</code> algorithms. We used two datasets, the first corresponding to the scurve and the second is for <code>Prime gaps</code> as time series. </p>
@@ -122,7 +152,7 @@ julia&gt; &#93; instantiate</code></pre>
 <p>The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.</p>
 <p>When the <code>create-index-and-umap.jl</code> is present, then it will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;. </p>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 22, 2022.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 23, 2022.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->
