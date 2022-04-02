@@ -43,7 +43,7 @@ I, D = searchbatch(G, Q, k)
 # for the $i$-th colum (object) in `Q`. The matrix `D` stores the the corresponding distances for
 # each identifier in `I`.
 # 
-# ## Visualizing what we just do it
+# ## Visualizing what we just did
 
 using Plots
 @views scatter(db.matrix[1, :], db.matrix[2, :], fmt=:png, size=(600, 600), color=:cyan, ma=0.3, a=0.3, ms=1, msw=0, label="")
@@ -59,7 +59,7 @@ savefig(joinpath(@OUTPUT, "fig-2d-t1.png")) # hide
 # \fig{fig-2d-t1.png}
 #
 # Cyan points identify the dataset while starts are query points. The nearest neighbor points
-# are colored with an automatically and can repeat, but they come quite close to query points,
+# are colored automatically and can repeat, but they come quite close to query points,
 # in dense areas they are even hidding them.
 
 #- Using BeutifulMakie style
