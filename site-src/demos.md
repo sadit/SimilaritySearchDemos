@@ -10,7 +10,7 @@ hascode = false
 ## Introduction
 
 Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use `SimilaritySearch`.
-To make the demonstrations more attractive, we also make use intensive use of visualizations based on non-linear dimensional reduction,
+To make the demonstrations more attractive, we also make intensive use of visualizations based on non-linear dimensional reduction,
 These kind of algorithms use `k` nearest neighbors of a database as input to produce the low dimensional embedding.
 In particular, we use the [`SimSearchManifoldLearning`](https://github.com/sadit/SimSearchManifoldLearning.jl) which 
 provides an implementation of `UMAP` and also defines the necessary functions to interoperate with the `ManifoldLearning` package.
@@ -26,7 +26,7 @@ We separate the examples by the kind of data, since some of the datasets are qui
 ### Indexing and visualizing synthetic and easily generated data 
 
 - [Synthetic 8D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb): A tutorial-like Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.
-- [Synthetic 2D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb): A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.
+- [Synthetic 2D](https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb): A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 2-dimensional dataset under L2.
 
 ### Indexing and visualizing real high dimensional datasets
 
