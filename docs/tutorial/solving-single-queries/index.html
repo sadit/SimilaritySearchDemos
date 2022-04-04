@@ -51,7 +51,7 @@
 <h2 id="solving_single_queries_and_knnresult"><a href="#solving_single_queries_and_knnresult" class="header-anchor">Solving single queries and <code>KnnResult</code></a></h2>
 <p>By Eric S. Téllez</p>
 <pre><code class="language-julia">using SimilaritySearch</code></pre>
-<p>This example shows how to perform single queries instead of solving a batch of them. This is particularly useful for some applications, and they are also how they are solved, and therefore, it could be used to avoid some memory allocations.</p>
+<p>This example shows how to perform single queries instead of solving a batch of them. This is particularly useful for some applications, and we also show how they are solved, which could be used to avoid some memory allocations.</p>
 <pre><code class="language-julia">const dim &#61; 8
 
 db &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 10^4&#41;&#41;

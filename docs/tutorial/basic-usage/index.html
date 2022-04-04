@@ -46,7 +46,7 @@
 
 
 <!-- Content appended here -->
-<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#using_the_similaritysearch_package">Using the <code>SimilaritySearch</code> package</a></li><li><a href="#visualizing_what_we_just_do_it">Visualizing what we just do it</a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
+<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#using_the_similaritysearch_package">Using the <code>SimilaritySearch</code> package</a></li><li><a href="#visualizing_what_we_just_did">Visualizing what we just did</a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
 
 <h2 id="using_the_similaritysearch_package"><a href="#using_the_similaritysearch_package" class="header-anchor">Using the <code>SimilaritySearch</code> package</a></h2>
 <p>By Eric S. Téllez</p>
@@ -100,7 +100,7 @@ I, D &#61; searchbatch&#40;G, Q, k&#41;
 typeof(D) => size(D) = Matrix{Float32} => (30, 100)
 </code></pre>
 <p><code>I</code> is a matrix of identifiers in <code>db</code>. Each column stores the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> nearest neighbors &#40;approx.&#41; for the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span>-th colum &#40;object&#41; in <code>Q</code>. The matrix <code>D</code> stores the the corresponding distances for each identifier in <code>I</code>.</p>
-<h2 id="visualizing_what_we_just_do_it"><a href="#visualizing_what_we_just_do_it" class="header-anchor">Visualizing what we just do it</a></h2>
+<h2 id="visualizing_what_we_just_did"><a href="#visualizing_what_we_just_did" class="header-anchor">Visualizing what we just did</a></h2>
 <pre><code class="language-julia">using Plots
 @views scatter&#40;db.matrix&#91;1, :&#93;, db.matrix&#91;2, :&#93;, fmt&#61;:png, size&#61;&#40;600, 600&#41;, color&#61;:cyan, ma&#61;0.3, a&#61;0.3, ms&#61;1, msw&#61;0, label&#61;&quot;&quot;&#41;
 for c in eachcol&#40;I&#41;
@@ -110,7 +110,7 @@ end
 
 @views scatter&#33;&#40;Q.matrix&#91;1, :&#93;, Q.matrix&#91;2, :&#93;, color&#61;:black, m&#61;:star, ma&#61;0.5, a&#61;0.5, ms&#61;4, msw&#61;0, label&#61;&quot;&quot;&#41;</code></pre>
 <img src="/SimilaritySearchDemos/assets/tutorial/basic-usage/code/output/fig-2d-t1.png" alt="">
-<p>Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored with an automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.</p>
+<p>Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.</p>
 <h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
 <pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
   [053f045d] SimilaritySearch v0.8.12

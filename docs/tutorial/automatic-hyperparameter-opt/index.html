@@ -163,7 +163,7 @@ macrorecall(goldI, I3) = 0.8753999999999936
 </code></pre>
 <p>here we can see smaller recalls than expected, but we also can appreciate the differences  among them.</p>
 <h2>Optimizing <code>SearchGraph</code> without inserting</h2>
-<p>The hyperparameter optimization is performed in exponential stages while the <code>SearchGraph</code> is created,  and therefore, the current hyperparameters could need an update.</p>
+<p>The hyperparameter optimization is performed in exponential stages while the <code>SearchGraph</code> is created,  and therefore, the current hyperparameters could need an update. To optimize an already created <code>SearchGraph</code> we use <code>optimize</code> instead of <code>index</code></p>
 <pre><code class="language-julia">optimize&#33;&#40;G1, callbacks1.hyperparameters&#41;
 optimize&#33;&#40;G3, callbacks2.hyperparameters&#41;
 optimize&#33;&#40;G3, callbacks3.hyperparameters&#41;
@@ -228,7 +228,7 @@ macrorecall(goldI, I1) = 0.9491999999999948
 macrorecall(goldI, I2) = 0.949399999999994
 macrorecall(goldI, I3) = 0.9505999999999952
 </code></pre>
-<p>Please that faster searches are expected for indexes created for higher qualities since.</p>
+<p>Please note that faster searches are expected for indexes created for higher qualities.</p>
 <h2 id="optimizeparameters"><a href="#optimizeparameters" class="header-anchor"><code>OptimizeParameters</code></a></h2>
 <p>The structure is defined as follows</p>
 <pre><code class="language-julia">@with_kw mutable struct OptimizeParameters &lt;: Callback

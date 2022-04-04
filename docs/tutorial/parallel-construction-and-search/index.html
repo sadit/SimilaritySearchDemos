@@ -102,7 +102,7 @@ SearchModels> reached maximum number of iterations 16
 </code></pre>
 <p>Note that you can&#39;t call <code>push&#33;</code>, <code>append&#33;</code>, or <code>index&#33;</code> from several threads, instead you must use the <code>parallel_block</code> argument to let the algorithm take advantage of the multiple threads.</p>
 <h2 id="searching"><a href="#searching" class="header-anchor">Searching</a></h2>
-<p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must pause you searching requests while perform insertions &#40;parallel or sequential&#41;.</p>
+<p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must pause the searching requests while perform insertions &#40;parallel or sequential&#41;.</p>
 <pre><code class="language-julia">I, D &#61; searchbatch&#40;G, Q, 10; parallel&#61;true&#41;
 
 

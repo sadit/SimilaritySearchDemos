@@ -49,7 +49,7 @@
 <div class="franklin-content">
 <div class="franklin-toc"><ol><li><a href="#introduction">Introduction</a></li><li><a href="#list_of_examples">List of examples</a><ol><li><a href="#indexing_and_visualizing_synthetic_and_easily_generated_data">Indexing and visualizing synthetic and easily generated data </a></li><li><a href="#indexing_and_visualizing_real_high_dimensional_datasets">Indexing and visualizing real high dimensional datasets</a></li><li><a href="#interoperating_with_other_packages">Interoperating with other packages</a></li></ol></li><li><a href="#search_demos_and_umap_visualization">Search demos and UMAP visualization</a><ol><li><a href="#visualization">Visualization</a></li></ol></li><li><a href="#initializing_the_environment">Initializing the environment</a></li><li><a href="#index_construction_and_umap_projection">Index construction and umap projection</a></li></ol></div>
 <h2 id="introduction"><a href="#introduction" class="header-anchor">Introduction</a></h2>
-<p>Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use <code>SimilaritySearch</code>. To make the demonstrations more attractive, we also make use intensive use of visualizations based on non-linear dimensional reduction, These kind of algorithms use <code>k</code> nearest neighbors of a database as input to produce the low dimensional embedding. In particular, we use the <a href="https://github.com/sadit/SimSearchManifoldLearning.jl"><code>SimSearchManifoldLearning</code></a> which  provides an implementation of <code>UMAP</code> and also defines the necessary functions to interoperate with the <code>ManifoldLearning</code> package.</p>
+<p>Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use <code>SimilaritySearch</code>. To make the demonstrations more attractive, we also make intensive use of visualizations based on non-linear dimensional reduction, These kind of algorithms use <code>k</code> nearest neighbors of a database as input to produce the low dimensional embedding. In particular, we use the <a href="https://github.com/sadit/SimSearchManifoldLearning.jl"><code>SimSearchManifoldLearning</code></a> which  provides an implementation of <code>UMAP</code> and also defines the necessary functions to interoperate with the <code>ManifoldLearning</code> package.</p>
 <p>We provide two kinds of examples:</p>
 <ul>
 <li><p><code>Pluto</code> reactive notebooks that can run locally or online.</p>
@@ -63,7 +63,7 @@
 <ul>
 <li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/random-dataset.ipynb">Synthetic 8D</a>: A tutorial-like Jupyter notebook that shows how to create an index on synthetic data and search it. Synthetic 8-dimensional dataset under L2.</p>
 </li>
-<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb">Synthetic 2D</a>: A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 8-dimensional dataset under L2.</p>
+<li><p><a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/synthetic/2d.ipynb">Synthetic 2D</a>: A tutorial-like Jupyter notebook working on 2D synthetic dataset, also shows how the index works on different density regions of the database. Synthetic 2-dimensional dataset under L2.</p>
 </li>
 </ul>
 <h3 id="indexing_and_visualizing_real_high_dimensional_datasets"><a href="#indexing_and_visualizing_real_high_dimensional_datasets" class="header-anchor">Indexing and visualizing real high dimensional datasets</a></h3>
@@ -152,7 +152,7 @@ julia&gt; &#93; instantiate</code></pre>
 <p>The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.</p>
 <p>When the <code>create-index-and-umap.jl</code> is present, then it will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;. </p>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 23, 2022.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: April 04, 2022.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->
