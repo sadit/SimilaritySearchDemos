@@ -7,12 +7,12 @@ using Markdown # hide
 ENV["GKSwstype"] = "nul" # hide
 
 using SimilaritySearch
-# Computing the $k$ nearest neighbors of a dataset (all vs all) is a useful task to take knowledge of
+# Computing the $k$ nearest neighbors of a dataset (all vs all) is a useful task to take knowledge 
 # of a given dataset. This is a core task for some clustering algorithms and non-linear dimensional reduction
 # algorithms.
 # 
 # Given a metric database $(X, dist)$  and a relatively small $k$ value, the goal is
-# to compute $\{ knn(x) \mid x \in X \}$ taking into account that each $x_i \in X$, and therefore, it $x_i$ should be
+# to compute $\{ knn(x) \mid x \in X \}$ taking into account that each $x_i \in X$, and therefore, $x_i$ should be
 # removed from the $i$-th $knn$ result set.
 # 
 # Solving `allknn` fast and accuratelly is the goal of this example.

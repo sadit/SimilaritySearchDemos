@@ -42,7 +42,7 @@ nothing # hide
 # ## Searching
 # Once the index is constructed, you can solve batches in parallel and also single queries.
 # In contrast with append, these functions can be called in multithreading algorithms.
-# However, you must pause you searching requests while perform insertions (parallel or sequential).
+# However, you must pause the searching requests while perform insertions (parallel or sequential).
 
 I, D = searchbatch(G, Q, 10; parallel=true)
 

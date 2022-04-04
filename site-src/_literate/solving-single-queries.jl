@@ -9,8 +9,8 @@ ENV["GKSwstype"] = "nul" # hide
 using SimilaritySearch
 #
 # This example shows how to perform single queries instead of solving a batch of them.
-# This is particularly useful for some applications, and they are also how they are solved,
-# and therefore, it could be used to avoid some memory allocations.
+# This is particularly useful for some applications, and we also show how they are solved,
+# which could be used to avoid some memory allocations.
 const dim = 8
 
 db = MatrixDatabase(randn(Float32, dim, 10^4))

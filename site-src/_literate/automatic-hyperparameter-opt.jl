@@ -68,7 +68,7 @@ nothing #hide
  ## Optimizing `SearchGraph` without inserting
 
  The hyperparameter optimization is performed in exponential stages while the `SearchGraph` is created,
- and therefore, the current hyperparameters could need an update.
+ and therefore, the current hyperparameters could need an update. To optimize an already created `SearchGraph` we use `optimize` instead of `index`
 
 =#
 optimize!(G1, callbacks1.hyperparameters)
@@ -122,7 +122,7 @@ nothing #hide
 @show macrorecall(goldI, I3)
 
 #=
-Please that faster searches are expected for indexes created for higher qualities since.
+Please note that faster searches are expected for indexes created for higher qualities.
 
 ## `OptimizeParameters`
 The structure is defined as follows
