@@ -16,7 +16,7 @@ const dim = 16
 db = MatrixDatabase(randn(Float32, dim, 10^5))
 Q = MatrixDatabase(randn(Float32, dim, 30))
 dist = SqL2Distance()
-G = SearchGraph(; dist, db)
+G = SearchGraph(; dist, db, verbose=true)
 
 # The `SearchGraph` construction algorithm is incremental:
 # - If the index is empty, an element is inserted just inserting it into the index
@@ -36,15 +36,15 @@ G = SearchGraph(; dist, db)
 index!(G; parallel_block=512)
 nothing # hide
 
-# Note that you can't call `push!`, `append!`, or `index!` from several threads, instead you must use the `parallel_block` argument
-# to let the algorithm take advantage of the multiple threads.
+# Note that you can't call `push!`, `append!`, or `index!` from several threads. The default algorithm will takes
+# advantage of the multiple threads-
 #
 # ## Searching
 # Once the index is constructed, you can solve batches in parallel and also single queries.
 # In contrast with append, these functions can be called in multithreading algorithms.
 # However, you must pause the searching requests while perform insertions (parallel or sequential).
 
-I, D = searchbatch(G, Q, 10; parallel=true)
+I, D = searchbatch(G, Q, 10)
 
 
 Threads.@threads for i in eachindex(Q)

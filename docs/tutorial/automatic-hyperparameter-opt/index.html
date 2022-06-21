@@ -46,7 +46,7 @@
 
 
 <!-- Content appended here -->
-<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#automatic_hyperparameter_optimization">Automatic hyperparameter optimization</a></li><li><a href="#different_hyperparameter_optimization_strategies">Different hyperparameter optimization strategies</a></li><li><a href="#performances">Performances</a></li><li><a href="#optimizeparameters"><code>OptimizeParameters</code></a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
+<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#automatic_hyperparameter_optimization">Automatic hyperparameter optimization</a></li><li><a href="#different_hyperparameter_optimization_strategies">Different hyperparameter optimization strategies</a></li><li><a href="#performances">Performances</a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
 
 <h2 id="automatic_hyperparameter_optimization"><a href="#automatic_hyperparameter_optimization" class="header-anchor">Automatic hyperparameter optimization</a></h2>
 <p>By Eric S. Téllez</p>
@@ -62,133 +62,74 @@ k &#61; 10</code></pre>
 db &#61; MatrixDatabase&#40;X&#41;
 queries &#61; MatrixDatabase&#40;Q&#41;</code></pre>
 <p>Computing ground truth</p>
-<pre><code class="language-julia">goldI, goldD &#61; searchbatch&#40;ExhaustiveSearch&#40;; db, dist&#41;, queries, k&#41;  # &#96;ExhaustiveSearch&#96; solves with brute force</code></pre>
+<pre><code class="language-julia">verbose &#61; false
+goldI, goldD &#61; searchbatch&#40;ExhaustiveSearch&#40;; db, dist&#41;, queries, k&#41;  # &#96;ExhaustiveSearch&#96; solves with brute force</code></pre>
 <h2 id="different_hyperparameter_optimization_strategies"><a href="#different_hyperparameter_optimization_strategies" class="header-anchor">Different hyperparameter optimization strategies</a></h2>
 <p>the way of specifying the hyperparameter optimization strategy and objective is with a <code>SearchGraphCallbacks</code> object, as follows:</p>
-<pre><code class="language-julia">G1 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;&#41;
-callbacks1 &#61; SearchGraphCallbacks&#40;hyperparameters&#61;OptimizeParameters&#40;kind&#61;ParetoRecall&#40;&#41;&#41;&#41;  # ParetoRecall is the default
-@elapsed index&#33;&#40;G1; callbacks&#61;callbacks1&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-5.846011515</code></pre>
+<pre><code class="language-julia">G1 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;, verbose&#41;
+callbacks1 &#61; SearchGraphCallbacks&#40;ParetoRecall&#40;&#41;&#41;  # ParetoRecall is the default, and it will be used unless you change it
+@elapsed index&#33;&#40;G1; callbacks&#61;callbacks1&#41;</code></pre><pre><code class="plaintext code-output">MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.ParetoRecall)
+Closest candidates are:
+  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
+  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
+  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
+  ...
+</code></pre>
 <p>Using <code>ParetoRadius</code>: which should be faster since it doesn&#39;t needs a costly computation as the recall score but can be easily fool by distances distribution</p>
-<pre><code class="language-julia">G2 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;&#41;
-callbacks2 &#61; SearchGraphCallbacks&#40;hyperparameters&#61;OptimizeParameters&#40;kind&#61;ParetoRadius&#40;&#41;&#41;&#41;  # it uses distances instead of recall, it will be faster but lower quality
-@elapsed index&#33;&#40;G2; callbacks&#61;callbacks2&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-3.87048816</code></pre>
+<pre><code class="language-julia">G2 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;, verbose&#41;
+callbacks2 &#61; SearchGraphCallbacks&#40;ParetoRadius&#40;&#41;&#41;  # it uses distances instead of recall, it will be faster but lower quality
+@elapsed index&#33;&#40;G2; callbacks&#61;callbacks2&#41;</code></pre><pre><code class="plaintext code-output">MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.ParetoRadius)
+Closest candidates are:
+  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
+  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
+  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
+  ...
+</code></pre>
 <p>Using <code>MinRecall</code>: It ensures a minimum quality in a small validation set</p>
-<pre><code class="language-julia">G3 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;&#41;
-callbacks3 &#61; SearchGraphCallbacks&#40;hyperparameters&#61;OptimizeParameters&#40;kind&#61;MinRecall&#40;0.95&#41;&#41;&#41;
-@elapsed index&#33;&#40;G3; callbacks&#61;callbacks3&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-6.599433916</code></pre>
+<pre><code class="language-julia">G3 &#61; SearchGraph&#40;; dist, db&#61;MatrixDatabase&#40;X&#41;, verbose&#41;
+callbacks3 &#61; SearchGraphCallbacks&#40;MinRecall&#40;0.95&#41;&#41;
+@elapsed index&#33;&#40;G3; callbacks&#61;callbacks3&#41;</code></pre><pre><code class="plaintext code-output">MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.MinRecall)
+Closest candidates are:
+  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
+  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
+  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
+  ...
+</code></pre>
 <p><code>index&#33;</code>, <code>append&#33;</code>, and <code>push&#33;</code> accept callbacks.</p>
 <h2 id="performances"><a href="#performances" class="header-anchor">Performances</a></h2>
 <p>searching times</p>
 <pre><code class="language-julia">@time I1, D1 &#61; searchbatch&#40;G1, queries, k&#41;
 @time I2, D2 &#61; searchbatch&#40;G2, queries, k&#41;
-@time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">  0.201547 seconds (340.26 k allocations: 17.226 MiB, 23.31% gc time, 87.69% compilation time)
-  0.013877 seconds (7 allocations: 78.312 KiB)
-  0.030301 seconds (7 allocations: 78.312 KiB)
+@time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">DimensionMismatch("array could not be broadcast to match destination")
 </code></pre>
 <p>the recall &#40;0-1, one is the best&#41;</p>
 <pre><code class="language-julia">@show macrorecall&#40;goldI, I1&#41;
 @show macrorecall&#40;goldI, I2&#41;
-@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">macrorecall(goldI, I1) = 0.6911999999999984
-macrorecall(goldI, I2) = 0.24679999999999963
-macrorecall(goldI, I3) = 0.8753999999999936
+@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">UndefVarError: I1 not defined
 </code></pre>
 <p>here we can see smaller recalls than expected, but we also can appreciate the differences  among them.</p>
 <h2>Optimizing <code>SearchGraph</code> without inserting</h2>
 <p>The hyperparameter optimization is performed in exponential stages while the <code>SearchGraph</code> is created,  and therefore, the current hyperparameters could need an update. To optimize an already created <code>SearchGraph</code> we use <code>optimize</code> instead of <code>index</code></p>
-<pre><code class="language-julia">optimize&#33;&#40;G1, callbacks1.hyperparameters&#41;
-optimize&#33;&#40;G3, callbacks2.hyperparameters&#41;
-optimize&#33;&#40;G3, callbacks3.hyperparameters&#41;
+<pre><code class="language-julia">optimize&#33;&#40;G1, ParetoRecall&#40;&#41;&#41;
+optimize&#33;&#40;G3, ParetoRadius&#40;&#41;&#41;
+optimize&#33;&#40;G3, MinRecall&#40;0.95&#41;&#41;
 
 @time I1, D1 &#61; searchbatch&#40;G1, queries, k&#41;
 @time I2, D2 &#61; searchbatch&#40;G2, queries, k&#41;
-@time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-  0.021043 seconds (7 allocations: 78.312 KiB)
-  0.013669 seconds (7 allocations: 78.312 KiB)
-  0.031344 seconds (7 allocations: 78.312 KiB)
+@time I3, D3 &#61; searchbatch&#40;G3, queries, k&#41;</code></pre><pre><code class="plaintext code-output">MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.ParetoRecall)
+Closest candidates are:
+  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
 </code></pre>
 <p>the recall &#40;<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>, where one is the best&#41;</p>
 <pre><code class="language-julia">@show macrorecall&#40;goldI, I1&#41;
 @show macrorecall&#40;goldI, I2&#41;
-@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">macrorecall(goldI, I1) = 0.6840999999999977
-macrorecall(goldI, I2) = 0.24679999999999963
-macrorecall(goldI, I3) = 0.8606999999999941
+@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">UndefVarError: I1 not defined
 </code></pre>
 <p>The optimization is made using objects of the dataset as queries to compute the objective function.  If it is possible to get external queries to optimize &#40;not in the database and not in the query set,  but also following the expected distrbiution&#41;, they can be provided as follows:</p>
 <pre><code class="language-julia">equeries &#61; MatrixDatabase&#40;rand&#40;dim, 64&#41;&#41;
-optimize&#33;&#40;G1, callbacks1.hyperparameters, queries&#61;equeries&#41;
-optimize&#33;&#40;G2, callbacks2.hyperparameters, queries&#61;equeries&#41;
-optimize&#33;&#40;G3, callbacks3.hyperparameters, queries&#61;equeries&#41;
+optimize&#33;&#40;G1, ParetoRecall&#40;&#41;, queries&#61;equeries&#41;
+optimize&#33;&#40;G2, ParetoRadius&#40;&#41;, queries&#61;equeries&#41;
+optimize&#33;&#40;G3, MinRecall&#40;0.95&#41;, queries&#61;equeries&#41;
 
 @time I1, D1 &#61; searchbatch&#40;G1, queries, k&#41;
 @time I2, D2 &#61; searchbatch&#40;G2, queries, k&#41;
@@ -196,21 +137,14 @@ optimize&#33;&#40;G3, callbacks3.hyperparameters, queries&#61;equeries&#41;
 
 @show macrorecall&#40;goldI, I1&#41;
 @show macrorecall&#40;goldI, I2&#41;
-@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-  0.027483 seconds (7 allocations: 78.312 KiB)
-  0.014905 seconds (7 allocations: 78.312 KiB)
-  0.046765 seconds (7 allocations: 78.312 KiB)
-macrorecall(goldI, I1) = 0.7892999999999954
-macrorecall(goldI, I2) = 0.24669999999999961
-macrorecall(goldI, I3) = 0.9564999999999956
+@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.ParetoRecall; queries=SimilaritySearch.MatrixDatabase{Matrix{Float64}}([0.15493035160009505 0.22883910628123183 … 0.585332604944402 0.8307393282131446; 0.25306730223576546 0.6286081294542377 … 0.8979871895358562 0.5574486336481846; … ; 0.9479273378743132 0.5279623337285249 … 0.03407986088898751 0.35946793062479343; 0.9759177331027767 0.3121908509729252 … 0.12493571163048967 0.6380022972981435]))
+Closest candidates are:
+  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
 </code></pre>
 <p>Finally, we create our index with any hyperparameter optimization strategy, and optimize for quality, as follows:</p>
-<pre><code class="language-julia">minrecall &#61; callbacks3.hyperparameters
-optimize&#33;&#40;G1, minrecall, queries&#61;equeries&#41;
-optimize&#33;&#40;G2, minrecall, queries&#61;equeries&#41;
-optimize&#33;&#40;G3, minrecall, queries&#61;equeries&#41;
+<pre><code class="language-julia">optimize&#33;&#40;G1, MinRecall&#40;0.95&#41;, queries&#61;equeries&#41;
+optimize&#33;&#40;G2, MinRecall&#40;0.95&#41;, queries&#61;equeries&#41;
+optimize&#33;&#40;G3, MinRecall&#40;0.95&#41;, queries&#61;equeries&#41;
 
 @time I1, D1 &#61; searchbatch&#40;G1, queries, k&#41;
 @time I2, D2 &#61; searchbatch&#40;G2, queries, k&#41;
@@ -218,28 +152,11 @@ optimize&#33;&#40;G3, minrecall, queries&#61;equeries&#41;
 
 @show macrorecall&#40;goldI, I1&#41;
 @show macrorecall&#40;goldI, I2&#41;
-@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-  0.054412 seconds (7 allocations: 78.312 KiB)
-  0.183549 seconds (4.01 k allocations: 4.135 MiB)
-  0.044613 seconds (7 allocations: 78.312 KiB)
-macrorecall(goldI, I1) = 0.9491999999999948
-macrorecall(goldI, I2) = 0.949399999999994
-macrorecall(goldI, I3) = 0.9505999999999952
+@show macrorecall&#40;goldI, I3&#41;</code></pre><pre><code class="plaintext code-output">MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.MinRecall; queries=SimilaritySearch.MatrixDatabase{Matrix{Float64}}([0.15493035160009505 0.22883910628123183 … 0.585332604944402 0.8307393282131446; 0.25306730223576546 0.6286081294542377 … 0.8979871895358562 0.5574486336481846; … ; 0.9479273378743132 0.5279623337285249 … 0.03407986088898751 0.35946793062479343; 0.9759177331027767 0.3121908509729252 … 0.12493571163048967 0.6380022972981435]))
+Closest candidates are:
+  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
 </code></pre>
 <p>Please note that faster searches are expected for indexes created for higher qualities.</p>
-<h2 id="optimizeparameters"><a href="#optimizeparameters" class="header-anchor"><code>OptimizeParameters</code></a></h2>
-<p>The structure is defined as follows</p>
-<pre><code class="language-julia">@with_kw mutable struct OptimizeParameters &lt;: Callback
-    kind::ErrorFunction &#61; ParetoRecall&#40;&#41;
-    initialpopulation &#61; 16
-    params &#61; SearchParams&#40;maxpopulation&#61;16, bsize&#61;4, mutbsize&#61;16, crossbsize&#61;8, tol&#61;-1.0, maxiters&#61;16&#41;
-    ksearch::Int32 &#61; 10
-    numqueries::Int32 &#61; 64
-    space::BeamSearchSpace &#61; BeamSearchSpace&#40;&#41;
-end</code></pre>
-<p>It allows to modify several parameters to adjusting parameters for a given objective, these parameters can be tuned for faster constructions or more accurate ones.</p>
 <h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
 <pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
   [053f045d] SimilaritySearch v0.8.12

@@ -1,23 +1,6 @@
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
+MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.MinRecall)
+Closest candidates are:
+  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
+  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
+  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
+  ...

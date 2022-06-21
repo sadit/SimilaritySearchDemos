@@ -1,5 +1,5 @@
 # This file was generated, do not modify it. # hide
-I, D = searchbatch(G, Q, 10; parallel=true)
+I, D = searchbatch(G, Q, 10)
 
 
 Threads.@threads for i in eachindex(Q)

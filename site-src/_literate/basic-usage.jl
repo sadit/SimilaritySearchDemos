@@ -22,7 +22,7 @@ dist = L2Distance() # squared L2
 # it can use any distance function described in `SimilaritySearch` and `Distances.jl`,
 # and in fact any `SemiMetric` as described in the later package.
 # The index construction is made as follows
-G = SearchGraph(; dist, db)
+G = SearchGraph(; dist, db, verbose=false)
 index!(G)
 #- callbacks = SearchGraphCallbacks(hyperparameters=OptimizeParameters(MinRecall(0.9)))
 #- optimize!(G; callbacks)

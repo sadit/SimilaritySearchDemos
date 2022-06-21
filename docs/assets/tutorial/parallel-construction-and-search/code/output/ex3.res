@@ -5,5 +5,4 @@ SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.Mat
   locks: Array{Base.Threads.SpinLock}((0,))
   hints: Array{Int32}((0,)) Int32[]
   search_algo: SimilaritySearch.BeamSearch
-  neighborhood: SimilaritySearch.Neighborhood
   verbose: Bool true

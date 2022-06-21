@@ -15,7 +15,7 @@ const dim = 8
 
 db = MatrixDatabase(randn(Float32, dim, 10^4))
 dist = SqL2Distance()
-G = SearchGraph(; dist, db)
+G = SearchGraph(; dist, db, verbose=false)
 index!(G)
 nothing # hide
 
@@ -23,7 +23,7 @@ nothing # hide
 # `KnnResult` which is a priority queue of maximum size `k`.
 res = KnnResult(3) # allocates memory for 10 nearest neighbors
 for v in rand(db, 10)
-    reuse!(res)  # reuses the res object
+    global res = reuse!(res)  # reuses the res object
     @time search(G, v, res)
     @show minimum(res), maximum(res), argmin(res), argmax(res)
     @show res.id, res.dist
@@ -33,7 +33,7 @@ end
 # This structure is the container for the result and it is also used to specify the number
 # of elements to retrieve. As mentioned before, it is a priority queue
 
-reuse!(res)
+res = reuse!(res)
 push!(res, 1, 10)
 push!(res, 2, 9)
 push!(res, 3, 8)

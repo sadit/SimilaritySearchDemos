@@ -17,7 +17,7 @@ provides an implementation of `UMAP` and also defines the necessary functions to
 
 We provide two kinds of examples:
 - `Pluto` reactive notebooks that can run locally or online.
-- `Jupyter` notebooks are less interactive but they are great to visualize directly on github without running.
+- `Jupyter` notebooks are less reactive but they are great to visualize directly on github without running.
 
 
 ## List of examples

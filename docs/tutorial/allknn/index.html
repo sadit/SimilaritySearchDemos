@@ -56,62 +56,39 @@
 <p>Solving <code>allknn</code> fast and accuratelly is the goal of this example.</p>
 <pre><code class="language-julia">const dim &#61; 16
 k &#61; 15
+verbose &#61; false
 db &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 10^5&#41;&#41;
 dist &#61; SqL2Distance&#40;&#41;
-G &#61; SearchGraph&#40;; dist, db&#41;
-opt &#61; OptimizeParameters&#40;kind&#61;MinRecall&#40;0.9&#41;&#41;
-itime &#61; @elapsed &#40;index&#33;&#40;G&#41;; optimize&#33;&#40;G, opt&#41;&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-</code></pre>
+G &#61; SearchGraph&#40;; dist, db, verbose&#41;
+itime &#61; @elapsed &#40;index&#33;&#40;G&#41;; optimize&#33;&#40;G, MinRecall&#40;0.9&#41;&#41;&#41;</code></pre>
 <p>Now we can solve all <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>nn</p>
-<pre><code class="language-julia">allknntime &#61; @elapsed knns, dists &#61; allknn&#40;G, k; parallel&#61;true&#41;</code></pre>
+<pre><code class="language-julia">allknntime &#61; @elapsed knns, dists &#61; allknn&#40;G, k&#41;</code></pre>
 <h2 id="differences_between_allknng_k_and_searchbatchg_x_k"><a href="#differences_between_allknng_k_and_searchbatchg_x_k" class="header-anchor">Differences between <code>allknn&#40;G, k&#41;</code> and <code>searchbatch&#40;G, X, k&#41;</code></a></h2>
 <p>We can solve similarly with <code>searchbatch</code> but self-references should be removed later, and more important, <code>allknn</code> use special pivoting/boosting strategies that yields to faster searches.</p>
-<pre><code class="language-julia">searchtime &#61; @elapsed sknns, sdists &#61; searchbatch&#40;G, db, k; parallel&#61;true&#41;</code></pre>
+<pre><code class="language-julia">searchtime &#61; @elapsed sknns, sdists &#61; searchbatch&#40;G, db, k&#41;</code></pre>
 <h2 id="about_the_cost_of_construction_allknn_instead_of_a_brute_force_computation"><a href="#about_the_cost_of_construction_allknn_instead_of_a_brute_force_computation" class="header-anchor">About the cost of construction &#43; <code>allknn</code> instead of a brute force computation.</a></h2>
 <p><code>allknn</code> for <code>ExhaustiveSearch</code> doesn&#39;t perform any optimization but removes self references.</p>
-<pre><code class="language-julia">etime &#61; @elapsed eknns, edists &#61; allknn&#40;ExhaustiveSearch&#40;; db, dist&#41;, k; parallel&#61;true&#41;</code></pre>
+<pre><code class="language-julia">etime &#61; @elapsed eknns, edists &#61; allknn&#40;ExhaustiveSearch&#40;; db, dist&#41;, k&#41;</code></pre>
 <h2 id="comparing_solution_times"><a href="#comparing_solution_times" class="header-anchor">Comparing solution times</a></h2>
 <p>indexing, allknn, and searchbatch times</p>
-<pre><code class="language-julia">itime, allknntime, searchtime</code></pre><pre><code class="plaintext code-output">(8.824508341, 2.944559861, 3.833884939)</code></pre>
+<pre><code class="language-julia">itime, allknntime, searchtime</code></pre><pre><code class="plaintext code-output">(4.325883251, 4.811528597, 5.533326046)</code></pre>
 <p>full cost <code>allknn</code></p>
-<pre><code class="language-julia">itime &#43; allknntime</code></pre><pre><code class="plaintext code-output">11.769068202</code></pre>
+<pre><code class="language-julia">itime &#43; allknntime</code></pre><pre><code class="plaintext code-output">9.137411848</code></pre>
 <p>full cost <code>searchbatch</code></p>
-<pre><code class="language-julia">itime &#43; searchtime</code></pre><pre><code class="plaintext code-output">12.658393279999999</code></pre>
+<pre><code class="language-julia">itime &#43; searchtime</code></pre><pre><code class="plaintext code-output">9.859209297</code></pre>
 <p>exhaustive <code>allknn</code></p>
-<pre><code class="language-julia">etime</code></pre><pre><code class="plaintext code-output">118.115642217</code></pre>
+<pre><code class="language-julia">etime</code></pre><pre><code class="plaintext code-output">129.619692332</code></pre>
 <h2 id="quality"><a href="#quality" class="header-anchor">Quality</a></h2>
 <p>macro recall of <code>allknn</code></p>
-<pre><code class="language-julia">macrorecall&#40;eknns, knns&#41;</code></pre><pre><code class="plaintext code-output">0.8729553333341064</code></pre>
+<pre><code class="language-julia">macrorecall&#40;eknns, knns&#41;</code></pre><pre><code class="plaintext code-output">0.9114886666673522</code></pre>
 <p>macro recall of <code>searchbatch</code></p>
-<pre><code class="language-julia">macrorecall&#40;eknns, sknns&#41;</code></pre><pre><code class="plaintext code-output">0.858298666667548</code></pre>
+<pre><code class="language-julia">macrorecall&#40;eknns, sknns&#41;</code></pre><pre><code class="plaintext code-output">0.9113666666673534</code></pre>
 <h2 id="final_notes"><a href="#final_notes" class="header-anchor">Final notes:</a></h2>
-<p>Exhaustive search will fetch the exact solution but it has a higher cost and this could be more notorious as dataset&#39;s size increases. Also note that even when we pass <code>parallel&#61;true</code> it runs in a single thread due to the html generation pipeline.</p>
+<p>Exhaustive search will fetch the exact solution but it has a higher cost and this could be more notorious as dataset&#39;s size increases.</p>
+<p>Also note that even <code>SimilaritySearch</code> has multithreading operations, it runs in a single thread due to the html generation pipeline.</p>
 <h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
 <pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.8.12
+  [053f045d] SimilaritySearch v0.9.2
 </code></pre>
 
 <div class="page-foot">

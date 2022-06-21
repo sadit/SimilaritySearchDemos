@@ -56,39 +56,15 @@
 <pre><code class="language-julia">db &#61; MatrixDatabase&#40;randn&#40;2, 10^5&#41;&#41;
 dist &#61; L2Distance&#40;&#41; # squared L2</code></pre><pre><code class="plaintext code-output">SimilaritySearch.L2Distance()</code></pre>
 <p>it can use any distance function described in <code>SimilaritySearch</code> and <code>Distances.jl</code>, and in fact any <code>SemiMetric</code> as described in the later package. The index construction is made as follows</p>
-<pre><code class="language-julia">G &#61; SearchGraph&#40;; dist, db&#41;
-index&#33;&#40;G&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SimilaritySearch.SearchGraph{SimilaritySearch.L2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float64}}, SimilaritySearch.BeamSearch}
+<pre><code class="language-julia">G &#61; SearchGraph&#40;; dist, db, verbose&#61;false&#41;
+index&#33;&#40;G&#41;</code></pre><pre><code class="plaintext code-output">SimilaritySearch.SearchGraph{SimilaritySearch.L2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float64}}, SimilaritySearch.BeamSearch}
   dist: SimilaritySearch.L2Distance SimilaritySearch.L2Distance()
   db: SimilaritySearch.MatrixDatabase{Matrix{Float64}}
   links: Array{Vector{Int32}}((100000,))
   locks: Array{Base.Threads.SpinLock}((100000,))
-  hints: Array{Int32}((117,)) Int32[1189, 1498, 1510, 1792, 2266, 2454, 2591, 2786, 2795, 3004  …  6913, 6914, 6997, 7101, 7116, 7123, 7239, 7274, 7296, 7316]
+  hints: Array{Int32}((115,)) Int32[763, 1066, 1174, 1758, 2438, 2449, 2555, 2712, 2775, 2845  …  6772, 6774, 6855, 6883, 6887, 7013, 7060, 7106, 7111, 83576]
   search_algo: SimilaritySearch.BeamSearch
-  neighborhood: SimilaritySearch.Neighborhood
-  verbose: Bool true
+  verbose: Bool false
 </code></pre>
 <p>this will display a lot of information in the console, since as construction advances the hyperparameters of the index are adjusted. The default optimization takes into account both quality and speed, and tries to adjust to take the best of both. See <code>ParetoRecall</code> in docs.</p>
 <p>Once the index is created, the index can solve nearest neighbor queries</p>
@@ -113,7 +89,7 @@ end
 <p>Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.</p>
 <h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
 <pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.8.12
+  [053f045d] SimilaritySearch v0.9.2
 </code></pre>
 
 <div class="page-foot">

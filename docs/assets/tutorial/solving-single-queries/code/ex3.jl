@@ -3,6 +3,6 @@ const dim = 8
 
 db = MatrixDatabase(randn(Float32, dim, 10^4))
 dist = SqL2Distance()
-G = SearchGraph(; dist, db)
+G = SearchGraph(; dist, db, verbose=false)
 index!(G)
 nothing # hide

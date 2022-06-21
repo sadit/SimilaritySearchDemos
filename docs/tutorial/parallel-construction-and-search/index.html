@@ -57,14 +57,13 @@
 db &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 10^5&#41;&#41;
 Q &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 30&#41;&#41;
 dist &#61; SqL2Distance&#40;&#41;
-G &#61; SearchGraph&#40;; dist, db&#41;</code></pre><pre><code class="plaintext code-output">SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}
+G &#61; SearchGraph&#40;; dist, db, verbose&#61;true&#41;</code></pre><pre><code class="plaintext code-output">SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}
   dist: SimilaritySearch.SqL2Distance SimilaritySearch.SqL2Distance()
   db: SimilaritySearch.MatrixDatabase{Matrix{Float32}}
   links: Array{Vector{Int32}}((0,))
   locks: Array{Base.Threads.SpinLock}((0,))
   hints: Array{Int32}((0,)) Int32[]
   search_algo: SimilaritySearch.BeamSearch
-  neighborhood: SimilaritySearch.Neighborhood
   verbose: Bool true
 </code></pre>
 <p>The <code>SearchGraph</code> construction algorithm is incremental:</p>
@@ -77,74 +76,74 @@ G &#61; SearchGraph&#40;; dist, db&#41;</code></pre><pre><code class="plaintext 
 <p>the parallel construction is made with <code>index&#33;</code> or <code>append&#33;</code>, for this matter these functions accept a <code>parallel_block</code> argument, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.</p>
 <p>As in the sequential version, a minimum number of elements must exists to work, and therefore, the <code>parallel_minimum_first_block</code> argument can also be specified. By default, it is equal to <code>parallel_block</code>. The <code>parallel_block</code> argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.</p>
 <p>This example didn&#39;t run in parallel due to the document generation pipeline but all demonstrations actually do it. Nonetheless, they ran with the parallel API in single thread mode.</p>
-<pre><code class="language-julia">index&#33;&#40;G; parallel_block&#61;512&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
+<pre><code class="language-julia">index&#33;&#40;G; parallel_block&#61;512&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
+SearchModels> reached maximum number of iterations 12
 </code></pre>
-<p>Note that you can&#39;t call <code>push&#33;</code>, <code>append&#33;</code>, or <code>index&#33;</code> from several threads, instead you must use the <code>parallel_block</code> argument to let the algorithm take advantage of the multiple threads.</p>
+<p>Note that you can&#39;t call <code>push&#33;</code>, <code>append&#33;</code>, or <code>index&#33;</code> from several threads. The default algorithm will takes advantage of the multiple threads-</p>
 <h2 id="searching"><a href="#searching" class="header-anchor">Searching</a></h2>
 <p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must pause the searching requests while perform insertions &#40;parallel or sequential&#41;.</p>
-<pre><code class="language-julia">I, D &#61; searchbatch&#40;G, Q, 10; parallel&#61;true&#41;
+<pre><code class="language-julia">I, D &#61; searchbatch&#40;G, Q, 10&#41;
 
 
 Threads.@threads for i in eachindex&#40;Q&#41;
     res, cost &#61; search&#40;G, Q&#91;i&#93;, KnnResult&#40;10&#41;&#41;
     println&#40;res.id&#41; # do something with &#96;res&#96;
-end</code></pre><pre><code class="plaintext code-output">Int32[64292, 14147, 75318, 46073, 30923, 86579, 75995, 61031, 88948, 40175]
-Int32[13214, 69795, 74647, 54881, 22034, 99133, 4509, 66676, 72466, 86551]
-Int32[90881, 396, 41778, 92131, 8804, 51672, 2916, 83049, 64022, 44629]
-Int32[24668, 934, 93079, 28850, 18214, 84821, 6398, 98637, 87578, 74705]
-Int32[8447, 60882, 53206, 37776, 79904, 43538, 9114, 83354, 24406, 81819]
-Int32[4045, 74383, 24750, 45594, 18992, 69338, 74307, 3085, 71478, 45502]
-Int32[31783, 10445, 18125, 31324, 15499, 23228, 9220, 5286, 21104, 69831]
-Int32[23824, 85155, 38466, 2459, 49213, 4322, 19298, 4718, 52253, 25668]
-Int32[80946, 63504, 58261, 65870, 95385, 55506, 82685, 35459, 90847, 11115]
-Int32[70723, 99123, 94288, 5224, 40170, 15805, 28700, 64463, 14490, 20953]
-Int32[66608, 52301, 37346, 46420, 30330, 25155, 12677, 44283, 19692, 26926]
-Int32[9963, 95386, 1996, 46480, 50953, 23517, 53189, 2746, 5154, 28811]
-Int32[82134, 86246, 97943, 39734, 47063, 70883, 19902, 2787, 46435, 32695]
-Int32[87774, 35193, 95302, 9223, 15320, 27533, 87747, 33663, 41848, 49999]
-Int32[83355, 48242, 37978, 21004, 11882, 3333, 5925, 34855, 64389, 49261]
-Int32[66376, 55512, 27159, 18555, 61594, 85947, 14789, 85252, 6449, 31782]
-Int32[75989, 98011, 47976, 42244, 2854, 80774, 30004, 44198, 72891, 46957]
-Int32[116, 21854, 91938, 56552, 83715, 6647, 76650, 93657, 67736, 78979]
-Int32[67792, 4441, 15380, 93734, 35463, 37856, 79073, 65557, 44005, 7129]
-Int32[12083, 29956, 47823, 33245, 67392, 35070, 36431, 60809, 97926, 13517]
-Int32[65828, 77861, 86625, 5278, 40389, 78229, 27582, 8483, 53315, 69908]
-Int32[75120, 36903, 74882, 50326, 98274, 6837, 42500, 53117, 22330, 16527]
-Int32[76014, 15320, 66400, 64134, 55120, 98870, 27367, 35753, 59344, 12710]
-Int32[11969, 15716, 63393, 2170, 98481, 84446, 60485, 55119, 69020, 7686]
-Int32[46388, 35086, 17912, 2389, 45122, 38157, 6900, 50634, 37735, 13188]
-Int32[28683, 34514, 23961, 36970, 94632, 69846, 51358, 25793, 85032, 70158]
-Int32[7598, 18486, 23807, 61824, 53917, 68147, 62905, 77189, 6983, 12645]
-Int32[29358, 83195, 8347, 78830, 22655, 16209, 23092, 12501, 53914, 36549]
-Int32[84665, 2226, 54968, 21532, 35069, 66763, 55909, 73363, 7004, 11382]
-Int32[81352, 51233, 71707, 66253, 37396, 4483, 82931, 84712, 70507, 27366]
+end</code></pre><pre><code class="plaintext code-output">Int32[78050, 26352, 99057, 70901, 53005, 50780, 96102, 63521, 6696, 30851]
+Int32[39228, 85753, 3236, 24848, 5296, 93046, 28255, 70080, 51799, 56094]
+Int32[38733, 74512, 26156, 61951, 9874, 4672, 86883, 65381, 95940, 29527]
+Int32[97329, 67220, 31980, 52790, 81075, 76421, 2439, 76368, 5834, 45044]
+Int32[47941, 33997, 39843, 56113, 23625, 25922, 72146, 34694, 8441, 93153]
+Int32[21349, 8245, 46614, 57272, 16715, 30111, 67433, 28024, 46709, 47886]
+Int32[62175, 94533, 81034, 57975, 95674, 5778, 38591, 31819, 45549, 52976]
+Int32[49428, 86861, 62912, 13863, 43771, 83874, 66589, 59160, 9794, 33443]
+Int32[99606, 97414, 56106, 45136, 67610, 5899, 77482, 16156, 68429, 30818]
+Int32[69815, 95270, 57948, 15340, 23009, 5328, 22792, 72843, 67326, 71813]
+Int32[73970, 80206, 15081, 89700, 29990, 56165, 82736, 49050, 71723, 54438]
+Int32[3797, 38001, 44066, 1723, 41367, 3913, 23424, 12031, 77147, 13279]
+Int32[93935, 42231, 14073, 24969, 50619, 13893, 93412, 14802, 57925, 43203]
+Int32[16504, 32461, 21839, 33884, 84421, 25977, 33941, 33300, 51882, 32756]
+Int32[57433, 33525, 88168, 99242, 67403, 74262, 17237, 58555, 71180, 65237]
+Int32[12473, 14119, 78693, 24893, 2005, 53852, 75521, 1627, 62925, 99836]
+Int32[95345, 93506, 40423, 22169, 66595, 58967, 90061, 21268, 87827, 36601]
+Int32[26316, 62611, 60314, 543, 16846, 98393, 93700, 24973, 54563, 14069]
+Int32[13739, 1020, 63049, 95173, 92185, 3332, 8748, 81331, 32095, 50960]
+Int32[36802, 77301, 33061, 88278, 68497, 27540, 42433, 44551, 92881, 70394]
+Int32[27871, 24494, 47398, 48058, 18742, 12345, 45402, 24925, 94932, 14198]
+Int32[55771, 69754, 1231, 6965, 22346, 83617, 59451, 11040, 14629, 88790]
+Int32[8960, 68875, 93079, 60627, 86621, 48119, 63841, 51767, 38232, 36403]
+Int32[78347, 21563, 85532, 9465, 33167, 61467, 42002, 80557, 5652, 55367]
+Int32[10970, 79738, 64622, 75930, 78983, 22448, 66116, 20347, 16558, 24412]
+Int32[10156, 43122, 4776, 38127, 34437, 24874, 42095, 27341, 12897, 70728]
+Int32[74109, 39772, 22868, 20608, 28896, 61644, 99713, 70527, 67901, 4031]
+Int32[56962, 61578, 99074, 70301, 48663, 16964, 52916, 26103, 29152, 50729]
+Int32[92633, 19321, 95711, 20533, 43351, 2778, 92473, 71469, 61153, 56455]
+Int32[69352, 53910, 86713, 56102, 76622, 3928, 80071, 70386, 65691, 43761]
 </code></pre>
 <h2 id="about_searching_pools"><a href="#about_searching_pools" class="header-anchor">About searching pools</a></h2>
 <p>Searching and also insertion methods &#40;since they also perform searches&#41; make use of several objects that are cached and reused to reduce memory allocations. These caches are named pools and are of type <code>SearchGraphPools</code>, their default values should be enough for multithreading applications, but special usage will require to review them. Among the special usages that require an explicit handling of pools we can think on objects indexing objects that are also indexes, or distance functions that can perform context switches as tasks &#40;?&#41;.</p>
 <h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
 <pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.8.12
+  [053f045d] SimilaritySearch v0.9.2
 </code></pre>
 
 <div class="page-foot">

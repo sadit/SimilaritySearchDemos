@@ -21,7 +21,7 @@ dist = L1Distance()
 # it can use any distance function described in `SimilaritySearch` and `Distances.jl`,
 # and in fact any `SemiMetric` as described in the later package.
 # The index construction is made as follows
-G = SearchGraph(; dist, db)
+G = SearchGraph(; dist, db, verbose=false)
 
 # instead of `index!` we can use `push!` and `append!` functions
 for _ in 1:10^4

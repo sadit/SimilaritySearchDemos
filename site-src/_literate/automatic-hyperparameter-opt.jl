@@ -23,26 +23,26 @@ db = MatrixDatabase(X)
 queries = MatrixDatabase(Q)
 nothing # hide
 # Computing ground truth
-
+verbose = false
 goldI, goldD = searchbatch(ExhaustiveSearch(; db, dist), queries, k)  # `ExhaustiveSearch` solves with brute force
 nothing # hide
 # ## Different hyperparameter optimization strategies
 # the way of specifying the hyperparameter optimization strategy and objective is with
 # a `SearchGraphCallbacks` object, as follows:
-G1 = SearchGraph(; dist, db=MatrixDatabase(X))
-callbacks1 = SearchGraphCallbacks(hyperparameters=OptimizeParameters(kind=ParetoRecall()))  # ParetoRecall is the default 
+G1 = SearchGraph(; dist, db=MatrixDatabase(X), verbose)
+callbacks1 = SearchGraphCallbacks(ParetoRecall())  # ParetoRecall is the default, and it will be used unless you change it
 @elapsed index!(G1; callbacks=callbacks1)
 
 # Using `ParetoRadius`: which should be faster since it doesn't needs a costly computation as the recall score
 # but can be easily fool by distances distribution
 
-G2 = SearchGraph(; dist, db=MatrixDatabase(X))
-callbacks2 = SearchGraphCallbacks(hyperparameters=OptimizeParameters(kind=ParetoRadius()))  # it uses distances instead of recall, it will be faster but lower quality
+G2 = SearchGraph(; dist, db=MatrixDatabase(X), verbose)
+callbacks2 = SearchGraphCallbacks(ParetoRadius())  # it uses distances instead of recall, it will be faster but lower quality
 @elapsed index!(G2; callbacks=callbacks2)
 
 # Using `MinRecall`: It ensures a minimum quality in a small validation set
-G3 = SearchGraph(; dist, db=MatrixDatabase(X))
-callbacks3 = SearchGraphCallbacks(hyperparameters=OptimizeParameters(kind=MinRecall(0.95)))
+G3 = SearchGraph(; dist, db=MatrixDatabase(X), verbose)
+callbacks3 = SearchGraphCallbacks(MinRecall(0.95))
 @elapsed index!(G3; callbacks=callbacks3)
 
 #
@@ -71,9 +71,9 @@ nothing #hide
  and therefore, the current hyperparameters could need an update. To optimize an already created `SearchGraph` we use `optimize` instead of `index`
 
 =#
-optimize!(G1, callbacks1.hyperparameters)
-optimize!(G3, callbacks2.hyperparameters)
-optimize!(G3, callbacks3.hyperparameters)
+optimize!(G1, ParetoRecall())
+optimize!(G3, ParetoRadius())
+optimize!(G3, MinRecall(0.95))
 
 @time I1, D1 = searchbatch(G1, queries, k)
 @time I2, D2 = searchbatch(G2, queries, k)
@@ -92,9 +92,9 @@ nothing #hide
  but also following the expected distrbiution), they can be provided as follows:
 =#
 equeries = MatrixDatabase(rand(dim, 64))
-optimize!(G1, callbacks1.hyperparameters, queries=equeries)
-optimize!(G2, callbacks2.hyperparameters, queries=equeries)
-optimize!(G3, callbacks3.hyperparameters, queries=equeries)
+optimize!(G1, ParetoRecall(), queries=equeries)
+optimize!(G2, ParetoRadius(), queries=equeries)
+optimize!(G3, MinRecall(0.95), queries=equeries)
 
 @time I1, D1 = searchbatch(G1, queries, k)
 @time I2, D2 = searchbatch(G2, queries, k)
@@ -107,10 +107,9 @@ nothing #hide
 
 # Finally, we create our index with any hyperparameter optimization strategy, and optimize
 # for quality, as follows:
-minrecall = callbacks3.hyperparameters
-optimize!(G1, minrecall, queries=equeries)
-optimize!(G2, minrecall, queries=equeries)
-optimize!(G3, minrecall, queries=equeries)
+optimize!(G1, MinRecall(0.95), queries=equeries)
+optimize!(G2, MinRecall(0.95), queries=equeries)
+optimize!(G3, MinRecall(0.95), queries=equeries)
 
 @time I1, D1 = searchbatch(G1, queries, k)
 @time I2, D2 = searchbatch(G2, queries, k)
@@ -124,22 +123,6 @@ nothing #hide
 #=
 Please note that faster searches are expected for indexes created for higher qualities.
 
-## `OptimizeParameters`
-The structure is defined as follows
-
-```
-@with_kw mutable struct OptimizeParameters <: Callback
-    kind::ErrorFunction = ParetoRecall()
-    initialpopulation = 16
-    params = SearchParams(maxpopulation=16, bsize=4, mutbsize=16, crossbsize=8, tol=-1.0, maxiters=16)
-    ksearch::Int32 = 10
-    numqueries::Int32 = 64
-    space::BeamSearchSpace = BeamSearchSpace()
-end
-```
-
-It allows to modify several parameters to adjusting parameters for a given objective,
-these parameters can be tuned for faster constructions or more accurate ones.
 =#
 
 

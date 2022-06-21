@@ -1,8 +1,7 @@
 # This file was generated, do not modify it. # hide
-minrecall = callbacks3.hyperparameters
-optimize!(G1, minrecall, queries=equeries)
-optimize!(G2, minrecall, queries=equeries)
-optimize!(G3, minrecall, queries=equeries)
+optimize!(G1, MinRecall(0.95), queries=equeries)
+optimize!(G2, MinRecall(0.95), queries=equeries)
+optimize!(G3, MinRecall(0.95), queries=equeries)
 
 @time I1, D1 = searchbatch(G1, queries, k)
 @time I2, D2 = searchbatch(G2, queries, k)

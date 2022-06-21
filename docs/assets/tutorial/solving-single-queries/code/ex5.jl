@@ -1,5 +1,5 @@
 # This file was generated, do not modify it. # hide
-reuse!(res)
+res = reuse!(res)
 push!(res, 1, 10)
 push!(res, 2, 9)
 push!(res, 3, 8)

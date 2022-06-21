@@ -3,7 +3,6 @@ SimilaritySearch.SearchGraph{SimilaritySearch.L2Distance, SimilaritySearch.Matri
   db: SimilaritySearch.MatrixDatabase{Matrix{Float64}}
   links: Array{Vector{Int32}}((100000,))
   locks: Array{Base.Threads.SpinLock}((100000,))
-  hints: Array{Int32}((117,)) Int32[1189, 1498, 1510, 1792, 2266, 2454, 2591, 2786, 2795, 3004  …  6913, 6914, 6997, 7101, 7116, 7123, 7239, 7274, 7296, 7316]
+  hints: Array{Int32}((115,)) Int32[763, 1066, 1174, 1758, 2438, 2449, 2555, 2712, 2775, 2845  …  6772, 6774, 6855, 6883, 6887, 7013, 7060, 7106, 7111, 83576]
   search_algo: SimilaritySearch.BeamSearch
-  neighborhood: SimilaritySearch.Neighborhood
-  verbose: Bool true
+  verbose: Bool false

@@ -1,6 +1,3 @@
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-SearchModels> reached maximum number of iterations 16
-  0.021043 seconds (7 allocations: 78.312 KiB)
-  0.013669 seconds (7 allocations: 78.312 KiB)
-  0.031344 seconds (7 allocations: 78.312 KiB)
+MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.ParetoRecall)
+Closest candidates are:
+  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
