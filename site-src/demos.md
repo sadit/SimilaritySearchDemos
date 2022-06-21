@@ -36,15 +36,19 @@ All Pluto notebooks can work on mybinder and run without install anything in you
     - [Primes](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb)
 - Prime gaps: A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections.
     - Search and UMAP projection [Prime Gaps demo](/demos-pluto/primegaps-demo.jl/). It generates the dataset.
-- WIT: Pluto notebook to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings (vision \& language). ~300K 512-dimensional vectors using the cosine distance. 
-    - Search and UMAP projection [WIT demo](/demos-pluto/wit-demo.jl/).
-- Glove: Pluto notebook to navigate and visualize semantic representations (Glove word embeddings). The vocabulary consists of 400K tokens represented as 100-dimensional vectors under the cosine distance.
-    - Search and UMAP projection [GloVe demo](/demos-pluto/glove-demo.jl/).
-- MNIST: Pluto notebooks to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects (28x28 matrices).
-    - Search and UMAP projection [MNIST demo](/demos-pluto/mnist-demo.jl/).
-    - Animation of UMAP projections [MNIST animated projections](/demos-pluto/mnist-demo-iterated.jl/).
+- WIT: This example shows how to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings (vision \& language). ~300K 512-dimensional vectors using the cosine distance.
+    - Jupyter-based [WIT demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/WIT/WIT.ipynb), SimilaritySearch v0.9.
+    - Pluto-based [WIT demo](/demos-pluto/wit-demo.jl/), SimilaritySearch v0.8.
+- Glove: Navigate and visualize semantic representations (Glove word embeddings), also can solve analogies. The vocabulary consists of 400K tokens represented as 100-dimensional vectors under the cosine distance.
+    - Jupyter-based [GloVe demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/Glove/Glove.ipynb), SimilaritySearch v0.9.
+    - Pluto-based [GloVe demo](/demos-pluto/glove-demo.jl/), SimilaritySerach v0.8.
+- MNIST: Navigation and visualization of the MNIST dataset of hand drawing numbers. It uses images directly as objects (28x28 matrices).
+    - Jupyter-based [MNIST demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/MNIST/MNIST.ipynb), SimilaritySearch v0.9.
+    - Pluto-based [MNIST demo](/demos-pluto/mnist-demo.jl/), SimilaritySearch v0.8.
+    - Pluto-based [MNIST animated projections](/demos-pluto/mnist-demo-iterated.jl/), SimilaritySearch v0.8.
 - Wiktionary: Pluto notebook to navigate and query the Wiktionary vocabulary using Levenshtein distance  (~1M words)
-    - Search and UMAP projection [Wiktionary demo](/demos-pluto/wiktionary-demo.jl/).
+    - Jupyter-based [Wiktionary demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/wiktionary/Wiktionary.ipynb), SimilaritySearch v0.9.
+    - Pluto-based [Wiktionary demo](/demos-pluto/wiktionary-demo.jl/), SimilaritySearch v0.8.
 - Tweets: Pluto notebook to visualize a collection of Twitter's Spanish messages with emojis using bag of words representations. 50K items.
     - Search and UMAP projection [Emojispace demo](/demos-pluto/emojispace-demo.jl/).
 
@@ -54,11 +58,11 @@ TODO: Cites and references
 - Working with `ManifoldLearning`. This Pluto [notebook](/demos-pluto/primegaps-manifoldlearning.jl/) implements the necessary structs and functions to solve `knn` queries for `ManifoldLearning` algorithms. We used two datasets, the first corresponding to the scurve and the second is for `Prime gaps` as time series. 
 
 ## Search demos and UMAP visualization
-The demos are [Pluto](https://github.com/fonsp/Pluto.jl) notebooks and work over the previously created indexes and projections. Inside the repo's root run the following commands.
+The demos are [Pluto](https://github.com/fonsp/Pluto.jl) and [Jupyter](https://jupyter.org/] notebooks. Inside the repo's root run the following commands.
 
 ```bash
 
-$ julia --project=.
+$ JULIA_NUM_THREADS=auto julia --project=.
 ...
 
 julia> using Pluto
@@ -67,54 +71,24 @@ julia> Pluto.run(notebook="WIT/wit-demo.jl")
 ...
 ```
 
-Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.
+or 
+```bash
+
+$ JULIA_NUM_THREADS=auto jupyter-lab .
+```
+Please recall that the first time you load a package Julia compiles it. _Pluto notebooks_ also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times. _Jupyter notebooks_ also contain the necessary package-manager instructions to improve reproducibility. 
 
 Note: Pluto interface also allows loading notebooks, so you don't need to exit and re-run to explore examples.
 
 
 ### Visualization
 
-Some examples only create indexes and and UMAP projections without any kind of graphical interface. Mostly, because they could require a lot of time, even in multithreading. environments. We develop notebooks for navigation and visualization of the computed structures, in particular, the [visualization notebook](https://github.com/sadit/SimilaritySearchDemos/blob/main/visualize-umap.jl) may work for all saved embeddings for all examples. 
-
+Most visualizations are made with UMAP models using the `SimSearchManifoldLearning` package. These can be expensive and it is always recommended to run notebooks with all available threads.
 
 ## Initializing the environment
-`SimilaritySearch.jl` is writen in the [Julia language](https://julialang.org/) you need to install it first in order to run them.
+`SimilaritySearch.jl` is writen in the [Julia language](https://julialang.org/) you need to install it first in order to run them. After this it is necessary to install Pluto and/or IJulia (for Jupyter notebooks). If you need more information about how to install and use these notebooks, please see their respective sites.
 
-The goal is that all demostrations contain a full specification of the packages such that they work out-of-the-box. Pluto has this feature natively and Jupyter notebooks use `PackageSpec` inside each notebook, both describe the working environment. While this may require extra time to always check/install the necessary packages, the examples should work out of the box. This is a work in progress.
-
-For now, there are a few scripts that should be run, for these the environment needs to be instantiated and this is made with the following commands:
-
-```bash
-
-$ julia --project=.
-...
-
-julia> ] instantiate
-```
-
-The `--project=.` tells julia that our enviroment/project is described in the current directory, so you must call this inside the root of the repository. Note: you need an active internet connection to do this.
-
-The `]` character inits the package manager of Julia. You can output using ctrl+d (repeat it to get out of Julia)
-
-
-## Index construction and umap projection
-Some examples contain a `create-index-and-umap.jl` script. It should be run using all your cores, to achieve faster computing times.
-
-
-```bash 
-$ julia -t64 --project=.. create-index-and-umap.jl
-```
-or alternatively from the julia's REPL
-
-```
-julia> include("create-index-and-umap.jl")
-```
-
-The first time you run a script Julia will load and compile packages, this take some time.
-The `-t64` flag says julia to use 64 threads; the `--project=..` also tells that the parent directory describes the environment (previosly instantiated).
-
-The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.
-
-When the `create-index-and-umap.jl` is present, then it will download dataset, create the index, and create the UMAP projections (2d and 3d). 
+- [Pluto](https://github.com/fonsp/Pluto.jl)
+- [IJulia](https://github.com/JuliaLang/IJulia.jl)
 
 

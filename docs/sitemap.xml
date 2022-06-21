@@ -20,6 +20,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/.ipynb_checkpoints/index-checkpoint/index.html</loc>
+    <lastmod>2022-04-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/solving-single-queries/index.html</loc>
     <lastmod>2022-03-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -38,6 +44,12 @@
     <priority>0.5</priority>
 </url>
 <url>
+    <loc>https://ingeotec.github.io/SimilaritySearchDemos/.ipynb_checkpoints/demos-checkpoint/index.html</loc>
+    <lastmod>2022-06-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+</url>
+<url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/tutorial/automatic-hyperparameter-opt/index.html</loc>
     <lastmod>2022-03-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -51,7 +63,7 @@
 </url>
 <url>
     <loc>https://ingeotec.github.io/SimilaritySearchDemos/demos/index.html</loc>
-    <lastmod>2022-04-04</lastmod>
+    <lastmod>2022-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
 </url>

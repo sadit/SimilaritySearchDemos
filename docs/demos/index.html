@@ -47,7 +47,7 @@
 
 <!-- Content appended here -->
 <div class="franklin-content">
-<div class="franklin-toc"><ol><li><a href="#introduction">Introduction</a></li><li><a href="#list_of_examples">List of examples</a><ol><li><a href="#indexing_and_visualizing_synthetic_and_easily_generated_data">Indexing and visualizing synthetic and easily generated data </a></li><li><a href="#indexing_and_visualizing_real_high_dimensional_datasets">Indexing and visualizing real high dimensional datasets</a></li><li><a href="#interoperating_with_other_packages">Interoperating with other packages</a></li></ol></li><li><a href="#search_demos_and_umap_visualization">Search demos and UMAP visualization</a><ol><li><a href="#visualization">Visualization</a></li></ol></li><li><a href="#initializing_the_environment">Initializing the environment</a></li><li><a href="#index_construction_and_umap_projection">Index construction and umap projection</a></li></ol></div>
+<div class="franklin-toc"><ol><li><a href="#introduction">Introduction</a></li><li><a href="#list_of_examples">List of examples</a><ol><li><a href="#indexing_and_visualizing_synthetic_and_easily_generated_data">Indexing and visualizing synthetic and easily generated data </a></li><li><a href="#indexing_and_visualizing_real_high_dimensional_datasets">Indexing and visualizing real high dimensional datasets</a></li><li><a href="#interoperating_with_other_packages">Interoperating with other packages</a></li></ol></li><li><a href="#search_demos_and_umap_visualization">Search demos and UMAP visualization</a><ol><li><a href="#visualization">Visualization</a></li></ol></li><li><a href="#initializing_the_environment">Initializing the environment</a></li></ol></div>
 <h2 id="introduction"><a href="#introduction" class="header-anchor">Introduction</a></h2>
 <p>Our demonstrations are Pluto and Jupyter notebooks that can be used to replicate and interactively use <code>SimilaritySearch</code>. To make the demonstrations more attractive, we also make intensive use of visualizations based on non-linear dimensional reduction, These kind of algorithms use <code>k</code> nearest neighbors of a database as input to produce the low dimensional embedding. In particular, we use the <a href="https://github.com/sadit/SimSearchManifoldLearning.jl"><code>SimSearchManifoldLearning</code></a> which  provides an implementation of <code>UMAP</code> and also defines the necessary functions to interoperate with the <code>ManifoldLearning</code> package.</p>
 <p>We provide two kinds of examples:</p>
@@ -81,29 +81,37 @@
 </li>
 </ul>
 </li>
-<li><p>WIT: Pluto notebook to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance. </p>
+<li><p>WIT: This example shows how to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings &#40;vision \&amp; language&#41;. ~300K 512-dimensional vectors using the cosine distance.</p>
 <ul>
-<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/wit-demo.jl/">WIT demo</a>.</p>
+<li><p>Jupyter-based <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/WIT/WIT.ipynb">WIT demo</a>, SimilaritySearch v0.9.</p>
+</li>
+<li><p>Pluto-based <a href="/SimilaritySearchDemos/demos-pluto/wit-demo.jl/">WIT demo</a>, SimilaritySearch v0.8.</p>
 </li>
 </ul>
 </li>
-<li><p>Glove: Pluto notebook to navigate and visualize semantic representations &#40;Glove word embeddings&#41;. The vocabulary consists of 400K tokens represented as 100-dimensional vectors under the cosine distance.</p>
+<li><p>Glove: Navigate and visualize semantic representations &#40;Glove word embeddings&#41;, also can solve analogies. The vocabulary consists of 400K tokens represented as 100-dimensional vectors under the cosine distance.</p>
 <ul>
-<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/glove-demo.jl/">GloVe demo</a>.</p>
+<li><p>Jupyter-based <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/Glove/Glove.ipynb">GloVe demo</a>, SimilaritySearch v0.9.</p>
+</li>
+<li><p>Pluto-based <a href="/SimilaritySearchDemos/demos-pluto/glove-demo.jl/">GloVe demo</a>, SimilaritySerach v0.8.</p>
 </li>
 </ul>
 </li>
-<li><p>MNIST: Pluto notebooks to navigate and visualize the MNIST dataset of hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;.</p>
+<li><p>MNIST: Navigation and visualization of the MNIST dataset of hand drawing numbers. It uses images directly as objects &#40;28x28 matrices&#41;.</p>
 <ul>
-<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo.jl/">MNIST demo</a>.</p>
+<li><p>Jupyter-based <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/MNIST/MNIST.ipynb">MNIST demo</a>, SimilaritySearch v0.9.</p>
 </li>
-<li><p>Animation of UMAP projections <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo-iterated.jl/">MNIST animated projections</a>.</p>
+<li><p>Pluto-based <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo.jl/">MNIST demo</a>, SimilaritySearch v0.8.</p>
+</li>
+<li><p>Pluto-based <a href="/SimilaritySearchDemos/demos-pluto/mnist-demo-iterated.jl/">MNIST animated projections</a>, SimilaritySearch v0.8.</p>
 </li>
 </ul>
 </li>
 <li><p>Wiktionary: Pluto notebook to navigate and query the Wiktionary vocabulary using Levenshtein distance  &#40;~1M words&#41;</p>
 <ul>
-<li><p>Search and UMAP projection <a href="/SimilaritySearchDemos/demos-pluto/wiktionary-demo.jl/">Wiktionary demo</a>.</p>
+<li><p>Jupyter-based <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/wiktionary/Wiktionary.ipynb">Wiktionary demo</a>, SimilaritySearch v0.9.</p>
+</li>
+<li><p>Pluto-based <a href="/SimilaritySearchDemos/demos-pluto/wiktionary-demo.jl/">Wiktionary demo</a>, SimilaritySearch v0.8.</p>
 </li>
 </ul>
 </li>
@@ -121,38 +129,30 @@
 </li>
 </ul>
 <h2 id="search_demos_and_umap_visualization"><a href="#search_demos_and_umap_visualization" class="header-anchor">Search demos and UMAP visualization</a></h2>
-<p>The demos are <a href="https://github.com/fonsp/Pluto.jl">Pluto</a> notebooks and work over the previously created indexes and projections. Inside the repo&#39;s root run the following commands.</p>
-<pre><code class="language-bash">&#36; julia --project&#61;.
+<p>The demos are <a href="https://github.com/fonsp/Pluto.jl">Pluto</a> and &#91;Jupyter&#93;&#40;https://jupyter.org/&#93; notebooks. Inside the repo&#39;s root run the following commands.</p>
+<pre><code class="language-bash">&#36; JULIA_NUM_THREADS&#61;auto julia --project&#61;.
 ...
 
 julia&gt; using Pluto
 ...
 julia&gt; Pluto.run&#40;notebook&#61;&quot;WIT/wit-demo.jl&quot;&#41;
 ...</code></pre>
-<p>Please recall that the first time you load a package Julia compiles it. Pluto notebooks also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times.</p>
+<p>or </p>
+<pre><code class="language-bash">&#36; JULIA_NUM_THREADS&#61;auto jupyter-lab .</code></pre>
+<p>Please recall that the first time you load a package Julia compiles it. <em>Pluto notebooks</em> also save its own environments and therefore it can use different package versions that those listed in the repo environment, which will cause installing and compiling packages the first time the notebooks run. Hopefully, this strategy improves the reproducibility at the cost of increasing loading times. <em>Jupyter notebooks</em> also contain the necessary package-manager instructions to improve reproducibility. </p>
 <p>Note: Pluto interface also allows loading notebooks, so you don&#39;t need to exit and re-run to explore examples.</p>
 <h3 id="visualization"><a href="#visualization" class="header-anchor">Visualization</a></h3>
-<p>Some examples only create indexes and and UMAP projections without any kind of graphical interface. Mostly, because they could require a lot of time, even in multithreading. environments. We develop notebooks for navigation and visualization of the computed structures, in particular, the <a href="https://github.com/sadit/SimilaritySearchDemos/blob/main/visualize-umap.jl">visualization notebook</a> may work for all saved embeddings for all examples. </p>
+<p>Most visualizations are made with UMAP models using the <code>SimSearchManifoldLearning</code> package. These can be expensive and it is always recommended to run notebooks with all available threads.</p>
 <h2 id="initializing_the_environment"><a href="#initializing_the_environment" class="header-anchor">Initializing the environment</a></h2>
-<p><code>SimilaritySearch.jl</code> is writen in the <a href="https://julialang.org/">Julia language</a> you need to install it first in order to run them.</p>
-<p>The goal is that all demostrations contain a full specification of the packages such that they work out-of-the-box. Pluto has this feature natively and Jupyter notebooks use <code>PackageSpec</code> inside each notebook, both describe the working environment. While this may require extra time to always check/install the necessary packages, the examples should work out of the box. This is a work in progress.</p>
-<p>For now, there are a few scripts that should be run, for these the environment needs to be instantiated and this is made with the following commands:</p>
-<pre><code class="language-bash">&#36; julia --project&#61;.
-...
-
-julia&gt; &#93; instantiate</code></pre>
-<p>The <code>--project&#61;.</code> tells julia that our enviroment/project is described in the current directory, so you must call this inside the root of the repository. Note: you need an active internet connection to do this.</p>
-<p>The <code>&#93;</code> character inits the package manager of Julia. You can output using ctrl&#43;d &#40;repeat it to get out of Julia&#41;</p>
-<h2 id="index_construction_and_umap_projection"><a href="#index_construction_and_umap_projection" class="header-anchor">Index construction and umap projection</a></h2>
-<p>Some examples contain a <code>create-index-and-umap.jl</code> script. It should be run using all your cores, to achieve faster computing times.</p>
-<pre><code class="language-bash">&#36; julia -t64 --project&#61;.. create-index-and-umap.jl</code></pre>
-<p>or alternatively from the julia&#39;s REPL</p>
-<pre><code class="language-julia">julia&gt; include&#40;&quot;create-index-and-umap.jl&quot;&#41;</code></pre>
-<p>The first time you run a script Julia will load and compile packages, this take some time. The <code>-t64</code> flag says julia to use 64 threads; the <code>--project&#61;..</code> also tells that the parent directory describes the environment &#40;previosly instantiated&#41;.</p>
-<p>The index construction and umap projection may be quite time costly if you have few cores in your machine, so be patitient.</p>
-<p>When the <code>create-index-and-umap.jl</code> is present, then it will download dataset, create the index, and create the UMAP projections &#40;2d and 3d&#41;. </p>
+<p><code>SimilaritySearch.jl</code> is writen in the <a href="https://julialang.org/">Julia language</a> you need to install it first in order to run them. After this it is necessary to install Pluto and/or IJulia &#40;for Jupyter notebooks&#41;. If you need more information about how to install and use these notebooks, please see their respective sites.</p>
+<ul>
+<li><p><a href="https://github.com/fonsp/Pluto.jl">Pluto</a></p>
+</li>
+<li><p><a href="https://github.com/JuliaLang/IJulia.jl">IJulia</a></p>
+</li>
+</ul>
 <div class="page-foot">
-    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: April 04, 2022.
+    <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: June 21, 2022.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
 </div><!-- CONTENT ENDS HERE -->
