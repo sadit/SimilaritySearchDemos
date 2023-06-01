@@ -71,18 +71,18 @@ itime &#61; @elapsed &#40;index&#33;&#40;G&#41;; optimize&#33;&#40;G, MinRecall&
 <pre><code class="language-julia">etime &#61; @elapsed eknns, edists &#61; allknn&#40;ExhaustiveSearch&#40;; db, dist&#41;, k&#41;</code></pre>
 <h2 id="comparing_solution_times"><a href="#comparing_solution_times" class="header-anchor">Comparing solution times</a></h2>
 <p>indexing, allknn, and searchbatch times</p>
-<pre><code class="language-julia">itime, allknntime, searchtime</code></pre><pre><code class="plaintext code-output">(4.325883251, 4.811528597, 5.533326046)</code></pre>
+<pre><code class="language-julia">itime, allknntime, searchtime</code></pre><pre><code class="plaintext code-output">(11.526348969, 1.187773281, 0.517844462)</code></pre>
 <p>full cost <code>allknn</code></p>
-<pre><code class="language-julia">itime &#43; allknntime</code></pre><pre><code class="plaintext code-output">9.137411848</code></pre>
+<pre><code class="language-julia">itime &#43; allknntime</code></pre><pre><code class="plaintext code-output">12.71412225</code></pre>
 <p>full cost <code>searchbatch</code></p>
-<pre><code class="language-julia">itime &#43; searchtime</code></pre><pre><code class="plaintext code-output">9.859209297</code></pre>
+<pre><code class="language-julia">itime &#43; searchtime</code></pre><pre><code class="plaintext code-output">12.044193431</code></pre>
 <p>exhaustive <code>allknn</code></p>
-<pre><code class="language-julia">etime</code></pre><pre><code class="plaintext code-output">129.619692332</code></pre>
+<pre><code class="language-julia">etime</code></pre><pre><code class="plaintext code-output">5.269096956</code></pre>
 <h2 id="quality"><a href="#quality" class="header-anchor">Quality</a></h2>
 <p>macro recall of <code>allknn</code></p>
-<pre><code class="language-julia">macrorecall&#40;eknns, knns&#41;</code></pre><pre><code class="plaintext code-output">0.9114886666673522</code></pre>
+<pre><code class="language-julia">macrorecall&#40;eknns, knns&#41;</code></pre><pre><code class="plaintext code-output">0.9069960000006997</code></pre>
 <p>macro recall of <code>searchbatch</code></p>
-<pre><code class="language-julia">macrorecall&#40;eknns, sknns&#41;</code></pre><pre><code class="plaintext code-output">0.9113666666673534</code></pre>
+<pre><code class="language-julia">macrorecall&#40;eknns, sknns&#41;</code></pre><pre><code class="plaintext code-output">0.9084406666673672</code></pre>
 <h2 id="final_notes"><a href="#final_notes" class="header-anchor">Final notes:</a></h2>
 <p>Exhaustive search will fetch the exact solution but it has a higher cost and this could be more notorious as dataset&#39;s size increases.</p>
 <p>Also note that even <code>SimilaritySearch</code> has multithreading operations, it runs in a single thread due to the html generation pipeline.</p>
