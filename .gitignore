@@ -22,3 +22,4 @@ deps/src/
 Manifest.toml
 # most Project.toml in this repository are not required 
 Project.toml
+.ipynb*
