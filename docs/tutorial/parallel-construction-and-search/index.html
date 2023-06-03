@@ -1,63 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/katex/katex.min.css">
-     
-   <link rel="stylesheet" href="/SimilaritySearchDemos/libs/highlight/github.min.css">
-   
-  <link rel="stylesheet" href="/SimilaritySearchDemos/css/franklin.css">
-<link rel="stylesheet" href="/SimilaritySearchDemos/css/pure.css">
-<link rel="stylesheet" href="/SimilaritySearchDemos/css/side-menu.css">
-<!-- style adjustments -->
-<style>
-.franklin-content{padding-left:10%;}
-@media (min-width: 940px) {
-  .franklin-content {width: 640px; margin-left: 0px; padding-left: 80px;}
-  .header {width: 700px;}
-}
-</style>
-<link rel="icon" href="/SimilaritySearchDemos/assets/favicon.png">
-
-   <title>Incremental construction</title>  
-</head>
-<body>
-  <div id="layout">
-    <!-- Menu toggle / hamburger icon -->
-    <a href="#menu" id="menuLink" class="menu-link"><span></span></a>
-    <div id="menu">
-      <div class="pure-menu">
-        <a class="pure-menu-heading" href="#">Menu</a>
-        <ul class="pure-menu-list">
-          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/" class="pure-menu-link">Home</a></li>
-          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tutorials/" class="pure-menu-link">Tutorials</a></li>
-          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/demos/" class="pure-menu-link">Demonstrations</a></li>
-          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/datasets/" class="pure-menu-link">Datasets</a></li>
-          <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tags/" class="pure-menu-link">Tags</a></li>
-        </ul>
-      </div>
-    </div>
-    <div id="main"> <!-- Closed in foot -->
-      <div class="header">
-        <h1>Incremental construction</h1>
-        <h2>Usage demonstrations of `SimilaritySearch` with synthetic and real world data</h2>
-      </div>
-
-
-<!-- Content appended here -->
-<div class="franklin-content"><div class="franklin-toc"><ol><li><a href="#parallel_construction_and_parallel_search">Parallel construction and parallel search</a></li><li><a href="#searching">Searching</a></li><li><a href="#about_searching_pools">About searching pools</a></li><li><a href="#dependencies">Dependencies</a></li></ol></div>
-
-<h2 id="parallel_construction_and_parallel_search"><a href="#parallel_construction_and_parallel_search" class="header-anchor">Parallel construction and parallel search</a></h2>
-<p>By Eric S. Téllez</p>
-<pre><code class="language-julia">using SimilaritySearch</code></pre>
+<!doctype html> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/SimilaritySearchDemos/libs/katex/katex.min.css"> <link rel=stylesheet  href="/SimilaritySearchDemos/libs/highlight/github.min.css"> <link rel=stylesheet  href="/SimilaritySearchDemos/css/franklin.css"> <link rel=stylesheet  href="/SimilaritySearchDemos/css/pure.css"> <link rel=stylesheet  href="/SimilaritySearchDemos/css/side-menu.css"> <style> .franklin-content{padding-left:10%;} @media (min-width: 940px) { .franklin-content {width: 640px; margin-left: 0px; padding-left: 80px;} .header {width: 700px;} } </style> <link rel=icon  href="/SimilaritySearchDemos/assets/favicon.png"> <title>Incremental construction</title> <div id=layout > <a href="#menu" id=menuLink  class=menu-link ><span></span></a> <div id=menu > <div class=pure-menu > <a class=pure-menu-heading  href="#">Menu</a> <ul class=pure-menu-list > <li class="pure-menu-item "><a href="/SimilaritySearchDemos/" class=pure-menu-link >Home</a> <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tutorials/" class=pure-menu-link >Tutorials</a> <li class="pure-menu-item "><a href="/SimilaritySearchDemos/demos/" class=pure-menu-link >Demonstrations</a> <li class="pure-menu-item "><a href="/SimilaritySearchDemos/datasets/" class=pure-menu-link >Datasets</a> <li class="pure-menu-item "><a href="/SimilaritySearchDemos/tags/" class=pure-menu-link >Tags</a> </ul> </div> </div> <div id=main > <div class=header > <h1>Incremental construction</h1> <h2>Usage demonstrations of `SimilaritySearch` with synthetic and real world data</h2> </div> <div class=franklin-content ><div class=franklin-toc ><ol><li><a href="#parallel_construction_and_parallel_search">Parallel construction and parallel search</a><li><a href="#searching">Searching</a><li><a href="#about_searching_pools">About searching pools</a><li><a href="#dependencies">Dependencies</a></ol></div> <h2 id=parallel_construction_and_parallel_search ><a href="#parallel_construction_and_parallel_search" class=header-anchor >Parallel construction and parallel search</a></h2> <p>By Eric S. Téllez</p> <pre><code class="julia hljs"><span class=hljs-keyword >using</span> SimilaritySearch</code></pre>
 <p>Similarity search on very large datasets and high-dimensional datasets require high computational resources. In this example we show how to parallelize both the construction and search to be able to handle this kind of databases.</p>
-<pre><code class="language-julia">const dim &#61; 16
+<pre><code class="julia hljs"><span class=hljs-keyword >const</span> dim = <span class=hljs-number >16</span>
 
-db &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 10^5&#41;&#41;
-Q &#61; MatrixDatabase&#40;randn&#40;Float32, dim, 30&#41;&#41;
-dist &#61; SqL2Distance&#40;&#41;
-G &#61; SearchGraph&#40;; dist, db, verbose&#61;true&#41;</code></pre><pre><code class="plaintext code-output">SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}
+db = MatrixDatabase(randn(<span class=hljs-built_in >Float32</span>, dim, <span class=hljs-number >10</span>^<span class=hljs-number >5</span>))
+Q = MatrixDatabase(randn(<span class=hljs-built_in >Float32</span>, dim, <span class=hljs-number >30</span>))
+dist = SqL2Distance()
+G = SearchGraph(; dist, db, verbose=<span class=hljs-literal >true</span>)</code></pre><pre><code class="plaintext hljs">SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}
   dist: SimilaritySearch.SqL2Distance SimilaritySearch.SqL2Distance()
   db: SimilaritySearch.MatrixDatabase{Matrix{Float32}}
   links: Array{Vector{Int32}}((0,))
@@ -69,46 +17,46 @@ G &#61; SearchGraph&#40;; dist, db, verbose&#61;true&#41;</code></pre><pre><code
 <p>The <code>SearchGraph</code> construction algorithm is incremental:</p>
 <ul>
 <li><p>If the index is empty, an element is inserted just inserting it into the index</p>
-</li>
+
 <li><p>If the index is not empty, the element is inserted and connected to its nearest neighbors &#40;looking into the current index&#41;</p>
-</li>
+
 </ul>
 <p>the parallel construction is made with <code>index&#33;</code> or <code>append&#33;</code>, for this matter these functions accept a <code>parallel_block</code> argument, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.</p>
 <p>As in the sequential version, a minimum number of elements must exists to work, and therefore, the <code>parallel_minimum_first_block</code> argument can also be specified. By default, it is equal to <code>parallel_block</code>. The <code>parallel_block</code> argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.</p>
 <p>This example didn&#39;t run in parallel due to the document generation pipeline but all demonstrations actually do it. Nonetheless, they ran with the parallel API in single thread mode.</p>
-<pre><code class="language-julia">index&#33;&#40;G; parallel_block&#61;512&#41;</code></pre><pre><code class="plaintext code-output">SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
-SearchModels> reached maximum number of iterations 12
+<pre><code class="julia hljs">index!(G; parallel_block=<span class=hljs-number >512</span>)</code></pre><pre><code class="plaintext hljs">SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
+SearchModels&gt; reached maximum number of iterations 12
 </code></pre>
 <p>Note that you can&#39;t call <code>push&#33;</code>, <code>append&#33;</code>, or <code>index&#33;</code> from several threads. The default algorithm will takes advantage of the multiple threads-</p>
-<h2 id="searching"><a href="#searching" class="header-anchor">Searching</a></h2>
+<h2 id=searching ><a href="#searching" class=header-anchor >Searching</a></h2>
 <p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must pause the searching requests while perform insertions &#40;parallel or sequential&#41;.</p>
-<pre><code class="language-julia">I, D &#61; searchbatch&#40;G, Q, 10&#41;
+<pre><code class="julia hljs">I, D = searchbatch(G, Q, <span class=hljs-number >10</span>)
 
 
-Threads.@threads for i in eachindex&#40;Q&#41;
-    res, cost &#61; search&#40;G, Q&#91;i&#93;, KnnResult&#40;10&#41;&#41;
-    println&#40;res.id&#41; # do something with &#96;res&#96;
-end</code></pre><pre><code class="plaintext code-output">Int32[78050, 26352, 99057, 70901, 53005, 50780, 96102, 63521, 6696, 30851]
+Threads.<span class=hljs-meta >@threads</span> <span class=hljs-keyword >for</span> i <span class=hljs-keyword >in</span> eachindex(Q)
+    res, cost = search(G, Q[i], KnnResult(<span class=hljs-number >10</span>))
+    println(res.id) <span class=hljs-comment ># do something with `res`</span>
+<span class=hljs-keyword >end</span></code></pre><pre><code class="plaintext hljs">Int32[78050, 26352, 99057, 70901, 53005, 50780, 96102, 63521, 6696, 30851]
 Int32[39228, 85753, 3236, 24848, 5296, 93046, 28255, 70080, 51799, 56094]
 Int32[38733, 74512, 26156, 61951, 9874, 4672, 86883, 65381, 95940, 29527]
 Int32[97329, 67220, 31980, 52790, 81075, 76421, 2439, 76368, 5834, 45044]
@@ -139,31 +87,18 @@ Int32[56962, 61578, 99074, 70301, 48663, 16964, 52916, 26103, 29152, 50729]
 Int32[92633, 19321, 95711, 20533, 43351, 2778, 92473, 71469, 61153, 56455]
 Int32[69352, 53910, 86713, 56102, 76622, 3928, 80071, 70386, 65691, 43761]
 </code></pre>
-<h2 id="about_searching_pools"><a href="#about_searching_pools" class="header-anchor">About searching pools</a></h2>
+<h2 id=about_searching_pools ><a href="#about_searching_pools" class=header-anchor >About searching pools</a></h2>
 <p>Searching and also insertion methods &#40;since they also perform searches&#41; make use of several objects that are cached and reused to reduce memory allocations. These caches are named pools and are of type <code>SearchGraphPools</code>, their default values should be enough for multithreading applications, but special usage will require to review them. Among the special usages that require an explicit handling of pools we can think on objects indexing objects that are also indexes, or distance functions that can perform context switches as tasks &#40;?&#41;.</p>
-<h2 id="dependencies"><a href="#dependencies" class="header-anchor">Dependencies</a></h2>
-<pre><code class="plaintext code-output">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+<h2 id=dependencies ><a href="#dependencies" class=header-anchor >Dependencies</a></h2>
+<pre><code class="plaintext hljs">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
   [053f045d] SimilaritySearch v0.9.2
 </code></pre>
 
-<div class="page-foot">
+<div class=page-foot >
     <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> Eric S. Tellez <eric.tellez@infotec.mx>. Last modified: March 14, 2022.
     Website built with <a href="https://github.com/tlienart/Franklin.jl">Franklin.jl</a> and the <a href="https://julialang.org">Julia programming language</a>.
 </div>
-</div><!-- CONTENT ENDS HERE -->
-      </div> <!-- end of id=main -->
-  </div> <!-- end of id=layout -->
+</div>
+      </div> 
+  </div> 
   <script src="/SimilaritySearchDemos/libs/pure/ui.min.js"></script>
-  
-      
-
-
-
-  
-  
-      <script src="/SimilaritySearchDemos/libs/highlight/highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();hljs.configure({tabReplace: '    '});</script>
-
-  
-</body>
-</html>
