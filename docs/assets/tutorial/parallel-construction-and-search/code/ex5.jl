@@ -3,6 +3,10 @@ I, D = searchbatch(G, Q, 10)
 
 
 Threads.@threads for i in eachindex(Q)
-    res, cost = search(G, Q[i], KnnResult(10))
-    println(res.id) # do something with `res`
+    p = search(G, Q[i], KnnResult(10))
+    res = p.res
+    println(res[1])
+    println(collect(res))
+    println(collect(IdView(res))) # do something with `res`
+    println(collect(DistView(res))) # do something with `res`
 end

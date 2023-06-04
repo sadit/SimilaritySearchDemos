@@ -5,13 +5,13 @@
 db = MatrixDatabase(randn(<span class=hljs-built_in >Float32</span>, dim, <span class=hljs-number >10</span>^<span class=hljs-number >5</span>))
 Q = MatrixDatabase(randn(<span class=hljs-built_in >Float32</span>, dim, <span class=hljs-number >30</span>))
 dist = SqL2Distance()
-G = SearchGraph(; dist, db, verbose=<span class=hljs-literal >true</span>)</code></pre><pre><code class="plaintext hljs">SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}
+G = SearchGraph(; dist, db, verbose=<span class=hljs-literal >true</span>)</code></pre><pre><code class="plaintext hljs">SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.AdjacencyLists.AdjacencyList{UInt32}, SimilaritySearch.BeamSearch}
   dist: SimilaritySearch.SqL2Distance SimilaritySearch.SqL2Distance()
   db: SimilaritySearch.MatrixDatabase{Matrix{Float32}}
-  links: Array{Vector{Int32}}((0,))
-  locks: Array{Base.Threads.SpinLock}((0,))
+  adj: SimilaritySearch.AdjacencyLists.AdjacencyList{UInt32}
   hints: Array{Int32}((0,)) Int32[]
   search_algo: SimilaritySearch.BeamSearch
+  len: Base.RefValue{Int64}
   verbose: Bool true
 </code></pre>
 <p>The <code>SearchGraph</code> construction algorithm is incremental:</p>
@@ -21,7 +21,7 @@ G = SearchGraph(; dist, db, verbose=<span class=hljs-literal >true</span>)</code
 <li><p>If the index is not empty, the element is inserted and connected to its nearest neighbors &#40;looking into the current index&#41;</p>
 
 </ul>
-<p>the parallel construction is made with <code>index&#33;</code> or <code>append&#33;</code>, for this matter these functions accept a <code>parallel_block</code> argument, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.</p>
+<p>the parallel construction is made with <code>index&#33;</code> or <code>append_items&#33;</code>, for this matter these functions accept a <code>parallel_block</code> argument, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.</p>
 <p>As in the sequential version, a minimum number of elements must exists to work, and therefore, the <code>parallel_minimum_first_block</code> argument can also be specified. By default, it is equal to <code>parallel_block</code>. The <code>parallel_block</code> argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.</p>
 <p>This example didn&#39;t run in parallel due to the document generation pipeline but all demonstrations actually do it. Nonetheless, they ran with the parallel API in single thread mode.</p>
 <pre><code class="julia hljs">index!(G; parallel_block=<span class=hljs-number >512</span>)</code></pre><pre><code class="plaintext hljs">SearchModels&gt; reached maximum number of iterations 12
@@ -47,51 +47,145 @@ SearchModels&gt; reached maximum number of iterations 12
 SearchModels&gt; reached maximum number of iterations 12
 SearchModels&gt; reached maximum number of iterations 12
 </code></pre>
-<p>Note that you can&#39;t call <code>push&#33;</code>, <code>append&#33;</code>, or <code>index&#33;</code> from several threads. The default algorithm will takes advantage of the multiple threads-</p>
+<p>Note that you can&#39;t call <code>push_item&#33;</code>, <code>append_items&#33;</code>, or <code>index&#33;</code> from several threads. The default algorithm will takes advantage of the multiple threads .</p>
 <h2 id=searching ><a href="#searching" class=header-anchor >Searching</a></h2>
 <p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must pause the searching requests while perform insertions &#40;parallel or sequential&#41;.</p>
 <pre><code class="julia hljs">I, D = searchbatch(G, Q, <span class=hljs-number >10</span>)
 
 
 Threads.<span class=hljs-meta >@threads</span> <span class=hljs-keyword >for</span> i <span class=hljs-keyword >in</span> eachindex(Q)
-    res, cost = search(G, Q[i], KnnResult(<span class=hljs-number >10</span>))
-    println(res.id) <span class=hljs-comment ># do something with `res`</span>
-<span class=hljs-keyword >end</span></code></pre><pre><code class="plaintext hljs">Int32[78050, 26352, 99057, 70901, 53005, 50780, 96102, 63521, 6696, 30851]
-Int32[39228, 85753, 3236, 24848, 5296, 93046, 28255, 70080, 51799, 56094]
-Int32[38733, 74512, 26156, 61951, 9874, 4672, 86883, 65381, 95940, 29527]
-Int32[97329, 67220, 31980, 52790, 81075, 76421, 2439, 76368, 5834, 45044]
-Int32[47941, 33997, 39843, 56113, 23625, 25922, 72146, 34694, 8441, 93153]
-Int32[21349, 8245, 46614, 57272, 16715, 30111, 67433, 28024, 46709, 47886]
-Int32[62175, 94533, 81034, 57975, 95674, 5778, 38591, 31819, 45549, 52976]
-Int32[49428, 86861, 62912, 13863, 43771, 83874, 66589, 59160, 9794, 33443]
-Int32[99606, 97414, 56106, 45136, 67610, 5899, 77482, 16156, 68429, 30818]
-Int32[69815, 95270, 57948, 15340, 23009, 5328, 22792, 72843, 67326, 71813]
-Int32[73970, 80206, 15081, 89700, 29990, 56165, 82736, 49050, 71723, 54438]
-Int32[3797, 38001, 44066, 1723, 41367, 3913, 23424, 12031, 77147, 13279]
-Int32[93935, 42231, 14073, 24969, 50619, 13893, 93412, 14802, 57925, 43203]
-Int32[16504, 32461, 21839, 33884, 84421, 25977, 33941, 33300, 51882, 32756]
-Int32[57433, 33525, 88168, 99242, 67403, 74262, 17237, 58555, 71180, 65237]
-Int32[12473, 14119, 78693, 24893, 2005, 53852, 75521, 1627, 62925, 99836]
-Int32[95345, 93506, 40423, 22169, 66595, 58967, 90061, 21268, 87827, 36601]
-Int32[26316, 62611, 60314, 543, 16846, 98393, 93700, 24973, 54563, 14069]
-Int32[13739, 1020, 63049, 95173, 92185, 3332, 8748, 81331, 32095, 50960]
-Int32[36802, 77301, 33061, 88278, 68497, 27540, 42433, 44551, 92881, 70394]
-Int32[27871, 24494, 47398, 48058, 18742, 12345, 45402, 24925, 94932, 14198]
-Int32[55771, 69754, 1231, 6965, 22346, 83617, 59451, 11040, 14629, 88790]
-Int32[8960, 68875, 93079, 60627, 86621, 48119, 63841, 51767, 38232, 36403]
-Int32[78347, 21563, 85532, 9465, 33167, 61467, 42002, 80557, 5652, 55367]
-Int32[10970, 79738, 64622, 75930, 78983, 22448, 66116, 20347, 16558, 24412]
-Int32[10156, 43122, 4776, 38127, 34437, 24874, 42095, 27341, 12897, 70728]
-Int32[74109, 39772, 22868, 20608, 28896, 61644, 99713, 70527, 67901, 4031]
-Int32[56962, 61578, 99074, 70301, 48663, 16964, 52916, 26103, 29152, 50729]
-Int32[92633, 19321, 95711, 20533, 43351, 2778, 92473, 71469, 61153, 56455]
-Int32[69352, 53910, 86713, 56102, 76622, 3928, 80071, 70386, 65691, 43761]
+    p = search(G, Q[i], KnnResult(<span class=hljs-number >10</span>))
+    res = p.res
+    println(res[<span class=hljs-number >1</span>])
+    println(collect(res))
+    println(collect(IdView(res))) <span class=hljs-comment ># do something with `res`</span>
+    println(collect(DistView(res))) <span class=hljs-comment ># do something with `res`</span>
+<span class=hljs-keyword >end</span></code></pre><pre><code class="plaintext hljs">SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(0x0000252a, 0x00013969, 0x00013f4a, SimilaritySearch.AdjacencyLists.IdWeight(0x00005ccc, SimilaritySearch.AdjacencyLists.IdWeight(0x0000c8ec, SimilaritySearch.AdjacencyLists.IdWeight(0x000031df, 7.0979357f0)
+3.788615f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x0000f877, 6.5941443f0)
+0x000039e1, 4.988801f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x00000069, 2.5560532f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x00003187, 7.392932f0)
+4.2393436f0)
+0x0000d125, 4.198768f0)
+8.042056f0)
+0x00010b82, 4.596922f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x00004ed4, 5.732915f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x0000f322, 3.4512432f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x000102e7, 5.2305727f0)
+SimilaritySearch.AdjacencyLists.IdWeight(0x0000a15e, 6.478402f0)
+3.5578265f0)
+6.8268733f0)
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0000252a, 3.5578265f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00010f1c, 3.824278f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000324d, 3.8277345f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000176c5, 4.028836f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000c864, 4.199249f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000a1e6, 4.364611f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000018de, 4.4051404f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000116d7, 4.8308134f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000553c, 4.9082522f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000102e0, 4.9553022f0)]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00010b82, 4.596922f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00009d2e, 5.0611515f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00012e6d, 6.31061f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0001149c, 6.3516364f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000711e, 6.868322f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00007b37, 6.879284f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000028c3, 7.0082126f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000b171, 7.018173f0), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch0x0000fa99, .7.060816f0AdjacencyLists)., IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(0x0001396a, 0x00003faf, 7.273226f0)]
+5.091803f0)
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0001396a, 5.091803f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00014f99, 6.1998463f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00007a01, 6.9258676f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00014c8e, 7.3674016f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00010025, 7.4343224f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00015850, 7.481349f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0001783d, 7.6306996f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00003a20, 7.7547874f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00012fb9, 7.75847f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0001089d, 8.120004f0)]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight[0x00000069, SimilaritySearch.AdjacencyLists.IdWeight(2.5560532f0), 0x0000f877, SimilaritySearch.6.5941443f0), AdjacencyLists.IdWeight(SimilaritySearch.0x0000fc6c, 3.172454f0), SimilaritySearch.AdjacencyLists.AdjacencyLists.IdWeightIdWeight((0x00008249, 0x00004651, 8.116962f0), 3.74008f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000065f7, 8.293198f0), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(0x0x0000054f, 0000120f, 8.542551f0), 3.7698548f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001dcb, 8.606771f0), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.0x0xAdjacencyLists.IdWeight(0x00004f8f, 8.633167f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00016158, 000182b5, 8.652463f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000969d, 8.776744f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000fa50, 0x2.9661005f0)
+0000f071, 9.045147f0), 0000c570, SimilaritySearch.AdjacencyLists.IdWeight(0x00010daf, 4.174521f0)7.1560926f0), 
+9.079847f0)]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00014ed6, 4.189091f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000182b5, SimilaritySearch.2.9661005f0SimilaritySearch.AdjacencyLists.IdWeight[), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(AdjacencyLists.IdWeight(0x000014ae, 4.2243867f0), 0x00005cbc, SimilaritySearch.4.266029f0), 0x0000fa50, SimilaritySearch.AdjacencyLists.7.1560926f0IdWeight)(, 0x0000f0a2, 4.545765f0), AdjacencyLists.SimilaritySearch.IdWeight(0x0000f505, 4.3486485f0), SimilaritySearch.AdjacencyListsSimilaritySearch.AdjacencyLists.AdjacencyListsIdWeight(.IdWeight0x00013764, 4.3777137f0), SimilaritySearch.AdjacencyLists..IdWeight(0x00010d4f, 7.4697814f0), SimilaritySearch.AdjacencyLists.(0x0001853d, 4.63692f0), IdWeight(IdWeight(0x0000e31d, SimilaritySearch.AdjacencyLists.IdWeight(0x00000c64, 4.652814f0), 4.539241f0)]0x00015f6b, 7.479297f0), 
+SimilaritySearch.AdjacencyListsSimilaritySearch.AdjacencyLists.IdWeight(.0x00007efd, 4.976169f0), IdWeight(0x0000acd2, SimilaritySearch.AdjacencyLists.IdWeight(0x0000efb5, 5.292302f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00002084, 8.771171f0), SimilaritySearch.AdjacencyLists.IdWeight(5.314298f0), SimilaritySearch.AdjacencyLists.IdWeightSimilaritySearch(.0xAdjacencyLists.000150e7, IdWeight(0x0000bb63, 5.3296356f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00009d8b, 5.411565f0)]
+0x00010298, 4.6633263f0)8.853847f0), 
+SimilaritySearch.AdjacencyLists.IdWeight(0x000133dc, 9.02527f0), SimilaritySearch.SimilaritySearch.AdjacencyLists.IdWeightAdjacencyLists.IdWeight(0x00009975, 9.253581f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000796d, 9.312323f0), [SimilaritySearch.AdjacencyLists.IdWeight(0x00009139, 9.620191f0), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.0x000150e7, AdjacencyLists.IdWeight(4.6633263f0), SimilaritySearch.AdjacencyLists.IdWeight[0x000067dd, SimilaritySearch.AdjacencyLists.IdWeight(9.7283745f0)]0x
+SimilaritySearch.AdjacencyLists.IdWeight(0x0000c8ec, 00005fea, 4.777671f0), 8.042056f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000284c, 5.7659607f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000066c4, 5.784688f0), SimilaritySearch.AdjacencyListsSimilaritySearch.AdjacencyLists.IdWeight(0x00003d3f, .IdWeight(0x000109ed, 8.813693f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00013afd, 10.136798f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000adc5, 11.176973f0), 5.8798175f0SimilaritySearch.AdjacencyLists.IdWeight(0x0000e017, 11.235437f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000206e, 11.371146f0), ), SimilaritySearch.AdjacencyLists.IdWeight(0x000136d3, 11.526643f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00011ec4, SimilaritySearch.5.909481f0)AdjacencyLists., IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(0x0x0000e14900001301, 11.76595f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00017031, 11.767525f0), , SimilaritySearch.AdjacencyLists.IdWeight(5.9174f0), 0x000051f9, 11.969673f0)]
+SimilaritySearch.AdjacencyLists.IdWeight(0x000010bf, 5.9745073f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000094c, 6.1755404f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000059da, 6.209434f0)]
+UInt32[0x00000069, 0x0000fc6c, 0x00004651, 0x0000120f, 0x0000c570, 0x00014ed6, 0x00005cbc, 0x0000f505, 0x00013764, 0x0000e31d]
+UInt32[0x0000c8ec, 0x000109ed, 0x00013afd, 0x0000adc5, 0x0000e017, 0x0000206e, 0x000136d3, 0x00001301, 0x00017031, 0x000051f9]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0000d125, 4.198768f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00008844, 5.1748757f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00015b72, 5.239933f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000058ed, 5.4019294f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000082d5, 5.488248f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00008f91, 5.749782f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00006d45, 5.800151f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00011568, 5.913351f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00002837, 6.0776076f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00002ca7, 6.1519094f0)]
+UInt32[0x0000d125, 0x00008844, 0x00015b72, 0x000058ed, 0x000082d5, 0x00008f91, 0x00006d45, 0x00011568, 0x00002837, 0x00002ca7]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x000102e7, 5.2305727f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00006373, 5.3705473f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000086c1, 5.510112f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000c551, 5.5809345f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000f021, 5.7544656f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0001647d, 5.845103f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000c512, 5.902129f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000a49, 6.0820003f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000ffe1, 6.091678f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000178ba, 6.112159f0)]
+UInt32[0x000102e7, 0x00006373, 0x000086c1, 0x0000c551, 0x0000f021, 0x0001647d, 0x0000c512, 0x00000a49, 0x0000ffe1, 0x000178ba]
+Float32[2.5560532, 3.172454, 3.74008, 3.7698548, 4.174521, 4.189091, 4.266029, 4.3486485, 4.3777137, 4.539241]
+Float32[UInt32[4.198768, 0x0001396a5.17487570x0000edcc, , 0x00014f99, 0x00007a01, 0x00014c8e, 0x00010025, 0x00015850, 0x4.1371675f0)
+0001783d, 0x00003a20, 0x00012fb9, 0x0001089d]
+, 5.239933, 5.4019294, 5.488248, 5.749782, 5.800151, 5.913351, 6.0776076, 6.1519094]
+Float32[5.091803, 6.1998463, 6.9258676, 7.3674016, 7.4343224, 7.481349, 7.6306996, 7.7547874, 7.75847, 8.120004]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.SimilaritySearchAdjacencyLists..AdjacencyListsIdWeight.(IdWeight(0x0000edcc, 0x000039e1, 4.1371675f0), 4.988801f0), SimilaritySearch.SimilaritySearch.AdjacencyLists.AdjacencyLists.IdWeight(0x0000402c, 5.9542737f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00007f10, 6.019139f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000146b0, 6.135286f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00017029, 6.210146f0), SimilaritySearch.AdjacencyLists.IdWeight(IdWeight0x0000322c(, 0x00013de96.212342f0), UInt32[0x0000252aSimilaritySearchSimilaritySearch..AdjacencyLists.AdjacencyLists.IdWeightIdWeight((, 0x000046b5, 4.600776f0), 0x00013f85, 6.345208f0), ,SimilaritySearch6.3869944f0SimilaritySearch.AdjacencyLists..)
+ 0xUInt32[0x0000fa50, 0x00010d4f, 0x00015f6b, 0x0000acd2, 0x00010298, 0x000133dc, 0x00009975, 0x0000796d, 0x00009139, 0x000067dd]
+AdjacencyListsSimilaritySearch.AdjacencyLists.IdWeightFloat32[[IdWeight(7.1560926, 0x00013ce9, 7.4697814, 7.479297, 00010f1cSimilaritySearch6.3914886f0, .), UInt32[SimilaritySearchIdWeight(0x00007317, 4.714827f0), SimilaritySearch.AdjacencyLists.AdjacencyLists.IdWeight(0x00006e8f, ..IdWeight(0x0000324d0x0000f877, 0x000098060x00008249, 0x000065f7, 0x0000054f, 0x00001dcb, 0x00004f8f, 0x00016158, 0x0000969d, 0x0000f071, 0x00010daf]
+, 6.5820484f0), SimilaritySearch.AdjacencyLists.IdWeight(Float32[4.7277784f0), SimilaritySearch.8.771171,AdjacencyLists.6.5941443, AdjacencyLists8.116962, ,8.293198, IdWeight(.0x00013f85, 6.3869944f0), IdWeight(8.542551, SimilaritySearch 0x0001539d, 8.853847.AdjacencyLists.IdWeight(, 9.025270x000094d4, 6.552705f0), ,SimilaritySearch.AdjacencyLists.IdWeight( 0x0000be1e, 9.253581, 9.312323, 6.8277903f0)UInt32, SimilaritySearch.AdjacencyLists.IdWeight8.606771, 8.633167, 8.652463, 8.776744, 9.045147, 9.079847]
+( [9.620191, 9.7283745]
+4.4248047f0)0x0000d33e, 4.8388815f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001122, 4.8429723f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000552c, 0x000176c5, 0x0000c864, 0x0000a1e6, 0x000018de, 0x000116d7, 0x0000553c, 0x000102e0]
+Float32[3.5578265, 3.824278, 3.8277345, 4.028836, 4.199249, 4.364611, 4.4051404, 4.8308134, 4.9082522, 4.9553022]
+0x00010717, 6.829045f0)]
+0x000182b5, 0x000014ae, 0x0000f0a2, 0x0001853d, UInt32[0x00000c64, 0x0xSimilaritySearch.AdjacencyLists.IdWeight[00007efd, 4.8952317f00x0000efb5,000039e1UInt32[0x000150e7, 0x00005fea, ,0x0000284cSimilaritySearch., 0x00002084, 0x0000bb63, 0x00009d8b]
+ AdjacencyLists.Float32[2.9661005, 4.2243867, 4.545765, 4.63692, IdWeight4.652814, 4.976169, 5.292302, 5.314298,(0x0x00003187, 0000402c7.392932f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00004b0b, ,7.615486f0), SimilaritySearch.AdjacencyLists.IdWeight( 0x0000f2f7, 8.0319805f0), SimilaritySearch.AdjacencyLists. 0x5.3296356, 
+0000b0f6IdWeight(0x, 0x6.8532276f0), 00016ec2, 00007f10, 5.411565]SimilaritySearch8.252052f0), 0x
+SimilaritySearch.AdjacencyLists.IdWeight(0x00008be4, 000146b08.603873f0), SimilaritySearch.AdjacencyLists.IdWeight()0x, 00011390, 8.850042f0), SimilaritySearchSimilaritySearch.AdjacencyLists.IdWeight(0x0000cf3d, 8.854325f0), SimilaritySearch. AdjacencyLists.IdWeight(0x000066c40x0000b626, ,8.924728f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000e9bb,  9.379747f0), .AdjacencyLists.IdWeight, 0x00017029, 0x0000322c, 0x000046b5, 0x00013ce9, 0x00006e8f, (0x00010717]
+0x00002cab, 4.931276f0), Float32[SimilaritySearch.AdjacencyLists.4.988801,IdWeight( 5.95427370x0000572b, 5.020216f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000078d1, 5.128618f0)]
+UInt32[0x0000edcc, 0x00013de9, 0x00007317, 0x00009806, 0x0000d33e, 0x00001122, 0x0000552c, 0x00002cab, 0x0000572b, 0x000078d1]
+Float32[4.1371675, 4.600776, 4.714827, 4.7277784, 4.8388815, 4.8429723, 4.8952317, 4.931276, 5.020216, 5.128618]
+.AdjacencyLists.IdWeight(0x000010f3, 6.993322f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000d18, SimilaritySearch.AdjacencyLists.IdWeight(0x0001139f, 9.499197f0)]
+0x00003d3f, 0x00011ec4, UInt32[0x00003187, 0x00004b0b, 0x0000f2f7, ,6.019139 0x00016ec2, 0x00008be4, 0x00011390, 0x0000cf3d, 0x0000b626, 0x0000e9bb, 0x0001139f]
+, 6.135286, Float32[7.3301764f07.392932, 7.615486, 8.0319805, 8.252052, 8.603873, 8.850042, 8.854325, 8.924728, 9.379747, 9.499197]
+0x0000e149, 0x000010bf, 0x0000094c, 0x000059da]
+6.210146, 6.212342, 6.345208, 6.3914886, 6.5820484, 6.829045]Float32[
+4.6633263, ), 4.777671, 5.7659607SimilaritySearch., 5.784688, 5.8798175, 5.909481, 5.9174, 5.9745073, 6.1755404, 6.209434]
+AdjacencyLists.IdWeight(0x00009359, 7.3640776f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00003852, 7.555402f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00006114, 7.720546f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000092e1, 7.793578f0)]
+UInt32[0x00013f85, 0x000094d4, 0x0000be1e, 0x0000b0f6, 0x000010f3, 0x00000d18, 0x00009359, 0x00003852, 0x00006114, 0x000092e1]
+Float32[6.3869944, 6.552705, 6.8277903, 6.8532276, 6.993322, 7.3301764, 7.3640776, 7.555402, 7.720546, 7.793578]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0001539d, 4.4248047f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001be2, 4.539633f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000066c2, 5.0277796f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000fdbf, 5.241397f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000133c7, 6.112694f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0001518f, 6.133797f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00005fd1, 6.1361036f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000178f7, 6.1387715f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00004814, 6.3011456f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00013392, 6.3416123f0)]
+UInt32[0x0001539d, 0x00001be2, 0x000066c2, 0x0000fdbf, 0x000133c7, 0x0001518f, 0x00005fd1, 0x000178f7, 0x00004814, 0x00013392]
+Float32[4.4248047, 4.539633, 5.0277796, 5.241397, 6.112694, 6.133797, 6.1361036, 6.1387715, 6.3011456, 6.3416123]
+SimilaritySearch.AdjacencyLists.IdWeight(0x00000980, 6.3019032f0)
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000980, 6.3019032f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00007a87, 6.5339136f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000733c, 7.2229214f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000070cd, 7.5728188f0), SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00004c21, Float32[7.7668657f0), SimilaritySearch.AdjacencyLists.8.042056SimilaritySearch.AdjacencyLists.IdWeight(0x00013c3f, 7.8856716f0), UInt32[0x00010b82, 0x00009d2e, 0x00012e6d, 0x0001149c, 0x0000711e, 0x00007b37, 0x000028c3, 0x0000b171, 0x0000fa99, 0x00003faf]
+Float32[4.596922, 5.0611515, 6.31061, 6.3516364, 6.868322, 6.879284, 7.0082126, 7.018173, 7.060816, 7.273226]
+SimilaritySearch.AdjacencyLists.IdWeight(0x00017332, 2.3723793f0)
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00017332, 2.3723793f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00012c61, 3.484851f0), SimilaritySearch.AdjacencyLists.IdWeight(, IdWeight(8.8136930x00002a5f, , 0x00013f4a, 10.136798, 11.176973, 11.235437, 11.371146, 7.0979357f0)11.526643, 0x000116a4, 11.76595,5.0222025f0), 6.0746913f0 )11.767525
+, 11.969673]
+SimilaritySearch.AdjacencyLists.IdWeight[,SimilaritySearch.AdjacencyLists.IdWeight(0x00002a5f,  6.0746913f0), SimilaritySearch.SimilaritySearch.AdjacencyLists.SimilaritySearch.AdjacencyLists.IdWeight(0x00008a81, SimilaritySearchIdWeight6.432182f0.(AdjacencyLists.IdWeight(0x00013f74, 5.2405868f0), 0x0000a537, SimilaritySearch.AdjacencyLists.IdWeight(8.004213f0), AdjacencyLists.IdWeight(0x00014ebb, SimilaritySearch7.3481464f0.0xAdjacencyLists.IdWeight(0x00007644, 8.481145f0), 0000e427, 5.252933f0)SimilaritySearch, .AdjacencyLists.IdWeight(0x00007a6fSimilaritySearch.Float32[)5.2305727SimilaritySearch.AdjacencyLists.IdWeight(, 0x00005753, 5.3705473, 5.510112, 5.5809345, 5.7544656, 5.8451034.2537785f0)
+), , , SimilaritySearch.AdjacencyLists.IdWeightSimilaritySearchAdjacencyLists8.673469f0[SimilaritySearch.AdjacencyLists.IdWeight(.)SimilaritySearchSimilaritySearch.AdjacencyLists.IdWeight.0x00001543AdjacencyLists, .8.1104765f0), IdWeight.SimilaritySearch.AdjacencyLists.IdWeight(0x000080f9, 8.267899f0), AdjacencyLists.IdWeight(0x0000a80f, SimilaritySearch.AdjacencyLists.IdWeight(0x0000e602, 7.0538807f0)SimilaritySearch.AdjacencyLists.IdWeight(, 0x0001017f, IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(0x000019460x0000d0ab, , 8.309778f0), 7.9681544f0SimilaritySearch.AdjacencyLists.IdWeight(0x00011fa4, ),(8.840868f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000df66, 8.996099f0), ,[0x00013969, SimilaritySearch.AdjacencyLists.IdWeight( 0x8.480155f0)
+SimilaritySearch.0001559f, AdjacencyLists9.324117f0), .SimilaritySearch.AdjacencyLists.IdWeight(0x00010006, 9.4585085f0),SimilaritySearch.AdjacencyLists. IdWeight SimilaritySearch.AdjacencyLists.SimilaritySearchIdWeight,.AdjacencyLists.SimilaritySearch5.2629895f0 IdWeight(0x00008489, 8.146675f0), (IdWeight(0x000077ce, 3.788615f0)9.667972f0)]
+,SimilaritySearch.AdjacencyLists.IdWeight[UInt32SimilaritySearch.AdjacencyLists.IdWeight(0x0001017f, [8.480155f00x00013f4a, ), 0xSimilaritySearch.AdjacencyLists.IdWeight(0x000032b3, 9.20015f0), 00014ebb, ),0x00001543, 0x00000c95.AdjacencyLists.IdWeight(0x00005753, 4.2537785f0), , SimilaritySearch.0xSimilaritySearch.AdjacencyLists.IdWeight(0x00004a03, 000080f94.330548f0)(0x000009a2, 3.680846f0), 
+8.75358f0)]SimilaritySearch., 0x0000e602, 0x00011fa4, 0x0000df66, 0x0001559f, 0x00010006, 0x000077ce]
+AdjacencyLists. IdWeightSimilaritySearch.AdjacencyLists.IdWeight((SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x000125ac, 9.2836685f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000009a2, 
+SimilaritySearch.3.680846f0), 0x000070e7, Float32SimilaritySearch[AdjacencyLists.AdjacencyLists.4.6033907f0AdjacencyLists.IdWeight)7.0979357, (7.3481464IdWeight(0x0000bc0c, 4.2238564f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000b05b, 4.912552f0), , 0x5.902129,SimilaritySearch.  SimilaritySearch.0001260b, ,.5.2458053f0),SimilaritySearch.AdjacencyLists.IdWeight[ AdjacencyLists.IdWeight(AdjacencyLists0x.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(00005b680x0000f322, , 3.4512432f05.1240377f0), ), SimilaritySearch.AdjacencyLists.IdWeight(0x00005343, 5.145008f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00015ff9, SimilaritySearch.AdjacencyLists.IdWeight(5.2742524f0), 0x000081fb, SimilaritySearch.AdjacencyLists.IdWeight(9.341985f0), 0x00001664, 5.457961f0), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.0x000114fe, AdjacencyLists9.414531f0), .0x00002e54, IdWeight5.3076367f0), (0x0001854b, SimilaritySearch.5.83824f0AdjacencyLists.IdWeight(0x00017c07, 5.5632067f0), ), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.0xSimilaritySearch.AdjacencyLists.IdWeight(0x00005d1d, 5.8529234f0), 0000801d SimilaritySearchSimilaritySearch.AdjacencyLists.IdWeight(0x00007ad9, .5.561329f0, 5.6653905f0), )AdjacencyListsSimilaritySearch.AdjacencyLists.IdWeight(0x00002df1, 5.767599f0), SimilaritySearch.AdjacencyLists.IdWeight.(0x0000a2a7, 5.5627384f0), 6.0820003IdWeight(,SimilaritySearch.8.1104765AdjacencyLists.IdWeight(0x0000f079, 5.6493287f0), ,SimilaritySearch . 8.267899, 8.309778, 8.840868, 8.996099, 9.324117, 9.4585085, 6.091678,AdjacencyLists. 6.112159]
+IdWeight(0x0000a431, 0x0000c8e6, 9.439572f0)5.6580796f0, SimilaritySearch.AdjacencyLists.IdWeight(0x0000ea57, )9.521367f0), SimilaritySearch.,AdjacencyLists.IdWeight(0x00008205,  9.695768f0), SimilaritySearch.AdjacencyLists.SimilaritySearch.IdWeight(AdjacencyLists.IdWeight(0x00004911, 0x0001748a, 5.7594037f0)]
+9.8597355f0), 0x000125d6, SimilaritySearch5.860824f0)UInt32[0x00017332, 0x00012c61, 0x000116a4, 0x00013f74, 0x0000e427, 0x00001946, 0x0000a2a7, UInt32IdWeight(0x00004764, 8.150312f0[0x00000980, 0x00007a87, 0x0000733c, 0x000070cd, 0x00004c21, 0x00013c3f, )0x0000a537, ,0x00007644, 0x 00007a6f, 0x00000c95]
+SimilaritySearch.AdjacencyLists.IdWeight(0x00007f5d, 8.164136f0), Float32[]6.3019032
+AdjacencyLists.IdWeight(0x0000d021, 6.3036766f0), ,UInt32SimilaritySearch.AdjacencyLists.IdWeight( 0x0000e55f, 6.452188f0), SimilaritySearch6.5339136, 7.2229214, .7.5728188, 7.7668657, 7.8856716, 8.004213, 8.481145, 9.667972AdjacencyLists.IdWeight(0x000041d0, [8.600345f0)0x, 0000f079SimilaritySearch.0x000009a2, 0x0000bc0c, 0x0000b05b,AdjacencyLists8.673469, ]
+, 0x8.75358]
+ 0000c8e60x00005b68, 0x00005343, SimilaritySearch.AdjacencyLists.IdWeight(0x00006e97, 8.887215f0), SimilaritySearch.AdjacencyListsSimilaritySearch.AdjacencyLists.IdWeight.IdWeight(0x000042b0, 8.985646f0)]
+SimilaritySearch.[AdjacencyLists.UInt32[SimilaritySearch.AdjacencyLists.IdWeight(.IdWeight0x00002a5f, 0x00008a81, 0x0000a80f, 0x0000d0ab, 0x00008489, 0x00004764, 0x00007f5d, 0x000041d0, 0x00006e97, 0x000042b00x0000a15e, 6.478402f0), (]
+SimilaritySearch.0x0001721b, AdjacencyLists.IdWeight(0xFloat32[6.0746913, , SimilaritySearch.AdjacencyLists.IdWeight(00002e546.432182, 7.05388070x00016f23, , 6.1322927f0), 7.9681544, SimilaritySearch.AdjacencyLists.IdWeight(0x0000ff52, 8.146675, , 8.150312, 5.229078f0), IdWeight8.164136,SimilaritySearch. AdjacencyLists.IdWeight(0x00006dde, 5.620668f0), 8.600345, .8.887215, AdjacencyLists8.985646.IdWeight(0x000124c2, ]9.968777f0)]
+
+0x00017c07, ,UInt32[0x0001017f, 0x000032b3, 0x000125ac, 0x000081fb, 0x000114fe, 0x0000a431, 0x0000ea57, 0x00008205, 0x0001748a, 0x0000801d, 0x0x000124c200002df1, ]
+Float32[8.480155, 9.20015, 9.2836685, 9.3419850x000125d6]
+, 9.414531, 9.439572, 9.521367, 9.695768, 9.8597355, Float32[3.680846, 4.2238564, 4.912552, 5.1240377, 5.145008, 5.3076367, 0x 0x00004911]
+5.5632067, 5.6653905, 5.767599, 5.860824]
+(0x0000be5d, 6.487486f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00017132, 6.7865696f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000b55b, 6.820665f0)]
+UInt32[0x0000f322, 0x00015ff9, 0x00001664, 0x0001854b, 0x00005d1d, 0x0000d021, 0x0000e55f, 0x0000be5d, 0x00017132, 0x0000b55b]
+Float32[3.4512432, 5.2742524, 5.457961, 5.83824, 5.8529234, 6.3036766, 6.452188, 6.487486, 6.7865696, 6.820665]
+9.968777]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.0x00005205, IdWeight(5.647521f0), 0xSimilaritySearch.SimilaritySearch.AdjacencyLists.IdWeight[AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists0x0000ebb9, .IdWeight(5.675327f0), 0x00005ccc, SimilaritySearch.AdjacencyLists.IdWeight(6.8268733f0), 0x00017dff, 6.2739844f0), 5.8586f0), SimilaritySearch.AdjacencyLists.IdWeight(SimilaritySearch.AdjacencyLists.IdWeight(0x00006254, 0xSimilaritySearch.0000c1e5, 7.3370156f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000035b5, 8.889898f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000d65, 8.947105f0), SimilaritySearch.AdjacencyLists.IdWeight(6.460495f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000d2b7, 6.568128f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00015b2c, 6.6008043f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000cb6e, 6.7190948f0), SimilaritySearch.AdjacencyLists.IdWeight(000031df0x0000f770, 6.740327f0)]0x00011aeb
+, 5.897668f0), AdjacencyLists.IdWeight(0x00015692, SimilaritySearch.9.180002f0UInt32[0x00013969, 0x0001260b, 0x00007ad9, 0x00016f23, 0x0000ff52, 0x0000c1e5, 0x0000d2b7, 0x00015b2c, 0x0000cb6e, 0x0000f770]
+Float32[Float32[3.788615, 2.3723793, 3.484851, 5.0222025, 5.2405868, 5.252933, 5.2629895, 5.5627384, 5.6493287, 5.6580796, 5.7594037]
+, 4.2393436f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00005796, 5.1069217f0), SimilaritySearch.AdjacencyLists.IdWeight(00014af60x00017559, , 5.613531f0),6.80594f0),  SimilaritySearch.AdjacencyLists.IdWeight(0x000143bd, SimilaritySearch.AdjacencyLists.IdWeight(0x00014c4a, 6.182695f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000ecca), , 6.3326983f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000affc, SimilaritySearch.AdjacencyLists9.296658f0), 6.9999933f0SimilaritySearch.AdjacencyLists.IdWeight(0x0000ca0a, ), AdjacencyLists.IdWeight(5.2458053, 0x0000fbc3, 5.9138503f0)]
+UInt32[0x00005753, 0x00004a03, 0x000070e7, 0x0001721b, 0x00006dde, 0x00005205, 0x0000ebb9, SimilaritySearch.AdjacencyLists.IdWeight(0x000043ed, 0x00017dff, 0x00011aeb,6.8587246f0)
+ 0x0000fbc3].
+IdWeight(0x00010410, 7.0811677f0), 9.309595f0), Float32[5.561329,4.2537785SimilaritySearch.AdjacencyLists.IdWeight,SimilaritySearch.AdjacencyLists.IdWeight(0x000039f8, 9.672168f0), SimilaritySearch.AdjacencyLists.IdWeight( 0x[00003de2, 4.330548, 9.816384f0)SimilaritySearch.AdjacencyLists, SimilaritySearch.AdjacencyLists.IdWeight(0x0000d165, 9.913968f0)]
+UInt32[0x00005ccc, 0x00006254, 0x000035b5, 0x00000d65, 0x00015692, 0x0000affc, 0x0000ca0a, 0x000039f8, 0x00003de2, 0x0000d165]
+Float32[6.8268733, 7.3370156, 8.889898, 8.947105, 9.180002, 9.296658, 9.309595, 9.672168, 9.816384, 9.913968]
+SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00004ed4, 5.732915f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00007e6c, 6.516983f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000084ec, 6.978436f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00009678, 7.3943825f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000e41c, 7.489221f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000a84f, 7.6410265f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000133c5, 7.6522117f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000083d3, 7.716875f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000018b9, 4.6033907, 7.8529944f0), 5.229078, 5.620668, SimilaritySearch.5.647521, 5.675327, 5.8586, 5.897668, 5.9138503]
+SimilaritySearch.AdjacencyLists.IdWeight(0x0000a6e1, 7.035409f0), SimilaritySearch.AdjacencyLists..IdWeight( 0x00002081, AdjacencyLists.IdWeight(7.078627f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00006bf1, 7.433152f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00003122, 7.4640956f0), IdWeight(SimilaritySearch.AdjacencyLists.0x000043edIdWeight(, 0x00016994, 6.8587246f07.4931326f0)), , SimilaritySearch.SimilaritySearchAdjacencyLists.IdWeight(SimilaritySearch.0xAdjacencyLists.IdWeight(0x00012e3f, 0000effd, 7.1463203f0), SimilaritySearch..AdjacencyLists.AdjacencyListsIdWeight(0x00000dfa, 7.2110925f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00012293, 7.267798f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000054a, 7.3078084f0)]
+UInt32[0x000031df, 0x00005796, 0x00017559, 0x00014c4a, 0x0000ecca, 0x00010410, 0x00012e3f, 0x00000dfa, 0x00012293, 0x0000054a]
+6.1322927, Float326.2739844, 6.460495, 6.568128, 6.6008043, 6.7190948, [6.740327]
+4.2393436, 5.1069217, 5.613531, 0x00004742, 6.182695, 7.8700037f06.3326983, 7.0811677, 7.1463203, 7.2110925, 7.267798, 7.3078084]
+)]
+UInt32[0x00004ed4, 0x00007e6c, 0x000084ec, 0x00009678, 0x0000e41c, 0x0000a84f, 0x000133c5, 0x000083d3, 0x000018b9, 0x00004742]
+Float32[5.732915, 6.516983, 6.978436, 7.3943825, 7.489221, 7.6410265, 7.6522117, 7.716875, 7.8529944, 7.8700037]
+.IdWeight(0x000162ad, 7.516851f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000d277, 7.5292573f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000ec13, 7.579102f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000a79b, 7.9255204f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00007add, 7.514946f0), 8.194196f0), SimilaritySearch.SimilaritySearch.AdjacencyListsAdjacencyLists..IdWeightIdWeight(0x0000febc, 8.261476f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000dbce, 8.602668f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001ebf, 8.667489f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000d51, 8.688367f0)]
+(0x0000846d, UInt32[0x000043ed, 0x000162ad, 0x0000d277, 0x0000ec13, 0x0000a79b, 0x00007add, 0x0000febc, 0x0000dbce, 0x00001ebf, 7.5654116f0)]
+0x00000d51]
+UInt32[0x0000a15e, 0x00014af6, 0x000143bd, 0x0000a6e1, 0x00002081, 0x00006bf1, 0x00003122, 0x00016994, 0x0000effd, 0x0000846d]
+Float32[6.478402, 6.80594, 6.9999933, 7.035409, Float32[7.078627, 7.433152, 6.8587246, 7.4640956,7.516851,  7.5292573, 7.4931326, 7.5791027.514946, , 7.5654116]
+7.9255204, 8.194196, 8.261476, 8.602668, 8.667489, 8.688367]
 </code></pre>
 <h2 id=about_searching_pools ><a href="#about_searching_pools" class=header-anchor >About searching pools</a></h2>
 <p>Searching and also insertion methods &#40;since they also perform searches&#41; make use of several objects that are cached and reused to reduce memory allocations. These caches are named pools and are of type <code>SearchGraphPools</code>, their default values should be enough for multithreading applications, but special usage will require to review them. Among the special usages that require an explicit handling of pools we can think on objects indexing objects that are also indexes, or distance functions that can perform context switches as tasks &#40;?&#41;.</p>
 <h2 id=dependencies ><a href="#dependencies" class=header-anchor >Dependencies</a></h2>
-<pre><code class="plaintext hljs">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.9.2
+<pre><code class="plaintext hljs">Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.10.8
 </code></pre>
 
 <div class=page-foot >

@@ -1,3 +1,6 @@
-MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.MinRecall; queries=SimilaritySearch.MatrixDatabase{Matrix{Float64}}([0.15493035160009505 0.22883910628123183 … 0.585332604944402 0.8307393282131446; 0.25306730223576546 0.6286081294542377 … 0.8979871895358562 0.5574486336481846; … ; 0.9479273378743132 0.5279623337285249 … 0.03407986088898751 0.35946793062479343; 0.9759177331027767 0.3121908509729252 … 0.12493571163048967 0.6380022972981435]))
-Closest candidates are:
-  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
+  0.002958 seconds (2.01 k allocations: 109.734 KiB)
+  0.009363 seconds (2.28 k allocations: 1.187 MiB)
+  0.002534 seconds (2.01 k allocations: 109.734 KiB)
+macrorecall(goldI, I1) = 0.9315999999999932
+macrorecall(goldI, I2) = 0.9301999999999929
+macrorecall(goldI, I3) = 0.9371999999999938

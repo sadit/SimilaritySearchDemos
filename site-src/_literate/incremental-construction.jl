@@ -23,12 +23,12 @@ dist = L1Distance()
 # The index construction is made as follows
 G = SearchGraph(; dist, db, verbose=false)
 
-# instead of `index!` we can use `push!` and `append!` functions
+# instead of `index!` we can use `push_item!` and `append_items!` functions
 for _ in 1:10^4
-    push!(G, rand(Float32, dim))  # push! inserts one item at a time
+    push_item!(G, rand(Float32, dim))  # push_item! inserts one item at a time
 end
 
-append!(G, MatrixDatabase(rand(Float32, dim, 10^4))) # append! inserts many items at once
+append_items!(G, MatrixDatabase(rand(Float32, dim, 10^4))) # append_items! inserts many items at once
 
 # Note that we used a `MatrixDatabase` to wrap the matrix to be inserted since it will be
 # copied into the index.

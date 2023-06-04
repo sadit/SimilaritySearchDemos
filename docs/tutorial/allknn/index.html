@@ -19,24 +19,24 @@ itime = <span class=hljs-meta >@elapsed</span> (index!(G); optimize!(G, MinRecal
 <pre><code class="julia hljs">etime = <span class=hljs-meta >@elapsed</span> eknns, edists = allknn(ExhaustiveSearch(; db, dist), k)</code></pre>
 <h2 id=comparing_solution_times ><a href="#comparing_solution_times" class=header-anchor >Comparing solution times</a></h2>
 <p>indexing, allknn, and searchbatch times</p>
-<pre><code class="julia hljs">itime, allknntime, searchtime</code></pre><pre><code class="plaintext hljs">(11.526348969, 1.187773281, 0.517844462)</code></pre>
+<pre><code class="julia hljs">itime, allknntime, searchtime</code></pre><pre><code class="plaintext hljs">(5.040281815, 1.043150425, 0.48428813)</code></pre>
 <p>full cost <code>allknn</code></p>
-<pre><code class="julia hljs">itime + allknntime</code></pre><pre><code class="plaintext hljs">12.71412225</code></pre>
+<pre><code class="julia hljs">itime + allknntime</code></pre><pre><code class="plaintext hljs">6.0834322400000005</code></pre>
 <p>full cost <code>searchbatch</code></p>
-<pre><code class="julia hljs">itime + searchtime</code></pre><pre><code class="plaintext hljs">12.044193431</code></pre>
+<pre><code class="julia hljs">itime + searchtime</code></pre><pre><code class="plaintext hljs">5.5245699450000005</code></pre>
 <p>exhaustive <code>allknn</code></p>
-<pre><code class="julia hljs">etime</code></pre><pre><code class="plaintext hljs">5.269096956</code></pre>
+<pre><code class="julia hljs">etime</code></pre><pre><code class="plaintext hljs">6.325815174</code></pre>
 <h2 id=quality ><a href="#quality" class=header-anchor >Quality</a></h2>
 <p>macro recall of <code>allknn</code></p>
-<pre><code class="julia hljs">macrorecall(eknns, knns)</code></pre><pre><code class="plaintext hljs">0.9069960000006997</code></pre>
+<pre><code class="julia hljs">macrorecall(eknns, knns)</code></pre><pre><code class="plaintext hljs">0.9139300000006781</code></pre>
 <p>macro recall of <code>searchbatch</code></p>
-<pre><code class="julia hljs">macrorecall(eknns, sknns)</code></pre><pre><code class="plaintext hljs">0.9084406666673672</code></pre>
+<pre><code class="julia hljs">macrorecall(eknns, sknns)</code></pre><pre><code class="plaintext hljs">0.914159333334015</code></pre>
 <h2 id=final_notes ><a href="#final_notes" class=header-anchor >Final notes:</a></h2>
 <p>Exhaustive search will fetch the exact solution but it has a higher cost and this could be more notorious as dataset&#39;s size increases.</p>
 <p>Also note that even <code>SimilaritySearch</code> has multithreading operations, it runs in a single thread due to the html generation pipeline.</p>
 <h2 id=dependencies ><a href="#dependencies" class=header-anchor >Dependencies</a></h2>
-<pre><code class="plaintext hljs">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.9.2
+<pre><code class="plaintext hljs">Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.10.8
 </code></pre>
 
 <div class=page-foot >

@@ -12,66 +12,63 @@ index!(G)</code></pre>
     <span class=hljs-keyword >global</span> res = reuse!(res)  <span class=hljs-comment ># reuses the res object</span>
     <span class=hljs-meta >@time</span> search(G, v, res)
     <span class=hljs-meta >@show</span> minimum(res), maximum(res), argmin(res), argmax(res)
-    <span class=hljs-meta >@show</span> res.id, res.dist
-<span class=hljs-keyword >end</span></code></pre><pre><code class="plaintext hljs">  0.000014 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.8905508f0, 2128, 1443)
-(res.id, res.dist) = (Int32[2128, 8344, 1443], Float32[0.0, 0.84609, 0.8905508])
-  0.000017 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.6256907f0, 2423, 2429)
-(res.id, res.dist) = (Int32[2423, 9745, 2429], Float32[0.0, 1.4638197, 1.6256907])
-  0.000003 seconds (3 allocations: 80 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.78367f0, 5.1175313f0, 4013, 1596)
-(res.id, res.dist) = (Int32[4013, 4263, 1596], Float32[4.78367, 4.8129697, 5.1175313])
-  0.000008 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.41689724f0, 9146, 9665)
-(res.id, res.dist) = (Int32[9146, 7734, 9665], Float32[0.0, 0.40764204, 0.41689724])
-  0.000009 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.58236307f0, 7017, 8663)
-(res.id, res.dist) = (Int32[7017, 7083, 8663], Float32[0.0, 0.5803072, 0.58236307])
-  0.000006 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.6216689f0, 1204, 4870)
-(res.id, res.dist) = (Int32[1204, 7732, 4870], Float32[0.0, 1.2965301, 1.6216689])
-  0.000003 seconds (3 allocations: 80 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.8486495f0, 5.066002f0, 9337, 1662)
-(res.id, res.dist) = (Int32[9337, 4890, 1662], Float32[4.8486495, 4.9212174, 5.066002])
-  0.000009 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.6915525f0, 6818, 1745)
-(res.id, res.dist) = (Int32[6818, 4908, 1745], Float32[0.0, 0.2793303, 0.6915525])
-  0.000009 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.7419999f0, 377, 8083)
-(res.id, res.dist) = (Int32[377, 4924, 8083], Float32[0.0, 1.697232, 1.7419999])
-  0.000009 seconds (5 allocations: 176 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.90013003f0, 8798, 6576)
-(res.id, res.dist) = (Int32[8798, 1536, 6576], Float32[0.0, 0.87009954, 0.90013003])
+    <span class=hljs-meta >@show</span> res
+<span class=hljs-keyword >end</span></code></pre><pre><code class="plaintext hljs">  0.000020 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 2.2056494f0, 0x000023b4, 0x000000c7)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x000023b4, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000012d, 1.8902102f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000000c7, 2.2056494f0)], 3)
+  0.000024 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.0968232f0, 1.7169907f0, 0x00000d73, 0x00001e2e)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000d73, 1.0968232f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001b25, 1.7053723f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001e2e, 1.7169907f0)], 3)
+  0.000013 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 1.1839159f0, 0x0000193f, 0x000006b1)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0000193f, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000132b, 1.0716056f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000006b1, 1.1839159f0)], 3)
+  0.000006 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.0062492f0, 2.639026f0, 0x0000018f, 0x00001013)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0000018f, 2.0062492f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000235c, 2.5218146f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001013, 2.639026f0)], 3)
+  0.000011 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.9671448f0, 0x000016df, 0x0000234b)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x000016df, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00002178, 0.7287925f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000234b, 0.9671448f0)], 3)
+  0.000011 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.71299195f0, 0x000022cc, 0x0000026d)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x000022cc, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001d89, 0.33901426f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000026d, 0.71299195f0)], 3)
+  0.000014 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.9490801f0, 0x00001f56, 0x0000077c)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00001f56, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000004c7, 0.828595f0), SimilaritySearch.AdjacencyLists.IdWeight(0x0000077c, 0.9490801f0)], 3)
+  0.000010 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.9363507f0, 0x00000962, 0x000000d0)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000962, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000026c9, 0.6484516f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000000d0, 0.9363507f0)], 3)
+  0.000005 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 3.4429328f0, 0x000016cc, 0x00000445)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x000016cc, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00001099, 2.4439046f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000445, 3.4429328f0)], 3)
+  0.000009 seconds (3 allocations: 64 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.0f0, 0.98899597f0, 0x0000007b, 0x000020b5)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x0000007b, 0.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000d1b, 0.9774504f0), SimilaritySearch.AdjacencyLists.IdWeight(0x000020b5, 0.98899597f0)], 3)
 </code></pre>
 <h2 id=knnresult ><a href="#knnresult" class=header-anchor ><code>KnnResult</code></a></h2>
 <p>This structure is the container for the result and it is also used to specify the number of elements to retrieve. As mentioned before, it is a priority queue</p>
 <pre><code class="julia hljs">res = reuse!(res)
-push!(res, <span class=hljs-number >1</span>, <span class=hljs-number >10</span>)
-push!(res, <span class=hljs-number >2</span>, <span class=hljs-number >9</span>)
-push!(res, <span class=hljs-number >3</span>, <span class=hljs-number >8</span>)
-push!(res, <span class=hljs-number >4</span>, <span class=hljs-number >7</span>)
-push!(res, <span class=hljs-number >6</span>, <span class=hljs-number >5</span>)
-<span class=hljs-meta >@show</span> res</code></pre><pre><code class="plaintext hljs">res = SimilaritySearch.KnnResult(Int32[6, 4, 3], Float32[5.0, 7.0, 8.0], 3)
+push_item!(res, <span class=hljs-number >1</span>, <span class=hljs-number >10</span>)
+push_item!(res, <span class=hljs-number >2</span>, <span class=hljs-number >9</span>)
+push_item!(res, <span class=hljs-number >3</span>, <span class=hljs-number >8</span>)
+push_item!(res, <span class=hljs-number >4</span>, <span class=hljs-number >7</span>)
+push_item!(res, <span class=hljs-number >6</span>, <span class=hljs-number >5</span>)
+<span class=hljs-meta >@show</span> res</code></pre><pre><code class="plaintext hljs">res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)], 3)
 </code></pre>
 <p>it also supports removals</p>
 <pre><code class="julia hljs"><span class=hljs-meta >@show</span> :popfirst! =&gt; popfirst!(res)
-push!(res, <span class=hljs-number >7</span>, <span class=hljs-number >0.1</span>)
-<span class=hljs-meta >@show</span> :push! =&gt; res
+push_item!(res, <span class=hljs-number >7</span>, <span class=hljs-number >0.1</span>)
+<span class=hljs-meta >@show</span> :push_item! =&gt; res
 <span class=hljs-meta >@show</span> :pop! =&gt; pop!(res)
-res</code></pre><pre><code class="plaintext hljs">:popfirst! =&gt; popfirst!(res) = :popfirst! =&gt; (6 =&gt; 5.0f0)
-:push! =&gt; res = :push! =&gt; SimilaritySearch.KnnResult(Int32[7, 4, 3], Float32[0.1, 7.0, 8.0], 3)
-:pop! =&gt; pop!(res) = :pop! =&gt; (3 =&gt; 8.0f0)
-SimilaritySearch.KnnResult(Int32[7, 4], Float32[0.1, 7.0], 3)</code></pre>
+res</code></pre><pre><code class="plaintext hljs">:popfirst! =&gt; popfirst!(res) = :popfirst! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0)
+:push_item! =&gt; res = :push_item! =&gt; SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)], 3)
+:pop! =&gt; pop!(res) = :pop! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)
+SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0)], 3)</code></pre>
 <p>It can be iterated</p>
-<pre><code class="julia hljs"><span class=hljs-keyword >for</span> (id, d) <span class=hljs-keyword >in</span> res
-    <span class=hljs-meta >@show</span> id =&gt; d
-<span class=hljs-keyword >end</span></code></pre><pre><code class="plaintext hljs">id =&gt; d = 7 =&gt; 0.1f0
-id =&gt; d = 4 =&gt; 7.0f0
+<pre><code class="julia hljs"><span class=hljs-meta >@show</span> collect(res)</code></pre><pre><code class="plaintext hljs">collect(res) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0)]
 </code></pre>
 <h2 id=dependencies ><a href="#dependencies" class=header-anchor >Dependencies</a></h2>
-<pre><code class="plaintext hljs">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.9.2
+<pre><code class="plaintext hljs">Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.10.8
 </code></pre>
 
 <div class=page-foot >

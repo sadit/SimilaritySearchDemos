@@ -4,13 +4,13 @@
 dist = L2Distance() <span class=hljs-comment ># squared L2</span></code></pre><pre><code class="plaintext hljs">SimilaritySearch.L2Distance()</code></pre>
 <p>it can use any distance function described in <code>SimilaritySearch</code> and <code>Distances.jl</code>, and in fact any <code>SemiMetric</code> as described in the later package. The index construction is made as follows</p>
 <pre><code class="julia hljs">G = SearchGraph(; dist, db, verbose=<span class=hljs-literal >false</span>)
-index!(G)</code></pre><pre><code class="plaintext hljs">SimilaritySearch.SearchGraph{SimilaritySearch.L2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float64}}, SimilaritySearch.BeamSearch}
+index!(G)</code></pre><pre><code class="plaintext hljs">SimilaritySearch.SearchGraph{SimilaritySearch.L2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float64}}, SimilaritySearch.AdjacencyLists.AdjacencyList{UInt32}, SimilaritySearch.BeamSearch}
   dist: SimilaritySearch.L2Distance SimilaritySearch.L2Distance()
   db: SimilaritySearch.MatrixDatabase{Matrix{Float64}}
-  links: Array{Vector{Int32}}((100000,))
-  locks: Array{Base.Threads.SpinLock}((100000,))
-  hints: Array{Int32}((115,)) Int32[763, 1066, 1174, 1758, 2438, 2449, 2555, 2712, 2775, 2845  …  6772, 6774, 6855, 6883, 6887, 7013, 7060, 7106, 7111, 83576]
+  adj: SimilaritySearch.AdjacencyLists.AdjacencyList{UInt32}
+  hints: Array{Int32}((119,)) Int32[539, 756, 871, 1024, 1532, 1586, 1858, 1871, 1970, 2641  …  6878, 6916, 6976, 7012, 7050, 7070, 7091, 7190, 7261, 7286]
   search_algo: SimilaritySearch.BeamSearch
+  len: Base.RefValue{Int64}
   verbose: Bool false
 </code></pre>
 <p>this will display a lot of information in the console, since as construction advances the hyperparameters of the index are adjusted. The default optimization takes into account both quality and speed, and tries to adjust to take the best of both. See <code>ParetoRecall</code> in docs.</p>
@@ -35,8 +35,10 @@ typeof(D) =&gt; size(D) = Matrix{Float32} =&gt; (30, 100)
 <img src="/SimilaritySearchDemos/assets/tutorial/basic-usage/code/output/fig-2d-t1.png" alt="">
 <p>Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.</p>
 <h2 id=dependencies ><a href="#dependencies" class=header-anchor >Dependencies</a></h2>
-<pre><code class="plaintext hljs">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.9.2
+<pre><code class="plaintext hljs">Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+⌃ [91a5bcdd] Plots v1.15.2
+  [053f045d] SimilaritySearch v0.10.8
+Info Packages marked with ⌃ have new versions available and may be upgradable.
 </code></pre>
 
 <div class=page-foot >

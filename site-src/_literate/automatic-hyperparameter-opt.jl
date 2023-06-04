@@ -46,7 +46,7 @@ callbacks3 = SearchGraphCallbacks(MinRecall(0.95))
 @elapsed index!(G3; callbacks=callbacks3)
 
 #
-# `index!`, `append!`, and `push!` accept callbacks.
+# `index!`, `append_items!`, and `push_item!` accept callbacks.
 #
 # ## Performances
 # searching times

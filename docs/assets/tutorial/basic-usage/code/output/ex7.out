@@ -1,2 +1,4 @@
-      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.9.2
+Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+⌃ [91a5bcdd] Plots v1.15.2
+  [053f045d] SimilaritySearch v0.10.8
+Info Packages marked with ⌃ have new versions available and may be upgradable.

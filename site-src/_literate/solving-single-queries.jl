@@ -26,7 +26,7 @@ for v in rand(db, 10)
     global res = reuse!(res)  # reuses the res object
     @time search(G, v, res)
     @show minimum(res), maximum(res), argmin(res), argmax(res)
-    @show res.id, res.dist
+    @show res
 end
 
 # ## `KnnResult`
@@ -34,24 +34,22 @@ end
 # of elements to retrieve. As mentioned before, it is a priority queue
 
 res = reuse!(res)
-push!(res, 1, 10)
-push!(res, 2, 9)
-push!(res, 3, 8)
-push!(res, 4, 7)
-push!(res, 6, 5)
+push_item!(res, 1, 10)
+push_item!(res, 2, 9)
+push_item!(res, 3, 8)
+push_item!(res, 4, 7)
+push_item!(res, 6, 5)
 @show res
 
 # it also supports removals
 @show :popfirst! => popfirst!(res)
-push!(res, 7, 0.1)
-@show :push! => res
+push_item!(res, 7, 0.1)
+@show :push_item! => res
 @show :pop! => pop!(res)
 res
 # It can be iterated
 
-for (id, d) in res
-    @show id => d
-end
+@show collect(res)
 
 #- Using BeutifulMakie style
 # ## Dependencies

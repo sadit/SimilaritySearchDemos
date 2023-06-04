@@ -4,5 +4,5 @@ for v in rand(db, 10)
     global res = reuse!(res)  # reuses the res object
     @time search(G, v, res)
     @show minimum(res), maximum(res), argmin(res), argmax(res)
-    @show res.id, res.dist
+    @show res
 end

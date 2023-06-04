@@ -22,7 +22,7 @@ G = SearchGraph(; dist, db, verbose=true)
 # - If the index is empty, an element is inserted just inserting it into the index
 # - If the index is not empty, the element is inserted and connected to its nearest neighbors (looking into the current index)
 # 
-# the parallel construction is made with `index!` or `append!`, for this matter these functions accept
+# the parallel construction is made with `index!` or `append_items!`, for this matter these functions accept
 # a `parallel_block` argument, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors
 # in parallel and connected also in parallel.
 # 
@@ -36,8 +36,8 @@ G = SearchGraph(; dist, db, verbose=true)
 index!(G; parallel_block=512)
 nothing # hide
 
-# Note that you can't call `push!`, `append!`, or `index!` from several threads. The default algorithm will takes
-# advantage of the multiple threads-
+# Note that you can't call `push_item!`, `append_items!`, or `index!` from several threads. The default algorithm will takes
+# advantage of the multiple threads .
 #
 # ## Searching
 # Once the index is constructed, you can solve batches in parallel and also single queries.
@@ -48,8 +48,12 @@ I, D = searchbatch(G, Q, 10)
 
 
 Threads.@threads for i in eachindex(Q)
-    res, cost = search(G, Q[i], KnnResult(10))
-    println(res.id) # do something with `res`
+    p = search(G, Q[i], KnnResult(10))
+    res = p.res
+    println(res[1])
+    println(collect(res))
+    println(collect(IdView(res))) # do something with `res`
+    println(collect(DistView(res))) # do something with `res`
 end
 
 # ## About searching pools

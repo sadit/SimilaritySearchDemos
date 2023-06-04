@@ -16,44 +16,30 @@ goldI, goldD = searchbatch(ExhaustiveSearch(; db, dist), queries, k)  <span clas
 <p>the way of specifying the hyperparameter optimization strategy and objective is with a <code>SearchGraphCallbacks</code> object, as follows:</p>
 <pre><code class="julia hljs">G1 = SearchGraph(; dist, db=MatrixDatabase(X), verbose)
 callbacks1 = SearchGraphCallbacks(ParetoRecall())  <span class=hljs-comment ># ParetoRecall is the default, and it will be used unless you change it</span>
-<span class=hljs-meta >@elapsed</span> index!(G1; callbacks=callbacks1)</code></pre><pre><code class="plaintext hljs">MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.ParetoRecall)
-Closest candidates are:
-  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
-  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
-  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
-  ...
-</code></pre>
+<span class=hljs-meta >@elapsed</span> index!(G1; callbacks=callbacks1)</code></pre><pre><code class="plaintext hljs">0.388286811</code></pre>
 <p>Using <code>ParetoRadius</code>: which should be faster since it doesn&#39;t needs a costly computation as the recall score but can be easily fool by distances distribution</p>
 <pre><code class="julia hljs">G2 = SearchGraph(; dist, db=MatrixDatabase(X), verbose)
 callbacks2 = SearchGraphCallbacks(ParetoRadius())  <span class=hljs-comment ># it uses distances instead of recall, it will be faster but lower quality</span>
-<span class=hljs-meta >@elapsed</span> index!(G2; callbacks=callbacks2)</code></pre><pre><code class="plaintext hljs">MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.ParetoRadius)
-Closest candidates are:
-  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
-  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
-  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
-  ...
-</code></pre>
+<span class=hljs-meta >@elapsed</span> index!(G2; callbacks=callbacks2)</code></pre><pre><code class="plaintext hljs">0.950074613</code></pre>
 <p>Using <code>MinRecall</code>: It ensures a minimum quality in a small validation set</p>
 <pre><code class="julia hljs">G3 = SearchGraph(; dist, db=MatrixDatabase(X), verbose)
 callbacks3 = SearchGraphCallbacks(MinRecall(<span class=hljs-number >0.95</span>))
-<span class=hljs-meta >@elapsed</span> index!(G3; callbacks=callbacks3)</code></pre><pre><code class="plaintext hljs">MethodError: no method matching SimilaritySearch.SearchGraphCallbacks(::SimilaritySearch.MinRecall)
-Closest candidates are:
-  SimilaritySearch.SearchGraphCallbacks(::Any, !Matched::Any, !Matched::Any, !Matched::Any, !Matched::Any) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:505
-  SimilaritySearch.SearchGraphCallbacks(; hints, neighborhood, hyperparameters, logbase, starting) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:493
-  SimilaritySearch.SearchGraphCallbacks(!Matched::SimilaritySearch.SearchGraphCallbacks; kws...) at ~/.julia/packages/Parameters/MK0O4/src/Parameters.jl:569
-  ...
-</code></pre>
-<p><code>index&#33;</code>, <code>append&#33;</code>, and <code>push&#33;</code> accept callbacks.</p>
+<span class=hljs-meta >@elapsed</span> index!(G3; callbacks=callbacks3)</code></pre><pre><code class="plaintext hljs">0.660934935</code></pre>
+<p><code>index&#33;</code>, <code>append_items&#33;</code>, and <code>push_item&#33;</code> accept callbacks.</p>
 <h2 id=performances ><a href="#performances" class=header-anchor >Performances</a></h2>
 <p>searching times</p>
 <pre><code class="julia hljs"><span class=hljs-meta >@time</span> I1, D1 = searchbatch(G1, queries, k)
 <span class=hljs-meta >@time</span> I2, D2 = searchbatch(G2, queries, k)
-<span class=hljs-meta >@time</span> I3, D3 = searchbatch(G3, queries, k)</code></pre><pre><code class="plaintext hljs">DimensionMismatch(&quot;array could not be broadcast to match destination&quot;)
+<span class=hljs-meta >@time</span> I3, D3 = searchbatch(G3, queries, k)</code></pre><pre><code class="plaintext hljs">  0.001746 seconds (2.01 k allocations: 109.859 KiB)
+  0.001166 seconds (2.01 k allocations: 109.859 KiB)
+  0.002012 seconds (2.01 k allocations: 109.859 KiB)
 </code></pre>
 <p>the recall &#40;0-1, one is the best&#41;</p>
 <pre><code class="julia hljs"><span class=hljs-meta >@show</span> macrorecall(goldI, I1)
 <span class=hljs-meta >@show</span> macrorecall(goldI, I2)
-<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">UndefVarError: I1 not defined
+<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">macrorecall(goldI, I1) = 0.7939999999999962
+macrorecall(goldI, I2) = 0.3682999999999996
+macrorecall(goldI, I3) = 0.8744999999999933
 </code></pre>
 <p>here we can see smaller recalls than expected, but we also can appreciate the differences  among them.</p>
 <h2>Optimizing <code>SearchGraph</code> without inserting</h2>
@@ -64,14 +50,16 @@ optimize!(G3, MinRecall(<span class=hljs-number >0.95</span>))
 
 <span class=hljs-meta >@time</span> I1, D1 = searchbatch(G1, queries, k)
 <span class=hljs-meta >@time</span> I2, D2 = searchbatch(G2, queries, k)
-<span class=hljs-meta >@time</span> I3, D3 = searchbatch(G3, queries, k)</code></pre><pre><code class="plaintext hljs">MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.ParetoRecall)
-Closest candidates are:
-  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
+<span class=hljs-meta >@time</span> I3, D3 = searchbatch(G3, queries, k)</code></pre><pre><code class="plaintext hljs">  0.001568 seconds (2.01 k allocations: 109.734 KiB)
+  0.001135 seconds (2.01 k allocations: 109.734 KiB)
+  0.002298 seconds (2.01 k allocations: 109.734 KiB)
 </code></pre>
 <p>the recall &#40;<span class=katex ><span class=katex-mathml ><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span><span class=katex-html  aria-hidden=true ><span class=base ><span class=strut  style="height:0.6444em;"></span><span class=mord >0</span></span></span></span> to <span class=katex ><span class=katex-mathml ><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">1</annotation></semantics></math></span><span class=katex-html  aria-hidden=true ><span class=base ><span class=strut  style="height:0.6444em;"></span><span class=mord >1</span></span></span></span>, where one is the best&#41;</p>
 <pre><code class="julia hljs"><span class=hljs-meta >@show</span> macrorecall(goldI, I1)
 <span class=hljs-meta >@show</span> macrorecall(goldI, I2)
-<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">UndefVarError: I1 not defined
+<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">macrorecall(goldI, I1) = 0.7164999999999981
+macrorecall(goldI, I2) = 0.3682999999999996
+macrorecall(goldI, I3) = 0.9187999999999927
 </code></pre>
 <p>The optimization is made using objects of the dataset as queries to compute the objective function.  If it is possible to get external queries to optimize &#40;not in the database and not in the query set,  but also following the expected distrbiution&#41;, they can be provided as follows:</p>
 <pre><code class="julia hljs">equeries = MatrixDatabase(rand(dim, <span class=hljs-number >64</span>))
@@ -85,9 +73,12 @@ optimize!(G3, MinRecall(<span class=hljs-number >0.95</span>), queries=equeries)
 
 <span class=hljs-meta >@show</span> macrorecall(goldI, I1)
 <span class=hljs-meta >@show</span> macrorecall(goldI, I2)
-<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.ParetoRecall; queries=SimilaritySearch.MatrixDatabase{Matrix{Float64}}([0.15493035160009505 0.22883910628123183 … 0.585332604944402 0.8307393282131446; 0.25306730223576546 0.6286081294542377 … 0.8979871895358562 0.5574486336481846; … ; 0.9479273378743132 0.5279623337285249 … 0.03407986088898751 0.35946793062479343; 0.9759177331027767 0.3121908509729252 … 0.12493571163048967 0.6380022972981435]))
-Closest candidates are:
-  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
+<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">  0.001835 seconds (2.01 k allocations: 109.734 KiB)
+  0.001232 seconds (2.01 k allocations: 109.734 KiB)
+  0.002550 seconds (2.01 k allocations: 109.734 KiB)
+macrorecall(goldI, I1) = 0.7906999999999968
+macrorecall(goldI, I2) = 0.297
+macrorecall(goldI, I3) = 0.9418999999999941
 </code></pre>
 <p>Finally, we create our index with any hyperparameter optimization strategy, and optimize for quality, as follows:</p>
 <pre><code class="julia hljs">optimize!(G1, MinRecall(<span class=hljs-number >0.95</span>), queries=equeries)
@@ -100,14 +91,17 @@ optimize!(G3, MinRecall(<span class=hljs-number >0.95</span>), queries=equeries)
 
 <span class=hljs-meta >@show</span> macrorecall(goldI, I1)
 <span class=hljs-meta >@show</span> macrorecall(goldI, I2)
-<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">MethodError: no method matching optimize!(::SimilaritySearch.SearchGraph{SimilaritySearch.SqL2Distance, SimilaritySearch.MatrixDatabase{Matrix{Float32}}, SimilaritySearch.BeamSearch}, ::SimilaritySearch.MinRecall; queries=SimilaritySearch.MatrixDatabase{Matrix{Float64}}([0.15493035160009505 0.22883910628123183 … 0.585332604944402 0.8307393282131446; 0.25306730223576546 0.6286081294542377 … 0.8979871895358562 0.5574486336481846; … ; 0.9479273378743132 0.5279623337285249 … 0.03407986088898751 0.35946793062479343; 0.9759177331027767 0.3121908509729252 … 0.12493571163048967 0.6380022972981435]))
-Closest candidates are:
-  optimize!(::SimilaritySearch.SearchGraph, !Matched::SimilaritySearch.OptimizeParameters; queries, scalemaxvisits, maxvisits, verbose) at ~/.julia/packages/SimilaritySearch/qqXnp/src/graph/opt.jl:124
+<span class=hljs-meta >@show</span> macrorecall(goldI, I3)</code></pre><pre><code class="plaintext hljs">  0.002958 seconds (2.01 k allocations: 109.734 KiB)
+  0.009363 seconds (2.28 k allocations: 1.187 MiB)
+  0.002534 seconds (2.01 k allocations: 109.734 KiB)
+macrorecall(goldI, I1) = 0.9315999999999932
+macrorecall(goldI, I2) = 0.9301999999999929
+macrorecall(goldI, I3) = 0.9371999999999938
 </code></pre>
 <p>Please note that faster searches are expected for indexes created for higher qualities.</p>
 <h2 id=dependencies ><a href="#dependencies" class=header-anchor >Dependencies</a></h2>
-<pre><code class="plaintext hljs">      Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
-  [053f045d] SimilaritySearch v0.8.12
+<pre><code class="plaintext hljs">Status `~/Research/SimilaritySearchDemos/site-src/Project.toml`
+  [053f045d] SimilaritySearch v0.10.8
 </code></pre>
 
 <div class=page-foot >

@@ -1,1 +1,3 @@
-DimensionMismatch("array could not be broadcast to match destination")
+  0.001746 seconds (2.01 k allocations: 109.859 KiB)
+  0.001166 seconds (2.01 k allocations: 109.859 KiB)
+  0.002012 seconds (2.01 k allocations: 109.859 KiB)

@@ -1,3 +1,3 @@
-:popfirst! => popfirst!(res) = :popfirst! => (6 => 5.0f0)
-:push! => res = :push! => SimilaritySearch.KnnResult(Int32[7, 4, 3], Float32[0.1, 7.0, 8.0], 3)
-:pop! => pop!(res) = :pop! => (3 => 8.0f0)
+:popfirst! => popfirst!(res) = :popfirst! => SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0)
+:push_item! => res = :push_item! => SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)], 3)
+:pop! => pop!(res) = :pop! => SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)

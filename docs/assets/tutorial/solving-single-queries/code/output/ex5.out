@@ -1,1 +1,1 @@
-res = SimilaritySearch.KnnResult(Int32[6, 4, 3], Float32[5.0, 7.0, 8.0], 3)
+res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)], 3)
