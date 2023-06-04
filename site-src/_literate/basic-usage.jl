@@ -10,6 +10,7 @@
 ENV["GKSwstype"] = "nul" # hide
 
 using SimilaritySearch
+Threads.nthreads()
 # MatrixDatabase is a required wrapper that tells `SimilaritySearch` how to access underlying objects
 # since it can support different kinds of objects. In this setup, each column is an object
 # and will be accessed through views using the MatrixDatabase. Since the backend doesn't support
@@ -17,7 +18,6 @@ using SimilaritySearch
 
 db = MatrixDatabase(randn(2, 10^5))
 dist = L2Distance() # squared L2
-
 
 # it can use any distance function described in `SimilaritySearch` and `Distances.jl`,
 # and in fact any `SemiMetric` as described in the later package.

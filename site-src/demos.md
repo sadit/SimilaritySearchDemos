@@ -37,17 +37,17 @@ All Pluto notebooks can work on mybinder and run without install anything in you
 - Prime gaps: A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections.
     - Search and UMAP projection [Prime Gaps demo](/demos-pluto/primegaps-demo.jl/). It generates the dataset.
 - WIT: This example shows how to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings (vision \& language). ~300K 512-dimensional vectors using the cosine distance.
-    - Jupyter-based [WIT demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/WIT/WIT.ipynb), SimilaritySearch v0.9.
+    - Jupyter-based [WIT demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/WIT/WIT.ipynb), SimilaritySearch v0.10.
     - Pluto-based [WIT demo](/demos-pluto/wit-demo.jl/), SimilaritySearch v0.8.
 - Glove: Navigate and visualize semantic representations (Glove word embeddings), also can solve analogies. The vocabulary consists of 400K tokens represented as 100-dimensional vectors under the cosine distance.
-    - Jupyter-based [GloVe demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/Glove/Glove.ipynb), SimilaritySearch v0.9.
+    - Jupyter-based [GloVe demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/Glove/Glove.ipynb), SimilaritySearch v0.10.
     - Pluto-based [GloVe demo](/demos-pluto/glove-demo.jl/), SimilaritySerach v0.8.
 - MNIST: Navigation and visualization of the MNIST dataset of hand drawing numbers. It uses images directly as objects (28x28 matrices).
-    - Jupyter-based [MNIST demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/MNIST/MNIST.ipynb), SimilaritySearch v0.9.
+    - Jupyter-based [MNIST demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/MNIST/MNIST.ipynb), SimilaritySearch v0.10.
     - Pluto-based [MNIST demo](/demos-pluto/mnist-demo.jl/), SimilaritySearch v0.8.
     - Pluto-based [MNIST animated projections](/demos-pluto/mnist-demo-iterated.jl/), SimilaritySearch v0.8.
 - Wiktionary: Pluto notebook to navigate and query the Wiktionary vocabulary using Levenshtein distance  (~1M words)
-    - Jupyter-based [Wiktionary demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/wiktionary/Wiktionary.ipynb), SimilaritySearch v0.9.
+    - Jupyter-based [Wiktionary demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/wiktionary/Wiktionary.ipynb), SimilaritySearch v0.10.
     - Pluto-based [Wiktionary demo](/demos-pluto/wiktionary-demo.jl/), SimilaritySearch v0.8.
 - Tweets: Pluto notebook to visualize a collection of Twitter's Spanish messages with emojis using bag of words representations. 50K items.
     - Search and UMAP projection [Emojispace demo](/demos-pluto/emojispace-demo.jl/).

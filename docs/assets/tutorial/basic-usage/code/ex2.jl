@@ -2,3 +2,4 @@
 ENV["GKSwstype"] = "nul" # hide
 
 using SimilaritySearch
+Threads.nthreads()
