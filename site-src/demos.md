@@ -34,8 +34,10 @@ All Pluto notebooks can work on mybinder and run without install anything in you
 
 - Integers as prime factors: A tutorial-like Jupyter notebook that produces an UMAP visualization of integers represented by its prime factors. It uses UMAP 2D and 3D projections. Very high dimension, based on the number of factors under the $n$ integers; different user defined distances.
     - [Primes](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-umap.ipynb)
-- Prime gaps: A Pluto notebook that represents sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections.
+    - [Primes (using `ManifoldLearning`)](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-manifoldlearning.ipynb)
+- Prime gaps: Visualization of sequences of prime gaps to visualize them for searching patterns in this infinity source of objects. It uses 2D and 3D projections.
     - Search and UMAP projection [Prime Gaps demo](/demos-pluto/primegaps-demo.jl/). It generates the dataset.
+    - The end of [Primes (using `ManifoldLearning`)](https://github.com/sadit/SimilaritySearchDemos/blob/main/primes/primes-manifoldlearning.ipynb) contains a prime-gap visualization with `Isomap`.
 - WIT: This example shows how to navigate, query, and visualize a small subset of the WIT dataset using Clip embeddings (vision \& language). ~300K 512-dimensional vectors using the cosine distance.
     - Jupyter-based [WIT demo](https://github.com/sadit/SimilaritySearchDemos/blob/main/WIT/WIT.ipynb), SimilaritySearch v0.10.
     - Pluto-based [WIT demo](/demos-pluto/wit-demo.jl/), SimilaritySearch v0.8.

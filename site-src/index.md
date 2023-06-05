@@ -1,9 +1,42 @@
 @def title = "SimilaritySearch.jl demonstrations"
 @def tags = ["Similarity search"]
 
-# Demonstrations for the `SimilaritySearch.jl` package
+# Examples and demos for the `SimilaritySearch.jl` package
 
-Demos for the [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package. We use popular notebooks like Jupyter and Pluto. These notebooks can be accessed from Github's [repository](https://github.com/sadit/SimilaritySearchDemos).
+Here you will find several examples for the  [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package in Jupyter and Pluto notebooks.
+These notebooks can also be accessed from Github's [repository](https://github.com/sadit/SimilaritySearchDemos).
+
+# Installation
+
+You need a Julia installation <https://julialang.org/downloads/>, in particular, we used Julia $v1.9$ for Jupyter notebooks. Pluto notebooks were created with Julia `1.7`. Then you must install `IJulia` and `Pluto` packages, just run the following commands in the REPL
+
+```julia
+] add IJulia
+```
+
+and/or
+```julia
+] add Pluto
+```
+
+This should be enough to run jupyter and pluto, note that if IJulia has some rules about using a preinstalled Jupyter installation or install a new one.
+Please check its [documentation](https://julialang.github.io/IJulia.jl/stable/manual/installation/).
+
+Nearest neighbor search can be computationally expensive and, that is why, `SimilaritySearch` has multithreading support.
+You should want to run jupyter and julia using all available threads, that is
+
+```bash
+JULIA_NUM_THREADS=auto jupyter-lab .
+```
+
+or
+```bash
+JULIA_NUM_THREADS=auto julia
+```
+
+## News
+
+- _june 5th, 2023:_ adds news section, some installation requirements, Jupyter notebookes were updated to work with the `v0.10` and with the current julia release `v1.9`. I also moved most plots to `Makie`.
 
 
 ## Problem statement
