@@ -1,2 +1,0 @@
-typeof(I) => size(I) = Matrix{Int32} => (30, 100)
-typeof(D) => size(D) = Matrix{Float32} => (30, 100)

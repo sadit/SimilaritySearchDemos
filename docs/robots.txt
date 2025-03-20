@@ -1,4 +1,0 @@
-Sitemap: https://ingeotec.github.io/SimilaritySearchDemos/sitemap.xml
-
-User-agent: *
-Disallow:

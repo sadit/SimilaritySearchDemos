@@ -1,0 +1,201 @@
+---
+title: "Automatic Hyperparameter Optimization"
+engine: julia
+lang: en-US
+---
+
+
+## Automatic hyperparameter optimization
+by: Eric S. Téllez
+
+This example optimizes different kinds of optimizations that allow different tradeoffs
+
+```{julia}
+#| output: false
+using SimilaritySearch, Markdown
+
+dim = 16 # <1>
+db = MatrixDatabase(rand(Float32, dim, 10^5)) # <2>
+queries = MatrixDatabase(rand(Float32, dim, 10^3)) # <3>
+dist = SqL2Distance() # <4>
+k = 12 # <5>
+```
+1. The dimension to use in the synthetic data
+2. The synthetic database
+3. The synthetic queries
+4. The distance function; we will use the squared L2, which preserves the order of L2 but is faster to compute.
+5. The number of neighbors to retrieve
+
+## Computing ground truth
+
+We will generate a ground truth with an exhaustive method.
+```{julia}
+#| output: false
+goldI, goldD = searchbatch(ExhaustiveSearch(; db, dist), GenericContext(), queries, k)  
+```
+
+## Different hyperparameter optimization strategies
+The way of specifying the hyperparameter optimization strategy and objective is with a `SearchGraphContext` object, as follows:
+```{julia}
+#| output: false
+G1 = SearchGraph(; dist, db)
+C1 = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
+buildtime1 = @elapsed index!(G1, C1)
+```
+
+The previous construction optimizes the construction to have a very high recall, which can be very costly but also produces a high quality index.
+```{julia}
+#| output: false
+
+G2 = SearchGraph(; dist, db)
+C2 = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.9)))
+buildtime2 = @elapsed index!(G2, C2)
+```
+
+`search`, `searchbatch`, `index!`, `append_items!`, and `push_item!` accept context arguments.
+
+## Performances
+searching times
+```{julia}
+#| output: false
+#| echo: false
+# this code is just for ensure compilation times happens here
+@elapsed I1, D1 = searchbatch(G1, C1, queries, k)
+display(size(I1))
+```
+
+```{julia}
+#| output: false
+time1 = @elapsed I1, D1 = searchbatch(G1, C1, queries, k)
+time2 = @elapsed I2, D2 = searchbatch(G2, C2, queries, k)
+recall1 = macrorecall(goldI, I1)
+recall2 = macrorecall(goldI, I2)
+```
+
+the recall is an score value between 0 to 1 where values close to 1 indicate better qualities.
+
+```{julia}
+#| echo: false
+Markdown.parse("""
+build time:
+
+- buildtime1: $buildtime1
+- buildtime2: $buildtime2
+
+
+search time:
+
+- time1: $time1
+- time2: $time2
+
+recall values:
+
+- recall1: $recall1
+- recall2: $recall2
+""")
+```
+here we can see smaller recalls than expected, and this is an effect of the difference between indexed elements (that are those objects used to perform the hyperparameter optimization). In any case, we 1can appreciate the differences among them, showing that high quality constructions may produce faster indexes; this is a consequence of the _quality_ of the underlying structure. Contrary to this example, in higher dimensions or large datasets, we will obtain much higher construction times for high quality constructions.
+
+
+## Optimizing an already created `SearchGraph` for achieving a desired quality
+
+The hyperparameter optimization is performed in exponential stages while the `SearchGraph` is created; and therefore, the current hyperparameters could need an update. To optimize an already created `SearchGraph` we use `optimize` instead of `index`
+
+Context objects are special for construction since they encapsulate several hyperparameters; for searching it contains also caches but it can be shared among indexes; however, if the indexes have different sizes or you expect very different queries, it is better to maintain different context.
+```{julia}
+#| output: false
+
+optimize_index!(G1, C1, MinRecall(0.9))
+optimize_index!(G2, C1, MinRecall(0.9))
+
+```
+after optimizing the index its quality and speed are changed
+
+```{julia}
+#| output: false
+time1 = @elapsed I1, D1 = searchbatch(G1, C1, queries, k)
+time2 = @elapsed I2, D2 = searchbatch(G2, C1, queries, k)
+
+recall1 = macrorecall(goldI, I1)
+recall2 = macrorecall(goldI, I2)
+```
+
+These results on the following performances:
+```{julia}
+#| echo: false
+Markdown.parse("""
+build time:
+
+- buildtime1: $buildtime1
+- buildtime2: $buildtime2
+
+search time:
+
+- time1: $time1
+- time2: $time2
+
+recall values:
+
+- recall1: $recall1
+- recall2: $recall2
+""")
+```
+
+Please note that faster searches are expected for indexes created for higher qualities; but the construction must be paid. Note that recall values are lower than expected, as we explained, due to differences in the distributions (more precisely between points already seen and not seen points).
+
+## Giving more realistic queries for optimization
+The default optimization parameters use objects already indexed to tune the hyperparameters, which is too optimistic in real applications, since already indexed objects are particularly easy for this use. We can get a better optimization using external data:
+
+```{julia}
+#| output: false
+
+optqueries = MatrixDatabase(rand(Float32, dim, 64))
+
+optimize_index!(G1, C1, MinRecall(0.9); queries=optqueries)
+optimize_index!(G2, C1, MinRecall(0.9); queries=optqueries)
+
+```
+after optimizing the index its quality and speed are changed
+
+```{julia}
+#| output: false
+time1 = @elapsed I1, D1 = searchbatch(G1, C1, queries, k)
+time2 = @elapsed I2, D2 = searchbatch(G2, C1, queries, k)
+
+recall1 = macrorecall(goldI, I1)
+recall2 = macrorecall(goldI, I2)
+```
+
+These results on the following performances:
+```{julia}
+#| echo: false
+Markdown.parse("""
+build time:
+
+- buildtime1: $buildtime1
+- buildtime2: $buildtime2
+
+search time:
+
+- time1: $time1
+- time2: $time2
+
+recall values:
+
+- recall1: $recall1
+- recall2: $recall2
+""")
+```
+
+These scores are much closer to those we are looking for.
+
+Be careful on doing `optimize_index!(..., queries=queries)` since this can yield to overfitting on your query set.
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

@@ -1,0 +1,109 @@
+---
+title: "Computing all $k$ nearest neighbors"
+engine: julia
+lang: en-US
+
+---
+
+by: Eric S. Téllez
+
+
+## Introduction
+
+Computing the $k$ nearest neighbors of a dataset (a.k.a. `allknn`) is a useful task to take knowledge of a given dataset. This is a fundamental problem for some clustering algorithms and non-linear dimensional reduction
+algorithms.
+
+Given a metric database $(X, dist)$  and a relatively small $k$ value, the goal is to compute $\{ knn(x) \mid x \in X \}$ taking into account that each $x_i \in X$, and therefore, $x_i$ should be removed from the $i$-th $knn$ result set.
+
+Solving `allknn` fast and accuratelly is the goal of this example.
+
+## Initializing our notebook
+
+The first step is to load our basic packages
+```{julia}
+using SimilaritySearch, Markdown
+```
+
+we will use a synthetic dataset
+```{julia}
+#| output: false
+function synthetic_benchmark(n, dim)
+    db = MatrixDatabase(randn(Float32, dim, n))  # <1>
+    dist = SqL2Distance()  # <2>
+    (; db, dist) # <3>
+end
+```
+1. Generate $n$ random vectors, of $dim$ dimension. Note that we wrap the matrix as `MatrixDatabase` to let our index that this is a database; this is necessary since we typically can change the type of objects and distance functions to work.
+2. The squared Euclidean distance; it preserves the order than plain Euclidean distance, but it is faster.
+3. Returns a named tuple with the dataset and the distance.
+
+```{julia}
+#| output: false
+B = synthetic_benchmark(10^5, 16) # <1>
+k = 8 # <2>
+etime = @elapsed eknns, edists = allknn(ExhaustiveSearch(; B.db, B.dist),  GenericContext(), k) # <3>
+```
+1. Creates a synthetic dataset of dimension $16$ and $10^5$ points.
+2. Defines we will be fetching this number of neighbors.
+3. Creates a gold standard for test and compare.
+
+```{julia}
+#| output: false
+G = SearchGraph(; B.dist, B.db) # <1>
+ctx = SearchGraphContext()  # <2>
+itime = @elapsed index!(G, ctx) # <3>
+atime = @elapsed knns, dists = allknn(G, ctx, k) # <4>
+```
+2. Defines the `SearchGraph` index; it does not indexes anything yet!
+3. Defines a search context, it contains several hyperparameters that will be applied for the indexing process, default values just work for now. 
+4. The actual indexing.
+5. Solving allknn with the `G` index; it returns two matrices with nearest neighbor identifiers and their corresponding distances, `knns` and `dists`, respectively. Note that `allknn` preserves the self reference.
+
+## Differences between `allknn(G, k)` and `searchbatch(G, X, k)`
+We can solve similarly with `searchbatch` but self-references should be removed later, and more important, `allknn` use special pivoting/boosting strategies that yields to faster searches.
+
+```{julia}
+#| output: false
+stime = @elapsed sknns, sdists = searchbatch(G, ctx, B.db, k)
+```
+
+## Comparing solutions
+
+We can measure the quality of `SearchGraph` in its different modalities against the exhaustive search (exact) solution.
+```{julia}
+#| output: false
+allknn_recall = macrorecall(eknns, knns)
+search_recall = macrorecall(eknns, sknns)
+```
+
+```{julia}
+#| echo: false
+
+Markdown.parse("""
+Times:
+
+- indexing: $itime
+- `allknn` with `SearchGraph`: $atime
+- `searchbatch` with `SearchGraph`: $stime
+- `allknn` with `Exhaustivesearch`: $etime
+
+The search and recall tradeoff:
+
+- `allknn` (`SearchGraph`): $allknn_recall
+- `searchbatch` (`SearchGraph`): $search_recall
+
+""")
+```
+
+## Final notes
+Exhaustive search will fetch the exact solution but it has a higher cost and this could be more notorious as dataset's size increases.
+
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

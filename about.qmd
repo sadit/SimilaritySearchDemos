@@ -1,0 +1,10 @@
+---
+title: "About"
+---
+
+
+
+This site is an effort to document and give comprehensive resources to use the `SimilaritySearch.jl` Julia package. The contributors are:
+
+- Eric S. Téllez <https://sadit.github.io/>, SECIHTI-INFOTEC, Aguascalientes, México.
+- Guillermo Ruiz, INFOTEC, Aguascalientes, México.

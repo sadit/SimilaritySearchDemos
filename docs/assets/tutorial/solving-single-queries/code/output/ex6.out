@@ -1,3 +1,0 @@
-:popfirst! => popfirst!(res) = :popfirst! => SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0)
-:push_item! => res = :push_item! => SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)], 3)
-:pop! => pop!(res) = :pop! => SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)

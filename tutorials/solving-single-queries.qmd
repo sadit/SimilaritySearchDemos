@@ -1,0 +1,75 @@
+---
+title: "Solving single queries"
+engine: julia
+lang: en-US
+
+---
+
+by: Eric S. Téllez
+
+```{julia}
+#| output: false
+using SimilaritySearch
+```
+
+This example shows how to perform single queries instead of solving a batch of them. This is particularly useful for some applications, and we also show how they are solved, which could be used to avoid some memory allocations.
+
+```{julia}
+#| output: false
+dim = 8
+db = MatrixDatabase(randn(Float32, dim, 10^4))
+queries = db = MatrixDatabase(randn(Float32, dim, 100))
+dist = SqL2Distance()
+G = SearchGraph(; dist, db)
+ctx = SearchGraphContext()
+index!(G, ctx)
+```
+
+Suppose you want to compute some $k$ nearest neighbors, for this we use the structure `KnnResult` which is a priority queue of maximum size $k$.
+
+```{julia}
+
+for _ in 1:10
+    res = KnnResult(3)
+
+    @time search(G, ctx, randn(Float32, dim), res)
+    @show minimum(res), maximum(res), argmin(res), argmax(res)
+    @show collect(IdView(res))
+    @show collect(DistView(res))
+end
+```
+
+## `KnnResult`
+This structure is the container for the result and it is also used to specify the number
+of elements to retrieve. As mentioned before, it is a priority queue
+
+```{julia}
+
+res = KnnResult(4)
+push_item!(res, 1, 10)
+push_item!(res, 2, 9)
+push_item!(res, 3, 8)
+push_item!(res, 4, 7)
+push_item!(res, 6, 5)
+@show res
+
+# it also supports removals
+@show :popfirst! => popfirst!(res)
+push_item!(res, 7, 0.1)
+@show :push_item! => res
+@show :pop! => pop!(res)
+res
+# It can be iterated
+
+@show collect(res)
+
+```
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

@@ -1,3 +1,0 @@
-macrorecall(goldI, I1) = 0.7939999999999962
-macrorecall(goldI, I2) = 0.3682999999999996
-macrorecall(goldI, I3) = 0.8744999999999933

@@ -1,0 +1,77 @@
+---
+title: "Using the `SimilaritySearch` package"
+engine: julia
+lang: en-US
+
+---
+
+by: Eric S. Téllez
+
+```{julia}
+#| output: false
+using SimilaritySearch, Markdown
+```
+
+
+This is a small tutorial showing a minimum example for working with `SimilaritySearch` it accepts several options that are let to defaults. While this should be enough for many purposes, you are invited to see the rest of the tutorials to take advantage of other features.
+
+MatrixDatabase is a required wrapper that tells `SimilaritySearch` how to access underlying objects since it can support different kinds of objects. In this setup, each column is an object and will be accessed through views using the MatrixDatabase. Since the backend doesn't support appends or pushes, the index can be seen as an static index.
+
+```{julia}
+#| output: false
+function synthetic_benchmark(n, m, dim)
+    db = MatrixDatabase(randn(Float32, dim, n))  # <1>
+    queries = MatrixDatabase(randn(Float32, dim, m))
+    dist = SqL2Distance()  # <2>
+    (; db, queries, dist) # <3>
+end
+```
+
+it can use any distance function described in `SimilaritySearch` and `Distances.jl`, and in fact any `SemiMetric` as described in the later package. The index construction is made as follows
+
+```{julia}
+#| output: false
+B = synthetic_benchmark(3000, 50, 2)
+G = SearchGraph(; B.dist, B.db)
+ctx = SearchGraphContext()
+index!(G, ctx)
+```
+<!--
+- callbacks = SearchGraphCallbacks(hyperparameters=OptimizeParameters(MinRecall(0.9)))
+- optimize!(G; callbacks)-->
+
+this will display a lot of information in the console, since as construction advances the hyperparameters of the index are adjusted. The default optimization try to get a recall of `0.9` which is a typical tradeoff between quality and speed. Once the index is created, the index can solve nearest neighbor queries
+
+```{julia}
+#| output: false
+k = 16
+I, D = searchbatch(G, ctx, B.queries, k) #<1>
+```
+1. The `searchbatch` functions takes a set of queries and solve them using the given index. `I` is a matrix of identifiers in `db` and `D` their corresponding distances.
+ 
+## Visualizing what we just did
+
+```{julia}
+using Plots
+
+scatter(B.db.matrix[1, :], B.db.matrix[2, :], size=(600, 600), color=:cyan, ma=0.3, a=0.3, ms=1, msw=0, label="")
+for c in eachcol(I)
+    R = B.db.matrix[:, c]
+    @views scatter!(R[1, :], R[2, :], m=:diamond, ma=0.3, a=0.3, color=:auto, ms=2, msw=0, label="")
+end
+
+@views scatter!(B.queries.matrix[1, :], B.queries.matrix[2, :], color=:black, m=:star, ma=0.5, a=0.5, ms=4, msw=0, label="")
+
+plot!()
+```
+
+Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

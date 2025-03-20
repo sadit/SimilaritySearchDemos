@@ -1,0 +1,57 @@
+---
+title: "Tutorials and Examples for the SimilaritySearch.jl package"
+lang: en-US
+engine: julia
+
+---
+
+
+Here you will find several examples for the  [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package.
+
+## Installation
+
+You need a Julia installation <https://julialang.org/downloads/>, in particular, we recommend to use Julia $v1.10$ since $v1.11$ has several performance regressions with respect to `SimilaritySearch`.
+
+We present our examples just to copy and paste on the REPL but also provide some in Jupyter and Pluto notebooks; you must install `IJulia` and `Pluto` packages, just run the following commands in the REPL
+
+```julia
+using Pkg; Pkg.add(["IJulia", "Pluto"])
+```
+
+Please check their documentation:
+
+- [IJulia](https://julialang.github.io/IJulia.jl).
+- [Jupyter](https://jupyter.org/).
+- [Pluto](https://plutojl.org/)
+
+This website was made with [Quarto](https://quarto.org/) with the Julia engine.
+
+
+## Notes about multithreading
+Nearest neighbor search can be computationally expensive, therefore `SimilaritySearch` has multithreading support.
+You should want to run jupyter or julia using all available threads, that is
+
+```bash
+JULIA_NUM_THREADS=auto jupyter-lab .
+```
+
+or
+```bash
+JULIA_NUM_THREADS=auto julia
+```
+
+Perhaps all your threads may become your computer useless for a while, so you can replace `auto` by some other more conservative number that allow you to work on the same computer.
+
+## News
+
+- _march 20th, 2025_: the site is behind the `SimilaritySearch` API; I will be working on updating examples and moving the site to Quarto.
+- _june 5th, 2023:_ adds news section, some installation requirements, Jupyter notebookes were updated to work with the `v0.10` and with the current julia release `v1.9`. I also moved most plots to `Makie`.
+
+
+## Problem statement
+
+Given a finite dataset, $S \subseteq U$ where $n = |S|$, and a metric distance function $d$ working with any pair of elements in $U$, the similarity search problem consists on retrieving similar items to a given query $q$, for example, the $k$ most similar items to $q$ in $S$ ($k$ nearest neighbors).
+
+At first glance, the problem is simple since it can be solved using an exhaustive evaluation of all possible results $d(u_1, q), \cdots, d(u_n, q)$ (that is, for all $u_i \in S$) and select those $k$ items $\{u_i\}$ having the least distance to $q$. This solution is impractical when $n$ is large or when the number of expected queries is high. In these cases, it is necessary to create a data structure that preprocess the dataset and reduce the cost of solving queries, it is often called a metric index. When the dataset is pretty large or the metric space is quite complex, sometimes we can loose the ability of retrieving the exact solution to gain speed, clearly, the approximation quality becomes a major concern and these approximate methods require a lot of knowledge to trade speed retrieval process also kept high the solution's quality. Additionally, the amount of memory used by the index and the construction time are also concerns whenever $n$ is big.
+
+The `SearchGraph` index in the `SimilaritySearch.jl` package is a competitive alternative for solving search queries that automatically tune search speed and quality and also remains very competitive in memory and construction costs. Here we show some demostrations of how using `SimilaritySearch.jl` in several synthetic and real problems.

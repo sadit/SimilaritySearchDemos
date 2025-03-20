@@ -1,1 +1,0 @@
-SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0)], 3)

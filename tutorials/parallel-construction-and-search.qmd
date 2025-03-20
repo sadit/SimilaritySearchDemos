@@ -1,0 +1,78 @@
+---
+title: "Parallel construction and parallel search"
+engine: julia
+lang: en-US
+
+---
+by: Eric S. Téllez
+
+```{julia}
+#| output: false
+using SimilaritySearch
+
+```
+
+Similarity search on very large datasets and high-dimensional datasets require high computational resources. In this example we show how to arallelize both the construction and search to be able to handle this kind of databases.
+
+```{julia}
+#| output: false
+
+dim = 16
+db = MatrixDatabase(randn(Float32, dim, 10^5)) # <1>
+queries = MatrixDatabase(randn(Float32, dim, 30)) # <2>
+dist = SqL2Distance() # <3>
+ctx = SearchGraphContext(parallel_first_block=256, parallel_block=512) # <4>
+G = SearchGraph(; dist, db) # <5>
+index!(G, ctx) # <6>
+```
+1. A synthetic database of dimension 16 and $10^5$ vectors.
+2. A synthetic query set of $30$ points.
+3. The distance function.
+4. The search context working with `SearchGraph`; a set of hyperparameters for the index.
+5. The index definition.
+6. The index construction.
+
+The `SearchGraph` construction algorithm is incremental:
+
+- If the index is empty, an element is inserted just inserting it into the index.
+- If the index is not empty, the element is inserted and connected to its nearest neighbors (looking into the current index).
+
+The parallel construction is made with `index!` or `append_items!`; for this matter these functions accept a `parallel_block` argument via the `ctx` context, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.
+
+As in the sequential version, a minimum number of elements must exists to work, and therefore, the `parallel_first_block` argument can also be specified. By default, it is equal to `parallel_block`. The `parallel_block` argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.
+
+Note that you must not call `push_item!`, `append_items!`, or `index!` from several threads. The default algorithm will takes advantage of the available threads using a single call.
+
+## Searching
+Once the index is constructed, you can solve batches in parallel and also single queries.
+In contrast with append, these functions can be called in multithreading algorithms.
+However, you must _pause_ the searching requests while perform insertions (parallel or sequential); mixing insertions and search produces an undefined behavior for search results.
+
+```{julia}
+I, D = searchbatch(G, ctx, queries, 10)
+
+Threads.@threads for i in eachindex(queries)
+    p = search(G, ctx, queries[i], KnnResult(10))
+    res = p.res
+    
+    print("=== $i -- nearest neighbor:")
+    println(res[1])
+    print("=== $i -- result set:")
+    println(collect(res))
+    print("=== $i -- identifiers:")
+    println(collect(IdView(res))) # do something with `res`
+    print("=== $i -- distances:")
+    println(collect(DistView(res))) # do something with `res`
+end
+```
+
+ 
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```
+

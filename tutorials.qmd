@@ -1,0 +1,14 @@
+---
+title: "Tutorials"
+lang: en-US
+
+---
+
+## Using `SearchGraph`
+
+- [Basic usage](tutorials/basic-usage.html)  - Euclidean distance, Random 2D points.
+- [Incremental construction](tutorials/incremental-construction.html)  - Manhattan distance, Random 8D points.
+- [Automatic hyperparameter optimization](tutorials/automatic-hyperparameter-opt.html)  - Squared Euclidean distance Random 16D points.
+- [Solving single queries](tutorials/solving-single-queries.html) - Euclidean distance, Random points.
+- [Parallel construction and search](tutorials/parallel-construction-and-search.html) - Euclidean distance, Random 2D points.
+- [All-KNN](tutorials/allknn.html) - Euclidean distance, Random points.

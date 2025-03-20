@@ -1,6 +1,0 @@
-  0.002958 seconds (2.01 k allocations: 109.734 KiB)
-  0.009363 seconds (2.28 k allocations: 1.187 MiB)
-  0.002534 seconds (2.01 k allocations: 109.734 KiB)
-macrorecall(goldI, I1) = 0.9315999999999932
-macrorecall(goldI, I2) = 0.9301999999999929
-macrorecall(goldI, I3) = 0.9371999999999938
