@@ -1,0 +1,104 @@
+---
+title: "Visualizing Twitter Messages with Emojis"
+engine: julia
+lang: en-US
+---
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots
+using Downloads: download
+
+```
+
+```{julia}
+#| output: true
+
+mkpath("tmp")
+dbfile = "tmp/emo50k.json.gz"
+baseurl = "https://github.com/sadit/TextClassificationTutorial/raw/refs/heads/main/data/emo50k.json.gz"
+!isfile(dbfile) && download(baseurl, dbfile)
+
+D = DataFrame(open(GzipDecompressorStream, dbfile) do f
+    JSON.parse.(eachline(f))
+end)
+```
+
+```{julia}
+#| output: false
+function prepare_data(corpus)
+    textconfig = TextConfig(group_usr=true, group_url=true, del_diac=true, lc=true, group_num=true, nlist=[], qlist=[3])
+    voc = Vocabulary(textconfig, corpus) # corpus here can be a sample to avoid double parsing
+    voc = filter_tokens(voc) do t
+        t.ndocs >= 5
+    end
+    model = VectorModel(IdfWeighting(), TfWeighting(), voc)
+
+    vectors = vectorize_corpus(model, corpus)
+
+    (; textconfig, model, vectors)
+end
+```
+
+```{julia}
+#| output: false
+function umap_embeddings(index, db; k=20, n_epochs=100, neg_sample_rate=5, tol=1e-3, layout=SpectralLayout())
+    #layout = RandomLayout()
+    # increase both `n_epochs` and `neg_sample_rate` to improve projection
+    #layout = SpectralLayout() ## the results are much better with Spectral layout
+    @time U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol) 
+    @time U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # reuses U2
+    #jldsave(umapfile, e2=U2.embedding, e3=U3.embedding)
+    @time e2 = clamp.(predict(U2, db), -10f0, 10f0)
+    @time e3 = clamp.(predict(U3, db), -10f0, 10f0)
+    (; e2, e3)
+end
+
+function normcolors(V)
+    min_, max_ = extrema(V)
+    V .= (V .- min_) ./ (max_ - min_)
+    V .= clamp.(V, 0, 1)
+end
+
+
+X = prepare_data(D.text)
+
+layout =  SpectralLayout()
+dist = NormalizedCosineDistance()
+index = ExhaustiveSearch(; db=rand(X.vectors, 2000), dist)
+length(index)
+
+e2, e3 = umap_embeddings(index, X.vectors; layout)
+
+```
+
+```{julia}
+function plot_umap(e2, e3)
+    normcolors(@view e3[1, :])
+    normcolors(@view e3[2, :])
+    normcolors(@view e3[3, :])
+
+    C = [RGBAf(c[1], c[2], c[3], 0.5) for c in eachcol(e3)]
+    X = @view e2[1, :]
+    Y = @view e2[2, :]
+    scatter(X, Y, color=C, markersize=5)
+end
+
+#=f = Figure(resolution = (800, 800))
+ax = Axis(f[1,1], title = "Emoji's visualization", aspect = DataAspect())
+hexbin!(ax, (@view e2[1, :]), (@view e2[2, :]); bins=200)
+plot_umap(ax, e2, e3)
+f
+=#
+
+plot_umap(e2, e3)
+```
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```
