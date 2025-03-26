@@ -1,0 +1,113 @@
+---
+title: "Visualizing Twitter Messages with Emojis"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+
+This example creates a visualization of Glove word embeddings using `Embeddings.jl` package to fetch them.
+
+Note: this notebook must be run with Jupyter and the environment variable JULIA_NUM_THREADS=auto, e.g., start the jupyter 
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase, LinearAlgebra, Markdown, Embeddings, Random
+using Downloads: download
+
+```
+
+```{julia}
+#| output: false
+#samplesize = 30_000
+emb, vocab = let emb = load_embeddings(GloVe{:en}, 2)  # you can change with any of the available embeddings in `Embeddings`
+    for c in eachcol(emb.embeddings)
+        normalize!(c)
+    end
+
+    #=n = size(emb.embeddings, 2)
+    p = randperm(n)
+    resize!(p, samplesize)
+    Float16.(emb.embeddings[:, p]), emb.vocab[p]=#
+    Float16.(emb.embeddings), emb.vocab
+end
+```
+
+```{julia}
+#| output: false
+dist = NormalizedCosine_asf32()
+index = SearchGraph(; dist, db=MatrixDatabase(emb))
+ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
+index!(index, ctx)
+```
+
+```{julia}
+#| output: false
+optimize_index!(index, ctx, MinRecall(0.9))
+```
+
+
+```{julia}
+function analogy(a, b, c, k)
+	v = index[vocab2id[a]] - index[vocab2id[b]] + index[vocab2id[c]]
+	normalize!(v)
+	search_and_display(index, vocab, v, res, k, "<$a> - <$b> + <$c>")
+end
+
+analogy("father", "man", "woman", 5)
+analogy("fireman", "man", "woman", 5)
+analogy("policeman", "man", "woman", 5)
+analogy("mississippi", "usa", "france", 5)
+```
+## UMAP Visualization
+```{julia}
+#| output: false
+e2, e3 = let min_dist=0.5f0, # <1>
+             k=12,
+             n_epochs=75,
+             neg_sample_rate=3,
+             tol=1e-3,
+             layout=RandomLayout()
+
+    @time "Compute 2D UMAP model" U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
+    @time "Compute 3D UMAP model" U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
+    @time "predicting 2D embeddings" e2 = clamp.(predict(U2), -10f0, 10f0) # <5>
+    @time "predicting 3D embeddings" e3 = clamp.(predict(U3), -10f0, 10f0) # <6>
+    e2, e3
+end    
+
+```
+
+```{julia}
+function normcolors(V)
+    min_, max_ = extrema(V)
+    V .= (V .- min_) ./ (max_ - min_)
+    V .= clamp.(V, 0, 1)
+end
+
+normcolors(@view e3[1, :])
+normcolors(@view e3[2, :])
+normcolors(@view e3[3, :])
+
+let C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)],
+    X = view(e2, 1, :),
+    Y = view(e2, 2, :)
+    scatter(X, Y, color=C, fmt=:png, alpha=0.2, size=(600, 600), ma=0.3, ms=2, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
+end
+
+plot!()
+```
+
+## Final notes
+
+This example shows how to index and search dense vector databases, in particular GloVe word embeddings using the cosine distance. Low dimensional projections are made with `SimSearchManifoldLearning`, note that `SimilaritySearch` is also used for computing the all $k$ nearest neighbors needed by the UMAP model. Note that this notebook should be ran with several threads to reduce time costs.
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

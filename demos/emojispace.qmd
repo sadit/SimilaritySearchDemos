@@ -4,13 +4,16 @@ engine: julia
 lang: en-US
 ---
 
+This example creates a vector space model for classify emojis in Twitter messages, then process and create vectors from messages and project them using a UMAP model. The projection uses the SimilaritySearch `allknn` operation.
+
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase
 using Downloads: download
 
 ```
 
+downloading the dataset, parsing and vectorizing functions
 ```{julia}
 #| output: true
 
@@ -18,80 +21,105 @@ mkpath("tmp")
 dbfile = "tmp/emo50k.json.gz"
 baseurl = "https://github.com/sadit/TextClassificationTutorial/raw/refs/heads/main/data/emo50k.json.gz"
 !isfile(dbfile) && download(baseurl, dbfile)
+```
+
+Now, we load the dataset
+```{julia}
+#| output: true
 
 D = DataFrame(open(GzipDecompressorStream, dbfile) do f
     JSON.parse.(eachline(f))
 end)
+
+collect(countmap(D.klass))
 ```
 
 ```{julia}
-#| output: false
-function prepare_data(corpus)
-    textconfig = TextConfig(group_usr=true, group_url=true, del_diac=true, lc=true, group_num=true, nlist=[], qlist=[3])
-    voc = Vocabulary(textconfig, corpus) # corpus here can be a sample to avoid double parsing
-    voc = filter_tokens(voc) do t
-        t.ndocs >= 5
-    end
-    model = VectorModel(IdfWeighting(), TfWeighting(), voc)
 
-    vectors = vectorize_corpus(model, corpus)
-
-    (; textconfig, model, vectors)
+D = filter(D) do r
+    r.klass in ("😭", "🤣", "😍", "😤")
 end
+
+collect(countmap(D.klass))
+#H = sort!(collect(countmap(D.klass)), by=first)
+#bar(first.(H), last.(H))
 ```
+
+Functions create to encode texto into bag-of-word vectors
+```{julia}
+#| output: false
+
+textconfig = TextConfig(
+    group_usr=true,
+    group_url=true,
+    del_diac=true,
+    lc=true,
+    group_num=true,
+    nlist=[1],
+    qlist=[3])
+
+# corpus here can be a sample to avoid double parsing
+voc = Vocabulary(textconfig, D.text) 
+# model = VectorModel(IdfWeighting(), TfWeighting(), voc)
+model = VectorModel(EntropyWeighting(), BinaryLocalWeighting(), voc, D.text, D.klass; smooth=1.0)
+#model = VectorModel(IdfWeighting(), TfWeighting(), voc)
+model = filter_tokens(model) do t
+    t.weight >= 0.075
+end
+vectors = vectorize_corpus(model, D.text)
+```
+
+## UMAP projections
+UMAP projection can take a while, even on multithreading systems. Note that we are creating 2d and 3d projections.
+
 
 ```{julia}
 #| output: false
-function umap_embeddings(index, db; k=20, n_epochs=100, neg_sample_rate=5, tol=1e-3, layout=SpectralLayout())
-    #layout = RandomLayout()
-    # increase both `n_epochs` and `neg_sample_rate` to improve projection
-    #layout = SpectralLayout() ## the results are much better with Spectral layout
-    @time U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol) 
-    @time U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # reuses U2
-    #jldsave(umapfile, e2=U2.embedding, e3=U3.embedding)
-    @time e2 = clamp.(predict(U2, db), -10f0, 10f0)
-    @time e3 = clamp.(predict(U3, db), -10f0, 10f0)
-    (; e2, e3)
+e2, e3 = let min_dist=0.5f0, # <1>
+             k=16,
+             n_epochs=75,
+             neg_sample_rate=3,
+             tol=1e-3,
+             layout=SpectralLayout(),
+             indexsize=768,
+             dist=NormalizedCosineDistance()
+
+    index = ExhaustiveSearch(; db=rand(vectors, indexsize), dist) # <2>
+    @time U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
+    @time U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
+    @time e2 = clamp.(predict(U2, vectors), -10f0, 10f0) # <5>
+    @time e3 = clamp.(predict(U3, vectors), -10f0, 10f0) # <6>
+    e2, e3
 end
 
+```
+1. The UMAP algorithm has a lot of hyperparameters; `min_dist` controls the distance between projected points, `k` is the number of neighbors to be used in the underlying $k$nn graph, `n_epochs` the number of epochs used to optimize the projection, `neg_sample_rate` means for the number of negative examples used in the optimization process, `tol` the tolerance to converge, `layout` 
+
+## Visualizations
+
+```{julia}
 function normcolors(V)
     min_, max_ = extrema(V)
     V .= (V .- min_) ./ (max_ - min_)
     V .= clamp.(V, 0, 1)
 end
 
+normcolors(@view e3[1, :])
+normcolors(@view e3[2, :])
+normcolors(@view e3[3, :])
 
-X = prepare_data(D.text)
+C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)]
 
-layout =  SpectralLayout()
-dist = NormalizedCosineDistance()
-index = ExhaustiveSearch(; db=rand(X.vectors, 2000), dist)
-length(index)
+X = @view e2[1, :]
+Y = @view e2[2, :]
+scatter(X, Y, color=C, markersize=4, alpha=0.5)
 
-e2, e3 = umap_embeddings(index, X.vectors; layout)
-
-```
-
-```{julia}
-function plot_umap(e2, e3)
-    normcolors(@view e3[1, :])
-    normcolors(@view e3[2, :])
-    normcolors(@view e3[3, :])
-
-    C = [RGBAf(c[1], c[2], c[3], 0.5) for c in eachcol(e3)]
-    X = @view e2[1, :]
-    Y = @view e2[2, :]
-    scatter(X, Y, color=C, markersize=5)
+for i in 1:100
+    j = rand(1:length(D.klass))
+    annotate!(X[j], Y[j], text(D.klass[j], :blue, :right, 8, "noto"))
 end
 
-#=f = Figure(resolution = (800, 800))
-ax = Axis(f[1,1], title = "Emoji's visualization", aspect = DataAspect())
-hexbin!(ax, (@view e2[1, :]), (@view e2[2, :]); bins=200)
-plot_umap(ax, e2, e3)
-f
-=#
-
-plot_umap(e2, e3)
+plot!()
 ```
 
 ## Environment and dependencies
