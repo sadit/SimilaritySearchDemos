@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Parallel construction and parallel search – SimilaritySearch</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-5c67a7444eebc356e54fdce0a63e8750.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">SimilaritySearch</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#searching" id="toc-searching" class="nav-link active" data-scroll-target="#searching">Searching</a></li>
+  <li><a href="#environment-and-dependencies" id="toc-environment-and-dependencies" class="nav-link" data-scroll-target="#environment-and-dependencies">Environment and dependencies</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Parallel construction and parallel search</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>by: Eric S. Téllez</p>
+<div id="2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SimilaritySearch</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Similarity search on very large datasets and high-dimensional datasets require high computational resources. In this example we show how to arallelize both the construction and search to be able to handle this kind of databases.</p>
+<div id="4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="annotated-cell-2"><pre class="sourceCode julia code-annotation-code code-with-copy code-annotated"><code class="sourceCode julia"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a>dim <span class="op">=</span> <span class="fl">16</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-2" class="code-annotation-target"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> <span class="fu">MatrixDatabase</span>(<span class="fu">randn</span>(<span class="dt">Float32</span>, dim, <span class="fl">10</span><span class="op">^</span><span class="fl">5</span>))</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a>queries <span class="op">=</span> <span class="fu">MatrixDatabase</span>(<span class="fu">randn</span>(<span class="dt">Float32</span>, dim, <span class="fl">30</span>))</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-4" class="code-annotation-target"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a>dist <span class="op">=</span> <span class="fu">SqL2Distance</span>()</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-2-5" class="code-annotation-target"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> <span class="fu">SearchGraphContext</span>(parallel_first_block<span class="op">=</span><span class="fl">256</span>, parallel_block<span class="op">=</span><span class="fl">512</span>)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-2-6" class="code-annotation-target"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> <span class="fu">SearchGraph</span>(; dist, db)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">index!</span>(G, ctx)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-annotation">
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="2" data-code-annotation="1">A synthetic database of dimension 16 and <span class="math inline">\(10^5\)</span> vectors.</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="3" data-code-annotation="2">A synthetic query set of <span class="math inline">\(30\)</span> points.</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="4" data-code-annotation="3">The distance function.</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="5" data-code-annotation="4">The search context working with <code>SearchGraph</code>; a set of hyperparameters for the index.</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="6" data-code-annotation="5">The index definition.</span>
+</dd>
+<dt data-target-cell="annotated-cell-2" data-target-annotation="6">6</dt>
+<dd>
+<span data-code-cell="annotated-cell-2" data-code-lines="7" data-code-annotation="6">The index construction.</span>
+</dd>
+</dl>
+</div>
+</div>
+<p>The <code>SearchGraph</code> construction algorithm is incremental:</p>
+<ul>
+<li>If the index is empty, an element is inserted just inserting it into the index.</li>
+<li>If the index is not empty, the element is inserted and connected to its nearest neighbors (looking into the current index).</li>
+</ul>
+<p>The parallel construction is made with <code>index!</code> or <code>append_items!</code>; for this matter these functions accept a <code>parallel_block</code> argument via the <code>ctx</code> context, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.</p>
+<p>As in the sequential version, a minimum number of elements must exists to work, and therefore, the <code>parallel_first_block</code> argument can also be specified. By default, it is equal to <code>parallel_block</code>. The <code>parallel_block</code> argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.</p>
+<p>Note that you must not call <code>push_item!</code>, <code>append_items!</code>, or <code>index!</code> from several threads. The default algorithm will takes advantage of the available threads using a single call.</p>
+<section id="searching" class="level2">
+<h2 class="anchored" data-anchor-id="searching">Searching</h2>
+<p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must <em>pause</em> the searching requests while perform insertions (parallel or sequential); mixing insertions and search produces an undefined behavior for search results.</p>
+<div id="6" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>I, D <span class="op">=</span> <span class="fu">searchbatch</span>(G, ctx, queries, <span class="fl">10</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Threads</span>.<span class="pp">@threads</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(queries)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="fu">search</span>(G, ctx, queries[i], <span class="fu">KnnResult</span>(<span class="fl">10</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> p.res</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">"=== </span><span class="sc">$</span>i<span class="st"> -- nearest neighbor:"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(res[<span class="fl">1</span>])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">"=== </span><span class="sc">$</span>i<span class="st"> -- result set:"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="fu">collect</span>(res))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">"=== </span><span class="sc">$</span>i<span class="st"> -- identifiers:"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="fu">collect</span>(<span class="fu">IdView</span>(res))) <span class="co"># do something with `res`</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">"=== </span><span class="sc">$</span>i<span class="st"> -- distances:"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="fu">collect</span>(<span class="fu">DistView</span>(res))) <span class="co"># do something with `res`</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== 30 -- nearest neighbor:=== 16 -- nearest neighbor:=== 13 -- nearest neighbor:=== 14 -- nearest neighbor:=== 2 -- nearest neighbor:=== 22 -- nearest neighbor:=== 11 -- nearest neighbor:=== 21 -- nearest neighbor:=== 25 -- nearest neighbor:=== 12 -- nearest neighbor:=== 19 -- nearest neighbor:=== 20 -- nearest neighbor:=== 15 -- nearest neighbor:=== 26 -- nearest neighbor:=== 5 -- nearest neighbor:=== 7 -- nearest neighbor:=== 27 -- nearest neighbor:=== 3 -- nearest neighbor:=== 18 -- nearest neighbor:=== 4 -- nearest neighbor:=== 29 -- nearest neighbor:=== 8 -- nearest neighbor:=== 28 -- nearest neighbor:=== 1 -- nearest neighbor:IdWeight(=== 9 -- nearest neighbor:=== 17 -- nearest neighbor:=== 6 -- nearest neighbor:=== 10 -- nearest neighbor:=== 24 -- nearest neighbor:=== 23 -- nearest neighbor:0x00011378, 5.7673936f0)
+=== 30 -- result set:IdWeight(0x000037f6, 4.1997943f0)
+=== 11 -- result set:IdWeight(0x00017724, 4.1756215f0)
+=== 20 -- result set:IdWeight(0x00007203, 5.063024f0)
+=== 21 -- result set:IdWeight(0x0000e327, 6.0607953f0)
+=== 28 -- result set:IdWeight(0x0000a963, 3.20485f0)
+=== 13 -- result set:IdWeight(0x00011b60, 3.7669861f0)
+=== 27 -- result set:IdWeight(0x00014acf, 6.6534595f0)
+=== 29 -- result set:IdWeight(0x00017dc9, 5.9772186f0)
+=== 7 -- result set:IdWeight(0x0000a2fa, 3.745455f0)
+=== 22 -- result set:IdWeight(0x0000b0cc, 1.3943706f0)
+=== 26 -- result set:IdWeight(0x0000b6b3, 4.0657415f0)
+=== 24 -- result set:IdWeight(0x0000b85e, 8.263314f0)
+=== 9 -- result set:IdWeight(0x00016624, 4.8849845f0)
+=== 23 -- result set:IdWeight(0x00000490, 5.165486f0)
+=== 5 -- result set:IdWeight(0x00005612, 6.526547f0)
+=== 4 -- result set:IdWeight(0x0001500b, 9.902931f0)
+=== 6 -- result set:IdWeight(0x000129b6, 7.12982f0)
+IdWeight=== 18 -- result set:(0x0000decd, 4.733655f0)
+=== 10 -- result set:IdWeight(0x000059d5, 3.6504257f0)
+IdWeight=== 1 -- result set:(0x000167fd, 6.492943f0)
+=== 12 -- result set:IdWeight(0x0000102c, 5.360827f0)
+IdWeight=== 8 -- result set:(0x00007707, 2.721734f0)
+=== 14 -- result set:IdWeight(0x000172e1, 6.1124606f0)
+=== 3 -- result set:IdWeight(0x0000187e, 4.252377f0)
+IdWeight=== 15 -- result set:(0x00002333, 4.3637156f0)
+IdWeight=== 17 -- result set:(0x000067eb, 4.072066f0)
+=== 25 -- result set:IdWeight(0x00009d5d, 1.5775208f0)
+=== 16 -- result set:IdWeight(0x0000f190, 4.866307f0)
+=== 19 -- result set:IdWeight(0x000022c6, 5.0453906f0)
+=== 2 -- result set:IdWeight[IdWeight(0x00011378, 5.7673936f0), IdWeight(0x0001211c, 6.5765514f0), IdWeight(0x00008555, 6.8664637f0), IdWeight(0x00006b58, 6.9316936f0), IdWeight(0x00008435, 7.555251f0), IdWeight(0x0000ee2f, 7.884663f0), IdWeight(0x00002f89, 8.138638f0), IdWeight(0x00001804, 8.208462f0), IdWeight(0x00017847, 8.320134f0), IdWeight(0x00009d65, 8.574164f0)]
+=== 30 -- identifiers:IdWeight[IdWeight(0x000022c6, 5.0453906f0), IdWeight(0x0000f3b4, 5.2503996f0), IdWeight(0x00011748, 6.7221427f0), IdWeight(0x000003fa, 6.816469f0), IdWeight(0x00003abc, 7.6534805f0), IdWeight(0x0000c833, 7.8723927f0), IdWeight(0x00008c81, 7.9628296f0), IdWeight(0x00001b9c, 8.2568445f0), IdWeight(0x00000959, 8.341556f0), IdWeight(0x00014830, 8.578199f0)]
+=== 2 -- identifiers:IdWeight[IdWeight(0x000059d5, 3.6504257f0), IdWeight(0x00016325, 4.4379272f0), IdWeight(0x0000041b, 4.7488112f0), IdWeight(0x00015981, 4.901279f0), IdWeight(0x0001865e, 4.9625344f0), IdWeight(0x00014c7c, 5.3858833f0), IdWeight(0x00010104, 5.4063106f0), IdWeight(0x0000e6d8, 5.5065255f0), IdWeight(0x000133c3, 5.513593f0), IdWeight(0x0000d08f, 5.6105084f0)]
+=== 1 -- identifiers:IdWeight[IdWeight(0x00002333, 4.3637156f0), IdWeight(0x0000aa93, 5.230916f0), IdWeight(0x00000bbb, 5.778029f0), IdWeight(0x0000d574, 5.791041f0), IdWeight(0x00003ce7, 5.871272f0), IdWeight(0x000023e4, 6.152666f0), IdWeight(0x0000eb0e, 6.282268f0), IdWeight(0x00010489, 6.393247f0), IdWeight(0x0000bd04, 6.39784f0), IdWeight(0x0000bae3, 6.6380563f0)]
+=== 17 -- identifiers:IdWeight[IdWeight(0x00000490, 5.165486f0), IdWeight(0x000160d9, 5.416849f0), IdWeight(0x0001675c, 5.754625f0), IdWeight(0x00001106, 6.0301943f0), IdWeight(0x00017ce0, 6.540473f0), IdWeight(0x00012f04, 6.7363224f0), IdWeight(0x0000b758, 7.0457015f0), IdWeight(0x0000d8e6, 7.2509794f0), IdWeight(0x00005098, 7.5190277f0), IdWeight(0x00004d55, 7.736002f0)]
+=== 5 -- identifiers:IdWeight[IdWeight(0x0000b6b3, 4.0657415f0), IdWeight(0x0001800e, 4.1596627f0), IdWeight(0x000130c8, 5.215902f0), IdWeight(0x00007d21, 5.2420435f0), IdWeight(0x00016a6d, 5.401593f0), IdWeight(0x00000ba3, 5.982858f0), IdWeight(0x000178fb, 6.190426f0), IdWeight(0x000015d3, 6.3417892f0), IdWeight(0x000087ed, 6.4037395f0), IdWeight(0x00005ddd, 6.57997f0)]
+=== 24 -- identifiers:IdWeight[IdWeight(0x000037f6, 4.1997943f0), IdWeight(0x00017ea5, 4.2164073f0), IdWeight(0x00007944, 4.498477f0), IdWeight(0x0000c349, 4.663265f0), IdWeight(0x0000a46c, 4.7884846f0), IdWeight(0x00016aae, 4.8613787f0), IdWeight(0x00010e4d, 4.95706f0), IdWeight(0x000115dd, 5.082154f0), IdWeight(0x00004eea, 5.189611f0), IdWeight(0x0000be17, 5.2598653f0)]
+=== 11 -- identifiers:IdWeight[IdWeight(0x000129b6, 7.12982f0), IdWeight(0x00015c1b, 7.77421f0), IdWeight(0x00007e5e, 7.8367004f0), IdWeight(0x00002153, 8.171021f0), IdWeight(0x0000626d, 8.411317f0), IdWeight(0x00000b3f, 8.664575f0), IdWeight(0x0000aecb, 8.808345f0), IdWeight(0x000092a8, 9.082102f0), IdWeight(0x0000d793, 9.114776f0), IdWeight(0x0000f742, 9.706217f0)]
+=== 18 -- identifiers:IdWeight[IdWeight(0x000167fd, 6.492943f0), IdWeight(0x0000a032, 7.065445f0), IdWeight(0x000114c4, 7.4024973f0), IdWeight(0x0000071b, 7.550003f0), IdWeight(0x00008c6e, 8.070904f0), IdWeight(0x0000a8de, 8.096019f0), IdWeight(0x00010e55, 9.163538f0), IdWeight(0x0000ad53, 9.244366f0), IdWeight(0x00000cae, 9.499945f0), IdWeight(0x00013970, 9.588688f0)]
+=== 12 -- identifiers:IdWeight[IdWeight(0x00005612, 6.526547f0), IdWeight(0x0000a3ea, 7.7701325f0), IdWeight(0x0000d3f7, 8.0697365f0), IdWeight(0x0000c18a, 8.142321f0), IdWeight(0x00009780, 8.222589f0), IdWeight(0x0000745a, 8.274956f0), IdWeight(0x0000bd07, 8.325199f0), IdWeight(0x0000abfa, 8.353053f0), IdWeight(0x0000f3e4, 8.623434f0), IdWeight(0x00013959, 8.665885f0)]
+=== 4 -- identifiers:IdWeight[IdWeight(0x0000102c, 5.360827f0), IdWeight(0x0000a830, 5.979519f0), IdWeight(0x00007096, 6.0358853f0), IdWeight(0x000074ce, 6.0892773f0), IdWeight(0x0000f85b, 6.0987215f0), IdWeight(0x0001649b, 6.139133f0), IdWeight(0x00017b71, 6.182934f0), IdWeight(0x0000e86d, 6.305562f0), IdWeight(0x00003994, 6.566434f0), IdWeight(0x0001689d, 6.7839475f0)]
+=== 8 -- identifiers:IdWeight[IdWeight(0x00011b60, 3.7669861f0), IdWeight(0x0000b250, 4.023312f0), IdWeight(0x000129a7, 4.153792f0), IdWeight(0x0000f05e, 4.353279f0), IdWeight(0x00012a5b, 4.8698397f0), IdWeight(0x00010a91, 5.1262593f0), IdWeight(0x0000bea3, 5.26887f0), IdWeight(0x00016966, 5.394973f0), IdWeight(0x0000d46f, 5.4349174f0), IdWeight(0x00013a36, 5.654727f0)]
+=== 27 -- identifiers:IdWeight[IdWeight(0x000172e1, 6.1124606f0), IdWeight(0x0000440b, 6.3649597f0), IdWeight(0x000086c5, 6.5696106f0), IdWeight(0x00011034, 7.120795f0), IdWeight(0x0000e97c, 7.4672546f0), IdWeight(0x0000de52, 7.480347f0), IdWeight(0x00017173, 7.608932f0), IdWeight(0x00003f45, 7.674545f0), IdWeight(0x0000ccfd, 7.7937264f0), IdWeight(0x000087f5, 8.198435f0)]
+=== 3 -- identifiers:IdWeight[IdWeight(0x00016624, 4.8849845f0), IdWeight(0x0000f33c, 5.949905f0), IdWeight(0x0000f5ca, 6.370414f0), IdWeight(0x000068b8, 6.4893875f0), IdWeight(0x00011aa3, 7.216407f0), IdWeight(0x000178a0, 7.4125123f0), IdWeight(0x0000b1ea, 7.474535f0), IdWeight(0x00017f97, 7.5206814f0), IdWeight(0x0000054a, 7.561662f0), IdWeight(0x00003ff0, 7.658282f0)]
+=== 23 -- identifiers:IdWeight[IdWeight(0x0000b0cc, 1.3943706f0), IdWeight(0x0001550f, 1.7497267f0), IdWeight(0x000155f3, 2.4860287f0), IdWeight(0x0000297f, 2.5835958f0), IdWeight(0x0000171c, 2.829751f0), IdWeight(0x00004769, 3.0909886f0), IdWeight(0x00016916, 3.2841733f0), IdWeight(0x00013748, 3.3177545f0), IdWeight(0x000184ba, 3.3480034f0), IdWeight(0x00007a42, 3.3543985f0)]
+=== 26 -- identifiers:IdWeight[IdWeight(0x00009d5d, 1.5775208f0), IdWeight(0x0000e105, 4.171344f0), IdWeight(0x0000da0b, 4.5726433f0), IdWeight(0x00004549, 4.749284f0), IdWeight(0x00008308, 4.7750363f0), IdWeight(0x00014864, 4.861708f0), IdWeight(0x00006bdc, 4.9597464f0), IdWeight(0x0000284d, 4.9875546f0), IdWeight(0x00012b9a, 5.248585f0), IdWeight(0x000056de, 5.3048162f0)]
+=== 16 -- identifiers:IdWeight[IdWeight(0x00017724, 4.1756215f0), IdWeight(0x00013cf6, 4.2562156f0), IdWeight(0x000172fa, 4.274527f0), IdWeight(0x00012437, 4.3392167f0), IdWeight(0x00014072, 4.5360665f0), IdWeight(0x000024c5, 4.6235723f0), IdWeight(0x0001073b, 4.7087693f0), IdWeight(0x00008e2d, 4.794657f0), IdWeight(0x0000b966, 4.950298f0), IdWeight(0x0000f550, 5.162191f0)]
+=== 20 -- identifiers:IdWeight[IdWeight(0x0000f190, 4.866307f0), IdWeight(0x00012f95, 4.8982434f0), IdWeight(0x00009730, 5.331491f0), IdWeight(0x000160a1, 5.4492016f0), IdWeight(0x0000387d, 5.60643f0), IdWeight(0x0000cfa6, 5.655481f0), IdWeight(0x000026cf, 5.746117f0), IdWeight(0x00003502, 5.8292413f0), IdWeight(0x0000b77a, 6.044111f0), IdWeight(0x0000d2ee, 6.238947f0)]
+=== 19 -- identifiers:IdWeight[IdWeight(0x00007203, 5.063024f0), IdWeight(0x0000c46a, 5.101182f0), IdWeight(0x00002fe7, 5.136405f0), IdWeight(0x0000fd21, 5.4088683f0), IdWeight(0x00003d5f, 5.650648f0), IdWeight(0x000025b6, 5.718283f0), IdWeight(0x0000373e, 5.9018197f0), IdWeight(0x00010843, 5.9279447f0), IdWeight(0x0001043b, 5.940809f0), IdWeight(0x00005eee, 5.953355f0)]
+=== 21 -- identifiers:IdWeight[IdWeight(0x0000e327, 6.0607953f0), IdWeight(0x00010ce8, 6.980864f0), IdWeight(0x0000f0b9, 7.044319f0), IdWeight(0x00014d3b, 7.5088387f0), IdWeight(0x000120bf, 8.238833f0), IdWeight(0x0000402b, 8.332623f0), IdWeight(0x0000464a, 8.460111f0), IdWeight(0x00003402, 8.462259f0), IdWeight(0x00006356, 8.469164f0), IdWeight(0x0000384c, 8.582058f0)]
+=== 28 -- identifiers:IdWeight[IdWeight(0x00014acf, 6.6534595f0), IdWeight(0x00003e02, 7.996436f0), IdWeight(0x000086b1, 8.9359455f0), IdWeight(0x0001795c, 9.036238f0), IdWeight(0x00008110, 9.3581505f0), IdWeight(0x0001845d, 9.501015f0), IdWeight(0x00000f45, 9.701177f0), IdWeight(0x00007ee0, 9.780923f0), IdWeight(0x0000e77e, 10.008263f0), IdWeight(0x0001685a, 10.073041f0)]
+=== 29 -- identifiers:IdWeight[IdWeight(0x0000decd, 4.733655f0), IdWeight(0x000032e6, 5.426944f0), IdWeight(0x00011439, 6.0009217f0), IdWeight(0x000102a0, 6.1232796f0), IdWeight(0x00014432, 6.220991f0), IdWeight(0x00001187, 6.436433f0), IdWeight(0x00017af4, 6.4974957f0), IdWeight(0x00001322, 6.8033752f0), IdWeight(0x000140f8, 6.8596373f0), IdWeight(0x00010347, 6.884148f0)]
+=== 10 -- identifiers:IdWeight[IdWeight(0x0000a2fa, 3.745455f0), IdWeight(0x000166d7, 4.1904883f0), IdWeight(0x0000daea, 4.360644f0), IdWeight(0x00011653, 4.4343615f0), IdWeight(0x0000057e, 4.5342555f0), IdWeight(0x000120fe, 4.6888514f0), IdWeight(0x00016d41, 5.1771836f0), IdWeight(0x000005b1, 5.1967874f0), IdWeight(0x0000da3b, 5.2599225f0), IdWeight(0x00009e25, 5.267457f0)]
+=== 22 -- identifiers:IdWeight[IdWeight(0x0001500b, 9.902931f0), IdWeight(0x00009216, 10.881981f0), IdWeight(0x0000fb06, 11.389378f0), IdWeight(0x00016736, 12.514006f0), IdWeight(0x0000b50f, 12.59656f0), IdWeight(0x00011719, 12.77947f0), IdWeight(0x00013715, 13.215257f0), IdWeight(0x00004a59, 13.24985f0), IdWeight(0x000110a4, 13.296212f0), IdWeight(0x00009365, 13.34092f0)]
+=== 6 -- identifiers:IdWeight[IdWeight(0x00017dc9, 5.9772186f0), IdWeight(0x00008e12, 6.214102f0), IdWeight(0x00007934, 6.2443905f0), IdWeight(0x000053fe, 6.490207f0), IdWeight(0x000113a2, 6.534569f0), IdWeight(0x000176ac, 6.7535625f0), IdWeight(0x00016c95, 6.7655654f0), IdWeight(0x00007f85, 6.8923063f0), IdWeight(0x000139a5, 6.9544535f0), IdWeight(0x0001135c, 6.9556313f0)]
+=== 7 -- identifiers:IdWeight[IdWeight(0x0000187e, 4.252377f0), IdWeight(0x000141f5, 4.8947763f0), IdWeight(0x00018414, 4.9112787f0), IdWeight(0x00012b47, 5.0469704f0), IdWeight(0x0000bdd4, 5.2809973f0), IdWeight(0x000156bc, 5.324951f0), IdWeight(0x0000ccdd, 5.4074326f0), IdWeight(0x0000c503, 5.4483457f0), IdWeight(0x00005127, 5.4923935f0), IdWeight(0x00006c32, 5.6581397f0)]
+=== 15 -- identifiers:IdWeight[IdWeight(0x000067eb, 4.072066f0), IdWeight(0x00006e17, 5.7219296f0), IdWeight(0x000011f2, 5.974982f0), IdWeight(0x00004ca1, 6.3699007f0), IdWeight(0x00013235, 6.5592103f0), IdWeight(0x0000f8dd, 6.780655f0), IdWeight(0x000101e9, 6.9018593f0), IdWeight(0x000185ee, 6.952215f0), IdWeight(0x00014372, 6.975828f0), IdWeight(0x00018284, 7.316987f0)]
+=== 25 -- identifiers:IdWeight[IdWeight(0x0000a963, 3.20485f0), IdWeight(0x00012d45, 3.9892905f0), IdWeight(0x000169b0, 4.1061463f0), IdWeight(0x00011a32, 4.4000716f0), IdWeight(0x0001048a, 4.40868f0), IdWeight(0x00006359, 4.7227683f0), IdWeight(0x0001780d, 4.8818636f0), IdWeight(0x00016e8f, 5.0930586f0), IdWeight(0x00010fbb, 5.1149693f0), IdWeight(0x0000a6c7, 5.2317815f0)]
+=== 13 -- identifiers:UInt32[0x00009d5d, 0x0000e105, 0x0000da0b, 0x00004549, 0x00008308, 0x00014864, 0x00006bdc, 0x0000284d, 0x00012b9a, 0x000056de]
+=== 16 -- distances:UInt32[0x00011b60, 0x0000b250, 0x000129a7, 0x0000f05e, 0x00012a5b, 0x00010a91, 0x0000bea3, 0x00016966, 0x0000d46f, 0x00013a36]
+=== 27 -- distances:UInt32[0x00011378, 0x0001211c, 0x00008555, 0x00006b58, 0x00008435, 0x0000ee2f, 0x00002f89, 0x00001804, 0x00017847, 0x00009d65]
+=== 30 -- distances:UInt32[0x000067eb, 0x00006e17, 0x000011f2, 0x00004ca1, 0x00013235, 0x0000f8dd, 0x000101e9, 0x000185ee, 0x00014372, 0x00018284]
+=== 25 -- distances:UInt32[0x0000a2fa, 0x000166d7, 0x0000daea, 0x00011653, 0x0000057e, 0x000120fe, 0x00016d41, 0x000005b1, 0x0000da3b, 0x00009e25]
+=== 22 -- distances:UInt32[0x0001500b, 0x00009216, 0x0000fb06, 0x00016736, 0x0000b50f, 0x00011719, 0x00013715, 0x00004a59, 0x000110a4, 0x00009365]
+=== 6 -- distances:UInt32[0x000172e1, 0x0000440b, 0x000086c5, 0x00011034, 0x0000e97c, 0x0000de52, 0x00017173, 0x00003f45, 0x0000ccfd, 0x000087f5]
+=== 3 -- distances:UInt32[0x000167fd, 0x0000a032, 0x000114c4, 0x0000071b, 0x00008c6e, 0x0000a8de, 0x00010e55, 0x0000ad53, 0x00000cae, 0x00013970]
+=== 12 -- distances:UInt32[0x00017dc9, 0x00008e12, 0x00007934, 0x000053fe, 0x000113a2, 0x000176ac, 0x00016c95, 0x00007f85, 0x000139a5, 0x0001135c]
+=== 7 -- distances:UInt32[0x00007203, 0x0000c46a, 0x00002fe7, 0x0000fd21, 0x00003d5f, 0x000025b6, 0x0000373e, 0x00010843, 0x0001043b, 0x00005eee]
+=== 21 -- distances:UInt32[0x0000a963, 0x00012d45, 0x000169b0, 0x00011a32, 0x0001048a, 0x00006359, 0x0001780d, 0x00016e8f, 0x00010fbb, 0x0000a6c7]
+=== 13 -- distances:UInt32[0x00016624, 0x0000f33c, 0x0000f5ca, 0x000068b8, 0x00011aa3, 0x000178a0, 0x0000b1ea, 0x00017f97, 0x0000054a, 0x00003ff0]
+=== 23 -- distances:UInt32[0x00017724, 0x00013cf6, 0x000172fa, 0x00012437, 0x00014072, 0x000024c5, 0x0001073b, 0x00008e2d, 0x0000b966, 0x0000f550]
+=== 20 -- distances:UInt32[0x00005612, 0x0000a3ea, 0x0000d3f7, 0x0000c18a, 0x00009780, 0x0000745a, 0x0000bd07, 0x0000abfa, 0x0000f3e4, 0x00013959]
+=== 4 -- distances:UInt32[0x00000490, 0x000160d9, 0x0001675c, 0x00001106, 0x00017ce0, 0x00012f04, 0x0000b758, 0x0000d8e6, 0x00005098, 0x00004d55]
+=== 5 -- distances:UInt32[0x00014acf, 0x00003e02, 0x000086b1, 0x0001795c, 0x00008110, 0x0001845d, 0x00000f45, 0x00007ee0, 0x0000e77e, 0x0001685a]
+=== 29 -- distances:UInt32[0x000037f6, 0x00017ea5, 0x00007944, 0x0000c349, 0x0000a46c, 0x00016aae, 0x00010e4d, 0x000115dd, 0x00004eea, 0x0000be17]
+=== 11 -- distances:UInt32[0x0000102c, 0x0000a830, 0x00007096, 0x000074ce, 0x0000f85b, 0x0001649b, 0x00017b71, 0x0000e86d, 0x00003994, 0x0001689d]
+=== 8 -- distances:UInt32[0x000059d5, 0x00016325, 0x0000041b, 0x00015981, 0x0001865e, 0x00014c7c, 0x00010104, 0x0000e6d8, 0x000133c3, 0x0000d08f]
+=== 1 -- distances:UInt32[0x0000187e, 0x000141f5, 0x00018414, 0x00012b47, 0x0000bdd4, 0x000156bc, 0x0000ccdd, 0x0000c503, 0x00005127, 0x00006c32]
+=== 15 -- distances:UInt32[0x00002333, 0x0000aa93, 0x00000bbb, 0x0000d574, 0x00003ce7, 0x000023e4, 0x0000eb0e, 0x00010489, 0x0000bd04, 0x0000bae3]
+=== 17 -- distances:UInt32[0x0000b6b3, 0x0001800e, 0x000130c8, 0x00007d21, 0x00016a6d, 0x00000ba3, 0x000178fb, 0x000015d3, 0x000087ed, 0x00005ddd]
+=== 24 -- distances:UInt32[0x0000decd, 0x000032e6, 0x00011439, 0x000102a0, 0x00014432, 0x00001187, 0x00017af4, 0x00001322, 0x000140f8, 0x00010347]
+=== 10 -- distances:UInt32[0x0000f190, 0x00012f95, 0x00009730, 0x000160a1, 0x0000387d, 0x0000cfa6, 0x000026cf, 0x00003502, 0x0000b77a, 0x0000d2ee]
+=== 19 -- distances:UInt32[0x000129b6, 0x00015c1b, 0x00007e5e, 0x00002153, 0x0000626d, 0x00000b3f, 0x0000aecb, 0x000092a8, 0x0000d793, 0x0000f742]
+=== 18 -- distances:UInt32[0x0000b0cc, 0x0001550f, 0x000155f3, 0x0000297f, 0x0000171c, 0x00004769, 0x00016916, 0x00013748, 0x000184ba, 0x00007a42]
+=== 26 -- distances:IdWeight[IdWeight(0x0000b85e, 8.263314f0), IdWeight(0x000159d7, 8.982347f0), IdWeight(0x00001dc2, 9.312948f0), IdWeight(0x0000ed4f, 10.208364f0), IdWeight(0x0000804e, 10.458137f0), IdWeight(0x00012803, 10.493764f0), IdWeight(0x00015c3b, 10.561956f0), IdWeight(0x00007d6b, 10.588476f0), IdWeight(0x0000f888, 10.703102f0), IdWeight(0x0000fccc, 10.796254f0)]
+=== 9 -- identifiers:UInt32[0x0000e327, 0x00010ce8, 0x0000f0b9, 0x00014d3b, 0x000120bf, 0x0000402b, 0x0000464a, 0x00003402, 0x00006356, 0x0000384c]
+=== 28 -- distances:UInt32[0x000022c6, 0x0000f3b4, 0x00011748, 0x000003fa, 0x00003abc, 0x0000c833, 0x00008c81, 0x00001b9c, 0x00000959, 0x00014830]
+=== 2 -- distances:UInt32[0x0000b85e, 0x000159d7, 0x00001dc2, 0x0000ed4f, 0x0000804e, 0x00012803, 0x00015c3b, 0x00007d6b, 0x0000f888, 0x0000fccc]
+=== 9 -- distances:IdWeight[IdWeight(0x00007707, 2.721734f0), IdWeight(0x000118a1, 2.8061082f0), IdWeight(0x0000abe1, 3.2777224f0), IdWeight(0x00004f89, 3.4322693f0), IdWeight(0x0000325b, 3.7450671f0), IdWeight(0x000126e5, 3.8742676f0), IdWeight(0x00004a35, 3.8878646f0), IdWeight(0x000155d7, 3.9613428f0), IdWeight(0x00003fe3, 3.9672658f0), IdWeight(0x000011fa, 4.060509f0)]
+=== 14 -- identifiers:UInt32[0x00007707, 0x000118a1, 0x0000abe1, 0x00004f89, 0x0000325b, 0x000126e5, 0x00004a35, 0x000155d7, 0x00003fe3, 0x000011fa]
+=== 14 -- distances:Float32[1.5775208, 4.171344, 4.5726433, 4.749284, 4.7750363, 4.861708, 4.9597464, 4.9875546, 5.248585, 5.3048162]
+Float32[4.1756215, 4.2562156, 4.274527, 4.3392167, 4.5360665, 4.6235723, 4.7087693, 4.794657, 4.950298, 5.162191]
+Float32[5.063024, 5.101182, 5.136405, 5.4088683, 5.650648, 5.718283, 5.9018197, 5.9279447, 5.940809, 5.953355]
+Float32[3.6504257, 4.4379272, 4.7488112, 4.901279, 4.9625344, 5.3858833, 5.4063106, 5.5065255, 5.513593, 5.6105084]
+Float32[5.165486, 5.416849, 5.754625, 6.0301943, 6.540473, 6.7363224, 7.0457015, 7.2509794, 7.5190277, 7.736002]
+Float32[4.1997943, 4.2164073, 4.498477, 4.663265, 4.7884846, 4.8613787, 4.95706, 5.082154, 5.189611, 5.2598653]
+Float32[4.8849845, 5.949905, 6.370414, 6.4893875, 7.216407, 7.4125123, 7.474535, 7.5206814, 7.561662, 7.658282]
+Float32[6.526547, 7.7701325, 8.0697365, 8.142321, 8.222589, 8.274956, 8.325199, 8.353053, 8.623434, 8.665885]
+Float32[4.072066, 5.7219296, 5.974982, 6.3699007, 6.5592103, 6.780655, 6.9018593, 6.952215, 6.975828, 7.316987]
+Float32[7.12982, 7.77421, 7.8367004, 8.171021, 8.411317, 8.664575, 8.808345, 9.082102, 9.114776, 9.706217]
+Float32[4.3637156, 5.230916, 5.778029, 5.791041, 5.871272, 6.152666, 6.282268, 6.393247, 6.39784, 6.6380563]
+Float32[6.0607953, 6.980864, 7.044319, 7.5088387, 8.238833, 8.332623, 8.460111, 8.462259, 8.469164, 8.582058]
+Float32[5.7673936, 6.5765514, 6.8664637, 6.9316936, 7.555251, 7.884663, 8.138638, 8.208462, 8.320134, 8.574164]
+Float32[3.745455, 4.1904883, 4.360644, 4.4343615, 4.5342555, 4.6888514, 5.1771836, 5.1967874, 5.2599225, 5.267457]
+Float32[6.492943, 7.065445, 7.4024973, 7.550003, 8.070904, 8.096019, 9.163538, 9.244366, 9.499945, 9.588688]
+Float32[8.263314, 8.982347, 9.312948, 10.208364, 10.458137, 10.493764, 10.561956, 10.588476, 10.703102, 10.796254]
+Float32[1.3943706, 1.7497267, 2.4860287, 2.5835958, 2.829751, 3.0909886, 3.2841733, 3.3177545, 3.3480034, 3.3543985]
+Float32[5.9772186, 6.214102, 6.2443905, 6.490207, 6.534569, 6.7535625, 6.7655654, 6.8923063, 6.9544535, 6.9556313]
+Float32[6.1124606, 6.3649597, 6.5696106, 7.120795, 7.4672546, 7.480347, 7.608932, 7.674545, 7.7937264, 8.198435]
+Float32[4.0657415, 4.1596627, 5.215902, 5.2420435, 5.401593, 5.982858, 6.190426, 6.3417892, 6.4037395, 6.57997]
+Float32[3.20485, 3.9892905, 4.1061463, 4.4000716, 4.40868, 4.7227683, 4.8818636, 5.0930586, 5.1149693, 5.2317815]
+Float32[6.6534595, 7.996436, 8.9359455, 9.036238, 9.3581505, 9.501015, 9.701177, 9.780923, 10.008263, 10.073041]
+Float32[4.733655, 5.426944, 6.0009217, 6.1232796, 6.220991, 6.436433, 6.4974957, 6.8033752, 6.8596373, 6.884148]
+Float32[3.7669861, 4.023312, 4.153792, 4.353279, 4.8698397, 5.1262593, 5.26887, 5.394973, 5.4349174, 5.654727]
+Float32[9.902931, 10.881981, 11.389378, 12.514006, 12.59656, 12.77947, 13.215257, 13.24985, 13.296212, 13.34092]
+Float32[5.0453906, 5.2503996, 6.7221427, 6.816469, 7.6534805, 7.8723927, 7.9628296, 8.2568445, 8.341556, 8.578199]
+Float32[5.360827, 5.979519, 6.0358853, 6.0892773, 6.0987215, 6.139133, 6.182934, 6.305562, 6.566434, 6.7839475]
+Float32[4.866307, 4.8982434, 5.331491, 5.4492016, 5.60643, 5.655481, 5.746117, 5.8292413, 6.044111, 6.238947]
+Float32[2.721734, 2.8061082, 3.2777224, 3.4322693, 3.7450671, 3.8742676, 3.8878646, 3.9613428, 3.9672658, 4.060509]
+Float32[4.252377, 4.8947763, 4.9112787, 5.0469704, 5.2809973, 5.324951, 5.4074326, 5.4483457, 5.4923935, 5.6581397]</code></pre>
+</div>
+</div>
+</section>
+<section id="environment-and-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="environment-and-dependencies">Environment and dependencies</h2>
+<div id="8" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-stdout">
+<pre><code>Julia Version 1.10.9
+Commit 5595d20a287 (2025-03-10 12:51 UTC)
+Build Info:
+  Official https://julialang.org/ release
+Platform Info:
+  OS: Linux (x86_64-linux-gnu)
+  CPU: 64 × Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz
+  WORD_SIZE: 64
+  LIBM: libopenlibm
+  LLVM: libLLVM-15.0.7 (ORCJIT, cascadelake)
+Threads: 64 default, 0 interactive, 32 GC (on 64 virtual cores)
+Environment:
+  JULIA_PROJECT = .
+  JULIA_NUM_THREADS = auto
+  JULIA_LOAD_PATH = @:@stdlib
+Status `~/sites/SimilaritySearchDemos/Project.toml`
+  [944b1d66] CodecZlib v0.7.8
+  [a93c6f00] DataFrames v1.7.0
+  [c5bfea45] Embeddings v0.4.6
+  [f67ccb44] HDF5 v0.17.2
+  [b20bd276] InvertedFiles v0.8.0 `~/.julia/dev/InvertedFiles`
+  [682c06a0] JSON v0.21.4
+  [eb30cadb] MLDatasets v0.7.18
+⌃ [ca7969ec] PlotlyLight v0.11.0
+  [91a5bcdd] Plots v1.40.11
+  [ca7ab67e] SimSearchManifoldLearning v0.3.0 `~/.julia/dev/SimSearchManifoldLearning`
+  [053f045d] SimilaritySearch v0.12.0 `~/.julia/dev/SimilaritySearch`
+⌅ [2913bbd2] StatsBase v0.33.21
+  [7f6f6c8a] TextSearch v0.19.0 `~/.julia/dev/TextSearch`
+Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
