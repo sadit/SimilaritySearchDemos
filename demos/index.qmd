@@ -1,0 +1,22 @@
+---
+title: "Tutorials"
+lang: en-US
+
+---
+
+## List of examples
+We separate the examples by the kind of data, since some of the datasets are quite large and will require a lot of computer power. We also list how to connect `SimilaritySearch` with other packages that require solving `k` nearest neighbor queries.
+
+### Synthetic data
+- [2d example](syn2d.qmd)
+
+### Numbers and structure
+- [Prime factors](primes.qmd)
+- [ManifoldLearning -- scurve and prime gaps ](using-manifoldlearning.qmd)
+
+### Natural language processing
+- [Glove embeddings](glove.qmd)
+- [Emoji space](emojispace.qmd)
+
+### Images
+- [MNIST](mnist.qmd)

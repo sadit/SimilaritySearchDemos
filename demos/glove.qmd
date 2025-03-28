@@ -9,7 +9,7 @@ by: Eric S. Téllez
 
 This example creates a visualization of Glove word embeddings using `Embeddings.jl` package to fetch them.
 
-Note: this notebook must be run with Jupyter and the environment variable JULIA_NUM_THREADS=auto, e.g., start the jupyter 
+Note: This example needs a lot of computing power; therefore you may want to set the environment variable `JULIA_NUM_THREADS=auto` before running `julia`.
 
 ```{julia}
 #| output: false
@@ -20,46 +20,87 @@ using Downloads: download
 
 ```{julia}
 #| output: false
-#samplesize = 30_000
 emb, vocab = let emb = load_embeddings(GloVe{:en}, 2)  # you can change with any of the available embeddings in `Embeddings`
     for c in eachcol(emb.embeddings)
-        normalize!(c)
+        normalize!(c) # <1>
     end
 
-    #=n = size(emb.embeddings, 2)
-    p = randperm(n)
-    resize!(p, samplesize)
-    Float16.(emb.embeddings[:, p]), emb.vocab[p]=#
-    Float16.(emb.embeddings), emb.vocab
-end
-```
-
-```{julia}
-#| output: false
-dist = NormalizedCosine_asf32()
-index = SearchGraph(; dist, db=MatrixDatabase(emb))
-ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
-index!(index, ctx)
-```
-
-```{julia}
-#| output: false
-optimize_index!(index, ctx, MinRecall(0.9))
-```
-
-
-```{julia}
-function analogy(a, b, c, k)
-	v = index[vocab2id[a]] - index[vocab2id[b]] + index[vocab2id[c]]
-	normalize!(v)
-	search_and_display(index, vocab, v, res, k, "<$a> - <$b> + <$c>")
+    Float16.(emb.embeddings), emb.vocab # <2>
 end
 
-analogy("father", "man", "woman", 5)
-analogy("fireman", "man", "woman", 5)
-analogy("policeman", "man", "woman", 5)
-analogy("mississippi", "usa", "france", 5)
+dist = NormalizedCosine_asf32() # <3>
+vocab2id = Dict(w => i for (i, w) in enumerate(vocab)) # <4>
 ```
+1. Normalizes all vectors to have a unitary norm; this allow us to use the dot product as similarity (see point 3)
+2. The speed can be improved through memory's bandwidth using less memory per vector; using `Float16` as memory representation is a good idea even if your computer doesn't support 16-bit floating point arithmetic natively.
+3. Since we have unitary norm vectors we can simplify the cosine distance (i.e., $1 - dot(\cdot, \cdot)$); note that we are using `Float16` and the suffix `_asf32` will select a distance function that converts numbers to `Float32` just before performing arithmetic operations.
+4. Inverse map from words to identifiers in `vocab`.
+
+Now we can create the index
+```{julia}
+#| output: false
+
+index = SearchGraph(; dist, db=MatrixDatabase(emb)) # <1>
+ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99))) # <1>
+index!(index, ctx) # <2>
+optimize_index!(index, ctx, MinRecall(0.9)) # <3>
+```
+1. Defines the index and the search context (caches and hyperparameters); particularly, we use a very high quality build `MinRecall(0.99)`; high quality constructions yield to faster queries due to the underlying graph structure.
+2. Actual indexing procedure using the given search context.
+3. Optimizing the index to trade quality and speed.
+
+# Searching
+Our index can solve queries over the entire dataset, for instance, solving synonym queries as nearest neighbor queries.
+```{julia}
+function search_and_render(index, ctx, vocab, q, res, k, qword)
+    res = reuse!(res, k)
+    @time search(index, ctx, q, res)
+
+    L = [
+        """## result list for _$(qword)_ """,
+        """| nn | word | wordID | dist |""",
+        """|----|------|--------|------|"""
+    ]
+    for (j, p) in enumerate(res)
+        push!(L, """| $j | $(vocab[p.id]) | $(p.id) | $(round(p.weight, digits=3)) |""")     
+    end
+
+    Markdown.parse(join(L, "\n"))
+end
+
+display(md"## Search examples (random)")
+
+res = KnnResult(12)
+for word in ["hat", "bat", "car", "dinosaur"]
+    #for qid in rand(1:length(vocab))
+    qid = vocab2id[word]
+    search_and_render(index, ctx, vocab, index[qid], res, maxlength(res), vocab[qid]) |> display
+    #end
+end
+
+```
+
+Interestingle, we can use this kind of models for analogy resolution, i.e., $a$ is a $b$ like $c$ is a $d$, or more wordly, _father_ is a _man_ like _mother_ is a _woman_. The concepts learned by the embeddings are linear, and then we can state the analogy resolution, that is, solve _father_ is a _main_ like _?_ is a _woman_. It can be obtained with a simple vector arithmetic operations:
+$$a - b + d \rightarrow c$$ 
+
+This can be interpreted as having a concept $a$ remove the concept $b$ and adds the concept $c$; the resulting vector 
+```{julia}
+function analogy(a, b, d, k)
+	c = index[vocab2id[a]] - index[vocab2id[b]] + index[vocab2id[d]] # <1>
+	normalize!(c) # <2>
+    search_and_render(index, ctx, vocab, c, res, k, "_$(a)_ - _$(b)_ + _$(d)_") |> display # <3>
+end
+
+analogy("father", "man", "woman", 10) # <4>
+analogy("fireman", "man", "woman", 10)
+analogy("policeman", "man", "woman", 10)
+analogy("mississippi", "usa", "france", 10)
+```
+1. Vector operations to state the analogy.
+2. Normalize the vector.
+3. Search the index to find similar queries to $c$ vector.
+4. Different analogies to solve; using 10nn.
+
 ## UMAP Visualization
 ```{julia}
 #| output: false

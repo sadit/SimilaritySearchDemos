@@ -1,0 +1,11 @@
+---
+title: "Tutorials"
+lang: en-US
+
+---
+
+- [Basic usage](basic-usage.qmd)  - Euclidean distance, Random 2D points.
+- [Incremental construction](incremental-construction.qmd)  - Manhattan distance, Random 8D points.
+- [Automatic hyperparameter optimization](automatic-hyperparameter-opt.qmd)  - Squared Euclidean distance Random 16D points.
+- [Solving single queries](solving-single-queries.qmd) - Euclidean distance, Random points.
+- [Parallel construction and search](parallel-construction-and-search.qmd) - Euclidean distance, Random 2D points.

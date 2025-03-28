@@ -1,0 +1,80 @@
+---
+title: "Visualizing MNIST database"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+
+This demonstration shows in a 2D example the functionality of SearchGraph.
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, Random
+
+```
+
+```{julia}
+#| output: false
+n = 100_000
+
+M = randn(Float16, 2, n)
+db = MatrixDatabase(M)
+dist = SqL2_asf32()
+size(M)
+```
+
+Now we can create the index
+```{julia}
+#| output: false
+
+G = SearchGraph(; dist, db) # <1>
+ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99))) # <1>
+index!(G, ctx) # <2>
+optimize_index!(G, ctx, MinRecall(0.9)) # <3>
+```
+1. Defines the index and the search context (caches and hyperparameters); particularly, we use a very high quality build `MinRecall(0.99)`; high quality constructions yield to faster queries due to the underlying graph structure.
+2. Actual indexing procedure using the given search context.
+3. Optimizing the index to trade quality and speed.
+
+## The set of queries
+We define a small set of queries being close to the border of the dataset and also in the most dense regions of the dataset. 
+```{julia}
+#| output: false
+Q = [Float32[-2, -2], Float32[2, -2], Float32[-2, 0], Float32[-0, 2], Float32[0, 0],   Float32[-3, 3],  Float32[4, 4], Float32[1, 0.5]]
+I, D = searchbatch(G, ctx, VectorDatabase(Q), 30)
+```
+
+Please note how queries in low and high dense regions are located.
+```{julia}
+#| output: false
+scatter(view(M, 1, :), view(M, 2, :), fmt=:png, c=:cyan, ma=0.3, a=0.3, ms=1, msw=0)
+
+scatter!(getindex.(Q, 1), getindex.(Q, 2), c=:red, ma=0.7, a=0.7, ms=6, msw=0)
+
+for c in eachcol(I)
+    X = M[:, c]
+    scatter!(view(X, 1, :), view(X, 2, :), c=:blue, ma=0.5, a=0.5, ms=2, msw=0)
+    #scatter!( c=:auto, ms=2)
+end
+
+plot!(legend=nothing)
+
+```
+Since points are distributed in several regions with disparate density, their radii are also quite diverse. The next figure illustrates this effect.
+
+
+## Distribution of distances for the set of queries
+```{julia}
+plot(D, m=:auto, yscale=:log10, title="knn distances for elements in Q", fmt=:png)
+```
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

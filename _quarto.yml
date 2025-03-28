@@ -9,8 +9,13 @@ website:
   navbar:
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
+        text: "Home"      
+      - href: tutorials/index.qmd
+        text: "Tutorials"
+      - href: demos/index.qmd
+        text: "Examples and demos"
+      - href: about.qmd
+        text: "About"
 
 format:
   html:

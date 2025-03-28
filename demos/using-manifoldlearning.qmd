@@ -1,0 +1,100 @@
+---
+title: "Using with `ManifoldLearning`"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+
+This demonstration is about using `SimilaritySearch` and `ManifoldLearning` methods through `SimSearchManifoldLearning`.
+
+
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, ManifoldLearning, Primes, Plots, StatsPlots, StatsBase, LinearAlgebra, Markdown, Random
+```
+
+## SCurve example
+```{julia}
+X, L = ManifoldLearning.scurve(segments=5)
+
+scatter(X[1, :], X[2, :], X[3, :], color=L, alpha=0.5)
+```
+
+`SimilaritySearch` support exact and approximate algorithms to solve `k` nearest neighbors. Also, it supports different metrics. For instance, let see how the selection of the distance function modifies the projection.
+
+### Manhattan distance ($L_1$)
+```{julia}
+let	Y = predict(fit(Isomap, X, nntype=ApproxManhattan))
+	scatter(Y[1,:], Y[2,:], color=L, alpha=0.5)
+end
+```
+
+### Euclidean distance ($L_2$)
+
+```{julia}
+let
+    E = predict(fit(Isomap, X, nntype=ApproxEuclidean))
+	scatter(E[1,:], E[2,:], color=L, alpha=0.5)
+end
+```
+
+### Chebyshev distance ($L_\infty$)
+```{julia}
+let
+	Ch = predict(fit(Isomap, X, nntype=ApproxChebyshev))
+	scatter(Ch[1,:], Ch[2,:], color=L, alpha=0.5)
+end
+```
+
+
+## Visualizing prime gaps
+
+The difference between contiguous prime numbers is called a [Prime gap](https://en.wikipedia.org/wiki/Prime_gap). We use this series of values as a time series example due to its interesting behavior and since it can be computed without downloading more than the necessary packages.
+
+This example shows how to generate the dataset and index it. We will use the `ManifoldLearning` for generating the 2d visualization. 
+
+### Generation of the dataset
+
+The time series is represented with windows of size `w`, we also take `log` of gaps to reduce variance in gap values. We create a matrix to avoid redefinition of the knn interface for `ManifoldLearning`.
+
+```{julia}
+#| output: false
+function create_database_primes_diff(n, w)
+	T = log2.(diff(primes(n)))
+	M = Matrix{Float32}(undef, w, length(T) - w)
+	@info size(M)
+	for i in 1:size(M, 2)
+		M[:, i] .= view(T, i:(i+w-1))
+	end
+
+	M
+end
+
+
+x, y = let
+    P = create_database_primes_diff(3 * 10^4, 5)
+    # or LLE
+    primesgap = fit(Isomap, P; k=16, maxoutdim=2, nntype=ApproxEuclidean)
+    
+	p = predict(primesgap)
+	p[1, :], p[2, :]
+end
+```
+
+A 2D histogram
+```{julia}
+histogram2d(x, y; nbins=100)
+```
+
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

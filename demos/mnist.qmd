@@ -1,0 +1,119 @@
+---
+title: "Visualizing MNIST database"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+
+This example creates a visualization of the MNIST images (hand written digits) using `MLDatasets.jl` to retrieve it.
+
+Note: This example needs a lot of computing power; therefore you may want to set the environment variable `JULIA_NUM_THREADS=auto` before running `julia`.
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, MLDatasets, Random
+
+```
+
+```{julia}
+#| output: false
+db, y, dist = let data = MNIST(split=:train)
+    T, y = data.features, data.targets
+    n = size(T, 3)
+    MatrixDatabase(Float32.(reshape(T, (28*28, n)))), y, SqL2_asf32()
+end
+
+```
+
+Now we can create the index
+```{julia}
+#| output: false
+
+index = SearchGraph(; dist, db) # <1>
+ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99))) # <1>
+index!(index, ctx) # <2>
+optimize_index!(index, ctx, MinRecall(0.95)) # <3>
+```
+1. Defines the index and the search context (caches and hyperparameters); particularly, we use a very high quality build `MinRecall(0.99)`; high quality constructions yield to faster queries due to the underlying graph structure.
+2. Actual indexing procedure using the given search context.
+3. Optimizing the index to trade quality and speed.
+
+# Searching
+Our index can solve queries over the entire dataset, for instance, solving synonym queries as nearest neighbor queries.
+```{julia}
+function search_and_render(index, ctx, q, res)
+	res = reuse!(res)
+    @time search(index, ctx, q, res)
+	qinverted = 1 .- reshape(q, (28, 28))' # distinguishability
+	h = hcat(qinverted, [reshape(index[id_], (28, 28))' for id_ in IdView(res)]...)
+	
+    Gray.(h)
+end
+
+res = KnnResult(12)
+for _ in 1:7
+    for qid in rand(1:length(index))
+        display(search_and_render(index, ctx, index[qid], res))
+    end
+end
+
+```
+
+## UMAP Visualization
+```{julia}
+#| output: false
+
+e2, e3 = let min_dist=0.5f0, # <1>
+             k=7,
+             n_epochs=75,
+             neg_sample_rate=3,
+             tol=1e-3,
+             layout=SpectralLayout()
+
+    @time "Compute 2D UMAP model" U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
+    @time "Compute 3D UMAP model" U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
+    @time "predicting 2D embeddings" e2 = clamp.(predict(U2), -10f0, 10f0) # <5>
+    @time "predicting 3D embeddings" e3 = clamp.(predict(U3), -10f0, 10f0) # <6>
+    e2, e3
+end
+
+```
+
+```{julia}
+function normcolors(V)
+    min_, max_ = extrema(V)
+    V .= (V .- min_) ./ (max_ - min_)
+    V .= clamp.(V, 0, 1)
+end
+
+normcolors(@view e3[1, :])
+normcolors(@view e3[2, :])
+normcolors(@view e3[3, :])
+
+let C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)],
+    X = view(e2, 1, :),
+    Y = view(e2, 2, :)
+    scatter(X, Y, color=C, fmt=:png, alpha=0.2, size=(600, 600), ma=0.3, ms=2, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
+    for i in 1:100
+        j = rand(1:length(y))
+        annotate!(X[j], Y[j], text(y[j], :black, :right, 8, "noto"))
+    end
+end
+
+plot!()
+```
+
+## Final notes
+
+This example shows how to index and visualize the MNIST dataset using UMAP low dimensional projections. Low dimensional projections are made with `SimSearchManifoldLearning`, note that `SimilaritySearch` is also used for computing the all $k$ nearest neighbors needed by the UMAP model. Note that this notebook should be ran with several threads to reduce time costs.
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

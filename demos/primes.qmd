@@ -1,0 +1,138 @@
+---
+title: "Prime numbers"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+
+This demonstration is about prime numbers and its similarity based on its factors. This is a well-known demonstration of `SimSearchManifoldLearning.jl`. This notebook does not requires to download any dataset.
+
+Note: This example needs a lot of computing power; therefore you may want to set the environment variable `JULIA_NUM_THREADS=auto` before running `julia`.
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, Primes, Plots, StatsBase, LinearAlgebra, Markdown, Random
+```
+
+Now, we can define our dataset. The set of factors are found using the `Primes` package. Note that we use `VectorDatabase` to represent the dataset.
+```{julia}
+#| output: false
+n = 100_000
+F = Vector{Vector{Int32}}(undef, n+1)
+
+function encode_factors(num)
+    sort!(Int32[convert(Int32, f) for f in factor(Set, num)])
+end
+
+F[1] = Int32[1]
+
+for i in 2:n+1
+    s = encode_factors(i)
+    F[i] = s
+end
+
+db = VectorDatabase(F)
+#dist = JaccardDistance()  # Other distances from SimilaritySearch
+#dist = IntersectionDissimilarity()
+#dist = CosineDistanceSet()
+dist = DiceDistance() 
+```
+We use Int32 ordered arrays to store prime factors to represent each integer. In the following cell define the cosine distance equivalent for this representation. While other representations may perform faster, this is quite straighforward and demonstrates the use of user's defined distance functions.
+
+## Index construction
+Note that the primes factors are pretty large for some large $n$ and this imply challengues for metric indexes (since it is related with the intrinsic dimension of the dataset). We used a kernel that starts 64 threads, it solves $100000$ in a few seconds but it can take pretty large time using single threads and larger $n$ values. The construction of the index is used by the visualization algorithm (UMAP) to construct an all-knn graph, which can be a quite costly procedure.
+
+```{julia}
+#| output: false
+
+G = SearchGraph(; db, dist)
+ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95))) # <1>
+index!(G, ctx) # <2>
+optimize_index!(G, ctx, MinRecall(0.9)) # <3>
+```
+1. Defines the index and the search context (caches and hyperparameters); particularly, we use a very high quality build `MinRecall(0.95)`; high quality constructions yield to faster queries due to the underlying graph structure.
+2. Actual indexing procedure using the given search context.
+3. Optimizing the index to trade quality and speed.
+
+# Searching
+Our index can solve queries over the entire dataset, for instance, solving synonym queries as nearest neighbor queries.
+```{julia}
+#| output: true
+function search_and_render(index, ctx, qnum, qenc, res, k)
+    res = reuse!(res, k)
+    @time search(index, ctx, qenc, res)
+
+    L = [
+        """## result list for num: $(qnum), factors: $qenc""",
+        """| nn | num | factors | dist |""",
+        """|----|------|--------|------|"""
+    ]
+    for (j, p) in enumerate(res)
+        push!(L, """| $j | $(p.id) | $(index[p.id]) | $(round(p.weight, digits=3)) |""")     
+    end
+
+    Markdown.parse(join(L, "\n"))
+end
+
+display(md"## Search examples (random)")
+
+res = KnnResult(12)
+for qnum in [42, 51, 1000, 1492, 3192]
+    qenc = encode_factors(qnum)
+    search_and_render(G, ctx, qnum, qenc, res, maxlength(res)) |> display
+end
+
+```
+
+## Visualizing with UMAP projection
+We select to initialize the embedding randomly, this could yield to low quality embeddings, but it is much faster than other techniques like spectral layout. Note that we pass the Search graph `G`. We also use a second call to compute a 3D embedding for computing a kind of colour embedding, here we pass `U2` to avoid recomputing several of the involved structures.
+```{julia}
+#| output: false
+e2, e3 = let min_dist=0.5f0, # <1>
+             k=20,
+             n_epochs=75,
+             neg_sample_rate=3,
+             tol=1e-3,
+             layout=SpectralLayout()
+
+    @time "Compute 2D UMAP model" U2 = fit(UMAP, G; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
+    @time "Compute 3D UMAP model" U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
+    @time "predicting 2D embeddings" e2 = clamp.(predict(U2), -10f0, 10f0) # <5>
+    @time "predicting 3D embeddings" e3 = clamp.(predict(U3), -10f0, 10f0) # <6>
+    e2, e3
+end    
+
+```
+
+```{julia}
+#| output: true
+function normcolors(V)
+    min_, max_ = extrema(V)
+    V .= (V .- min_) ./ (max_ - min_)
+    V .= clamp.(V, 0, 1)
+end
+
+normcolors(@view e3[1, :])
+normcolors(@view e3[2, :])
+normcolors(@view e3[3, :])
+
+let C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)],
+    X = view(e2, 1, :),
+    Y = view(e2, 2, :)
+    scatter(X, Y, color=C, fmt=:png, alpha=0.2, size=(600, 600), ma=0.3, ms=2, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
+end
+
+plot!()
+```
+
+
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```
