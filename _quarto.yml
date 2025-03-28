@@ -4,6 +4,9 @@ project:
 
 engine: julia
 
+execute:
+  freeze: auto
+
 website:
   title: "SimilaritySearch"
   navbar:

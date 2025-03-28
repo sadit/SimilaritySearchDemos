@@ -156,6 +156,14 @@ window.Quarto = {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../tutorials/index.html"> 
+<span class="menu-text">Tutorials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../demos/index.html"> 
+<span class="menu-text">Examples and demos</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
@@ -228,46 +236,46 @@ window.Quarto = {
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">DistView</span>(res))</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  0.183206 seconds (118.20 k allocations: 7.439 MiB, 99.96% compilation time)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.2125409f0, 5.9451365f0, 0x00000060, 0x0000005a)
-collect(IdView(res)) = UInt32[0x00000060, 0x00000024, 0x0000005a]
-collect(DistView(res)) = Float32[3.2125409, 4.102444, 5.9451365]
-  0.000019 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.803366f0, 5.1825247f0, 0x00000061, 0x00000043)
-collect(IdView(res)) = UInt32[0x00000061, 0x00000016, 0x00000043]
-collect(DistView(res)) = Float32[4.803366, 5.1485715, 5.1825247]
-  0.000008 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.0849f0, 5.552019f0, 0x00000026, 0x00000046)
-collect(IdView(res)) = UInt32[0x00000026, 0x00000054, 0x00000046]
-collect(DistView(res)) = Float32[4.0849, 4.1695414, 5.552019]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.3791102f0, 2.5569458f0, 0x00000048, 0x00000024)
-collect(IdView(res)) = UInt32[0x00000048, 0x0000003c, 0x00000024]
-collect(DistView(res)) = Float32[1.3791102, 2.10572, 2.5569458]
+<pre><code>  0.181569 seconds (118.20 k allocations: 7.439 MiB, 99.96% compilation time)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (5.809701f0, 5.942638f0, 0x00000016, 0x0000000c)
+collect(IdView(res)) = UInt32[0x00000016, 0x00000043, 0x0000000c]
+collect(DistView(res)) = Float32[5.809701, 5.835182, 5.942638]
+  0.000016 seconds (3 allocations: 160 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.823287f0, 5.02922f0, 0x00000012, 0x00000010)
+collect(IdView(res)) = UInt32[0x00000012, 0x00000020, 0x00000010]
+collect(DistView(res)) = Float32[3.823287, 4.3830223, 5.02922]
   0.000005 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.8852205f0, 4.6184344f0, 0x00000048, 0x0000000f)
-collect(IdView(res)) = UInt32[0x00000048, 0x00000028, 0x0000000f]
-collect(DistView(res)) = Float32[3.8852205, 4.4886827, 4.6184344]
-  0.000003 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.7899965f0, 1.9237554f0, 0x00000030, 0x00000039)
-collect(IdView(res)) = UInt32[0x00000030, 0x0000003a, 0x00000039]
-collect(DistView(res)) = Float32[1.7899965, 1.857374, 1.9237554]
-  0.000003 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.4962053f0, 3.7744765f0, 0x00000048, 0x0000001c)
-collect(IdView(res)) = UInt32[0x00000048, 0x00000038, 0x0000001c]
-collect(DistView(res)) = Float32[2.4962053, 3.2587614, 3.7744765]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.848355f0, 4.0870543f0, 0x00000022, 0x00000025)
-collect(IdView(res)) = UInt32[0x00000022, 0x00000052, 0x00000025]
-collect(DistView(res)) = Float32[3.848355, 3.9994867, 4.0870543]
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.145288f0, 2.7880228f0, 0x00000006, 0x00000017)
+collect(IdView(res)) = UInt32[0x00000006, 0x00000054, 0x00000017]
+collect(DistView(res)) = Float32[2.145288, 2.73, 2.7880228]
   0.000005 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (6.1827874f0, 7.326759f0, 0x0000002a, 0x0000001c)
-collect(IdView(res)) = UInt32[0x0000002a, 0x00000038, 0x0000001c]
-collect(DistView(res)) = Float32[6.1827874, 6.242794, 7.326759]
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.0310807f0, 3.5405772f0, 0x0000005f, 0x00000016)
+collect(IdView(res)) = UInt32[0x0000005f, 0x0000000c, 0x00000016]
+collect(DistView(res)) = Float32[2.0310807, 3.4354124, 3.5405772]
   0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (7.2247243f0, 12.382386f0, 0x0000000c, 0x00000049)
-collect(IdView(res)) = UInt32[0x0000000c, 0x00000024, 0x00000049]
-collect(DistView(res)) = Float32[7.2247243, 10.467594, 12.382386]</code></pre>
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (0.8641082f0, 2.2749689f0, 0x00000012, 0x00000010)
+collect(IdView(res)) = UInt32[0x00000012, 0x00000026, 0x00000010]
+collect(DistView(res)) = Float32[0.8641082, 1.4668975, 2.2749689]
+  0.000004 seconds (3 allocations: 160 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.9604142f0, 4.2328644f0, 0x00000033, 0x0000000c)
+collect(IdView(res)) = UInt32[0x00000033, 0x00000004, 0x0000000c]
+collect(DistView(res)) = Float32[2.9604142, 4.0192075, 4.2328644]
+  0.000005 seconds (3 allocations: 160 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.8505664f0, 6.0536327f0, 0x0000003b, 0x00000011)
+collect(IdView(res)) = UInt32[0x0000003b, 0x00000063, 0x00000011]
+collect(DistView(res)) = Float32[2.8505664, 3.903384, 6.0536327]
+  0.000003 seconds (3 allocations: 160 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.8982854f0, 6.959735f0, 0x0000004a, 0x00000023)
+collect(IdView(res)) = UInt32[0x0000004a, 0x0000004b, 0x00000023]
+collect(DistView(res)) = Float32[4.8982854, 5.5592337, 6.959735]
+  0.000004 seconds (3 allocations: 160 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.3950515f0, 2.9594204f0, 0x0000005f, 0x00000013)
+collect(IdView(res)) = UInt32[0x0000005f, 0x0000000c, 0x00000013]
+collect(DistView(res)) = Float32[1.3950515, 2.454435, 2.9594204]
+  0.000003 seconds (3 allocations: 160 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.1621277f0, 3.9601092f0, 0x0000001c, 0x0000000c)
+collect(IdView(res)) = UInt32[0x0000001c, 0x00000016, 0x0000000c]
+collect(DistView(res)) = Float32[2.1621277, 3.524062, 3.9601092]</code></pre>
 </div>
 </div>
 <section id="knnresult" class="level2">
@@ -334,13 +342,17 @@ Status `~/sites/SimilaritySearchDemos/Project.toml`
   [b20bd276] InvertedFiles v0.8.0 `~/.julia/dev/InvertedFiles`
   [682c06a0] JSON v0.21.4
   [eb30cadb] MLDatasets v0.7.18
+  [06eb3307] ManifoldLearning v0.9.0
 ⌃ [ca7969ec] PlotlyLight v0.11.0
   [91a5bcdd] Plots v1.40.11
+  [27ebfcd6] Primes v0.5.7
   [ca7ab67e] SimSearchManifoldLearning v0.3.0 `~/.julia/dev/SimSearchManifoldLearning`
   [053f045d] SimilaritySearch v0.12.0 `~/.julia/dev/SimilaritySearch`
 ⌅ [2913bbd2] StatsBase v0.33.21
+  [f3b207a7] StatsPlots v0.15.7
   [7f6f6c8a] TextSearch v0.19.0 `~/.julia/dev/TextSearch`
-Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
+Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`
+Warning The project dependencies or compat requirements have changed since the manifest was last resolved. It is recommended to `Pkg.resolve()` or consider `Pkg.update()` if necessary.</code></pre>
 </div>
 </div>
 
