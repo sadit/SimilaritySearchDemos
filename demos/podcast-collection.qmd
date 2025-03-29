@@ -17,6 +17,7 @@ The audio should be translated with a speech to text model, i.e., Whisper of Ope
 
 Having a WebVTT set of files we need to load the corpus. The files we are using as dataset are WebVTT subtitles, which can be readed with the following code, note that this code is not part of the example and can be ignored.
 
+::: {.callout-note appearance="simple" collapse="true"}
 
 ```{julia}
 #| output: false
@@ -97,7 +98,7 @@ end
 
 ```
 
-
+:::
 
 Now, we load the dataset
 ```{julia}
@@ -207,10 +208,10 @@ for (i, c) in enumerate(dbscanresult.clusters)
         X = c.core_indices
         sampled = ""
         if length(X) > 20
-            sampled = "-- sampled from $(length(X)) elements"
+            sampled = "-- showing a small sample"
             X = rand(X, 20)
         end
-        display(Markdown.parse("## Cluster $i $sampled"))
+        display(Markdown.parse("## Cluster $i with $(length(c.core_indices)) elements $sampled"))
         display(latexify(D[X, :], env=:mdtable, latex=false))
     end
 end
