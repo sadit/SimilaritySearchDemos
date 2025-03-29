@@ -1,10 +1,12 @@
 [deps]
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Embeddings = "c5bfea45-b7f1-5224-a596-15500f5db411"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 InvertedFiles = "b20bd276-2c70-11ec-161a-3d1e1109a1c3"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
 ManifoldLearning = "06eb3307-b2af-5a2a-abea-d33192699d32"
 PlotlyLight = "ca7969ec-10b3-423e-8d99-40f33abb42bf"
@@ -17,6 +19,7 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 TextSearch = "7f6f6c8a-3b03-11e9-223d-e7d88259bd6c"
 
 [compat]
+Clustering = "0.15"
 CodecZlib = "0.7"
 DataFrames = "1.7"
 Embeddings = "0.4"

@@ -1,0 +1,221 @@
+---
+title: "Searching in podcast collection"
+engine: julia
+lang: en-US
+---
+
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase, DataFrames, Clustering, Latexify
+using Downloads: download
+
+```
+
+This example is about searching in a caption/subtitle collection, i.e., looking for passages in audiobooks, youtube videos, conferences, podcasts, etc.
+The audio should be translated with a speech to text model, i.e., Whisper of OpenAI.
+
+Having a WebVTT set of files we need to load the corpus. The files we are using as dataset are WebVTT subtitles, which can be readed with the following code, note that this code is not part of the example and can be ignored.
+
+
+```{julia}
+#| output: false
+
+mutable struct EntryVTT
+    type::Symbol
+    name::String
+    tbegin::String
+    tend::String
+    data::Vector{String}
+end
+
+function webvtt!(filename, idfile, D)
+    L = []
+    B = nothing
+
+    open(filename) do f
+        lineno = 0
+        while !eof(f)
+            line = readline(f)
+            lineno += 1
+            if line == "WEBVTT"
+                B = EntryVTT(:WEBVTT, "", "", "", String[])
+                push!(L, B)
+                continue
+            end
+
+            n = length(line)
+            if n == 0 # flush
+                if B.type === :caption
+                    for caption in B.data
+                        push!(D, (; idfile, B.name, B.tbegin, B.tend, caption))
+                    end
+                end
+                B = nothing
+                continue
+            end
+
+            if B === nothing
+                m = match(r"^NOTE (.*)", line)
+                if m !== nothing
+                    B = EntryVTT(:NOTE, "", "", "", String[])
+                    push!(L, B)
+                    if length(m.captures[1]) > 0
+                        push!(B.data, m.captures[1])
+                    end
+
+                    continue
+                end
+
+                if "REGION" == line
+                    B = EntryVTT(:REGION, "", "", "", String[])
+                    push!(L, B)
+                    continue
+                end
+
+                if occursin("-->", line)
+                    tbegin, tend = split(line)[[1, 3]]
+                    B = EntryVTT(:caption, "", tbegin, tend, String[])
+                    push!(L, B)
+                    continue
+                end
+
+                B = EntryVTT(:caption, line, "", "", String[])
+                push!(L, B)
+            else
+                if occursin("-->", line)
+                    B.tbegin, B.tend = split(line)[[1, 3]]
+                    continue
+                end
+                push!(B.data, line) # appends to the last
+            end
+        end
+    end
+
+    B !== nothing && push!(L, B)
+    L, D
+end
+
+```
+
+
+
+Now, we load the dataset
+```{julia}
+#| output: true
+podcasts = sort!(readdir("/home/sadit/sites/SimilaritySearchDemos/podcast-vtt/", join=true))
+
+```
+
+```{julia}
+D = DataFrame(idfile=String[], name=String[], tbegin=String[], tend=String[], caption=String[])
+
+for filename in podcasts
+    L, _ = webvtt!(filename, basename(filename), D)
+    @info L
+end
+
+D
+```
+
+Functions create to encode texto into bag-of-word vectors
+```{julia}
+#| output: false
+
+textconfig = TextConfig(
+    group_usr=true,
+    group_url=true,
+    del_diac=true,
+    lc=true,
+    group_num=true,
+    nlist=[1],
+    qlist=[])
+
+# corpus here can be a sample to avoid double parsing
+voc = Vocabulary(textconfig, D.caption) 
+model = VectorModel(IdfWeighting(), TfWeighting(), voc)
+# model = VectorModel(EntropyWeighting(), BinaryLocalWeighting(), voc, D.text, D.klass; smooth=1.0)
+#model = VectorModel(IdfWeighting(), TfWeighting(), voc)
+model = filter_tokens(model) do t
+    t.weight >= 0.05
+end
+
+vectors = vectorize_corpus(model, D.caption)
+```
+
+## UMAP projections
+UMAP projection can take a while, even on multithreading systems. Note that we are creating 2d and 3d projections.
+
+
+```{julia}
+#| output: false
+e2, e3 = let min_dist=0.5f0, # <1>
+             k=16,
+             n_epochs=75,
+             neg_sample_rate=3,
+             tol=1e-3,
+             layout=SpectralLayout(),
+             indexsize=2048,
+             dist=NormalizedCosineDistance()
+
+    index = ExhaustiveSearch(; db=rand(vectors, indexsize), dist) # <2>
+    @time U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
+    @time U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
+    @time e2 = clamp.(predict(U2, vectors), -10f0, 10f0) # <5>
+    @time e3 = clamp.(predict(U3, vectors), -10f0, 10f0) # <6>
+    e2, e3
+end
+
+```
+1. The UMAP algorithm has a lot of hyperparameters; `min_dist` controls the distance between projected points, `k` is the number of neighbors to be used in the underlying $k$nn graph, `n_epochs` the number of epochs used to optimize the projection, `neg_sample_rate` means for the number of negative examples used in the optimization process, `tol` the tolerance to converge, `layout` 
+
+## Visualizations
+
+```{julia}
+function normcolors(V)
+    min_, max_ = extrema(V)
+    V .= (V .- min_) ./ (max_ - min_)
+    V .= clamp.(V, 0, 1)
+end
+
+normcolors(@view e3[1, :])
+normcolors(@view e3[2, :])
+normcolors(@view e3[3, :])
+
+C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)]
+
+X = @view e2[1, :]
+Y = @view e2[2, :]
+scatter(X, Y, color=C, fmt=:png, alpha=0.2, size=(600, 600), ma=0.3, ms=2, msw=0, label="")
+
+plot!()
+```
+
+
+```{julia}
+dbscanresult = dbscan(e2, 0.035, min_cluster_size=10);
+```
+
+```{julia}
+display(length(dbscanresult.clusters))
+
+plot()
+for c in dbscanresult.clusters
+    X = @view e2[1, c.core_indices]
+    Y = @view e2[2, c.core_indices]
+    scatter!(X, Y, c=:auto, fmt=:png, size=(600, 600), ma=0.3, a=0.3, ms=1, msw=0, label="")
+    if rand() < 0.1  # just to show some examples 
+        display(latexify(D[c.core_indices, :], env=:mdtable, latex=false))
+    end
+end
+
+plot!()
+```
+## Environment and dependencies
+```{julia}
+#| echo: false
+versioninfo()
+
+using Pkg
+Pkg.status() 
+```

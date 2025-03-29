@@ -17,6 +17,7 @@ We separate the examples by the kind of data, since some of the datasets are qui
 ### Natural language processing
 - [Glove embeddings](glove.qmd)
 - [Emoji space](emojispace.qmd)
+- [Podcast collection](podcast-collection.qmd)
 
 ### Images
 - [MNIST](mnist.qmd)
