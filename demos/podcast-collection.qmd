@@ -7,7 +7,7 @@ lang: en-US
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase, DataFrames, Clustering, Latexify
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase, DataFrames, Clustering, Markdown, Latexify
 using Downloads: download
 
 ```
@@ -199,15 +199,18 @@ dbscanresult = dbscan(e2, 0.035, min_cluster_size=10);
 display(length(dbscanresult.clusters))
 
 plot()
-for c in dbscanresult.clusters
+for (i, c) in enumerate(dbscanresult.clusters)
     X = @view e2[1, c.core_indices]
     Y = @view e2[2, c.core_indices]
     scatter!(X, Y, c=:auto, fmt=:png, size=(600, 600), ma=0.3, a=0.3, ms=1, msw=0, label="")
     if rand() < 0.1  # just to show some examples 
         X = c.core_indices
+        sampled = ""
         if length(X) > 20
+            sampled = "-- sampled from $(length(X)) elements"
             X = rand(X, 20)
         end
+        display(Markdown.parse("## Cluster $i $sampled"))
         display(latexify(D[X, :], env=:mdtable, latex=false))
     end
 end
