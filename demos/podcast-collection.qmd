@@ -76,7 +76,6 @@ function webvtt!(filename, idfile, D)
                 if occursin("-->", line)
                     tbegin, tend = split(line)[[1, 3]]
                     B = EntryVTT(:caption, "", tbegin, tend, String[])
-                    push!(L, B)
                     continue
                 end
 
@@ -102,17 +101,17 @@ end
 
 Now, we load the dataset
 ```{julia}
-#| output: true
+#| output: false
 podcasts = sort!(readdir("/home/sadit/sites/SimilaritySearchDemos/podcast-vtt/", join=true))
 
 ```
 
 ```{julia}
+
 D = DataFrame(idfile=String[], name=String[], tbegin=String[], tend=String[], caption=String[])
 
 for filename in podcasts
-    L, _ = webvtt!(filename, basename(filename), D)
-    @info L
+    webvtt!(filename, basename(filename), D)
 end
 
 D
@@ -205,7 +204,11 @@ for c in dbscanresult.clusters
     Y = @view e2[2, c.core_indices]
     scatter!(X, Y, c=:auto, fmt=:png, size=(600, 600), ma=0.3, a=0.3, ms=1, msw=0, label="")
     if rand() < 0.1  # just to show some examples 
-        display(latexify(D[c.core_indices, :], env=:mdtable, latex=false))
+        X = c.core_indices
+        if length(X) > 20
+            X = rand(X, 20)
+        end
+        display(latexify(D[X, :], env=:mdtable, latex=false))
     end
 end
 
