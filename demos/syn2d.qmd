@@ -11,7 +11,7 @@ This demonstration shows in a 2D example the functionality of SearchGraph.
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, Random
+using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, Random, Printf
 
 ```
 
@@ -48,7 +48,6 @@ knns = searchbatch(G, ctx, VectorDatabase(Q), 30)
 
 Please note how queries in low and high dense regions are located.
 ```{julia}
-#| output: false
 scatter(view(M, 1, :), view(M, 2, :), fmt=:png, c=:cyan, ma=0.3, a=0.3, ms=1, msw=0)
 
 scatter!(getindex.(Q, 1), getindex.(Q, 2), c=:red, ma=0.7, a=0.7, ms=6, msw=0)
@@ -61,15 +60,22 @@ end
 
 display(plot!(legend=nothing))
 ```
-Since points are distributed in several regions with disparate density, their radii are also quite diverse. The next figure illustrates this effect.
-
-
-## Distribution of distances for the set of queries
+Since points are distributed in several regions with disparate density, their radii are also quite diverse. The next list illustrates the distribution of distances for the set of queries
 ```{julia}
-D = collect(DistView(knns[1, :]))
-plot(D, m=:auto, yscale=:log10, title="knn distances for elements in Q", fmt=:png)
+#| echo: false
+#| output: asis
+
+println("|query ID | x | y | radius |")
+println("|--------:| --:|--:|-------:|")
+for (i, (q, r)) in enumerate(zip(Q, collect(DistView(knns[30, :]))))
+    println("| $i | $(q[1]) | $(q[2]) | $(@sprintf "%0.4f" sqrt(r)) |")
+end
+
+#plot(D, m=:auto, yscale=:log10, title="knn distances for elements in Q", fmt=:png)
+#plot(D, m=:auto, title="knn distances for elements in Q", fmt=:png)
 ```
 
+Note how the central radius are quite dense.
 ## Environment and dependencies
 ```{julia}
 #| echo: false
