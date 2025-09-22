@@ -59,8 +59,7 @@ for c in eachcol(knns)
     #scatter!( c=:auto, ms=2)
 end
 
-plot!(legend=nothing)
-
+display(plot!(legend=nothing))
 ```
 Since points are distributed in several regions with disparate density, their radii are also quite diverse. The next figure illustrates this effect.
 
