@@ -76,6 +76,7 @@ end
 ```
 
 Note how the central radius are quite dense.
+
 ## Environment and dependencies
 ```{julia}
 #| echo: false
