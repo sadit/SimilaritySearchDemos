@@ -257,7 +257,7 @@ window.Quarto = {
 <div id="6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="annotated-cell-3"><pre class="sourceCode julia code-annotation-code code-with-copy code-annotated"><code class="sourceCode julia"><a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-1" class="code-annotation-target"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="fu">synthetic_benchmark</span>(<span class="fl">10</span><span class="op">^</span><span class="fl">5</span>, <span class="fl">16</span>)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-2" class="code-annotation-target"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="fl">8</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a>etime <span class="op">=</span> <span class="pp">@elapsed</span> eknns, edists <span class="op">=</span> <span class="fu">allknn</span>(<span class="fu">ExhaustiveSearch</span>(; B.db, B.dist),  <span class="fu">GenericContext</span>(), k)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-3" class="code-annotation-target"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a>etime <span class="op">=</span> <span class="pp">@elapsed</span> gold_knns <span class="op">=</span> <span class="fu">allknn</span>(<span class="fu">ExhaustiveSearch</span>(; B.db, B.dist),  <span class="fu">GenericContext</span>(), k)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
@@ -266,11 +266,11 @@ window.Quarto = {
 </dd>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="2" data-code-annotation="2">Defines we will be fetching this number of neighbors.</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="2" data-code-annotation="2">The number of neighbors to be fetched.</span>
 </dd>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="3" data-code-annotation="3">Creates a gold standard for test and compare.</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="3" data-code-annotation="3">Creates a gold standard for testing and comparing.</span>
 </dd>
 </dl>
 </div>
@@ -279,7 +279,7 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="annotated-cell-4"><pre class="sourceCode julia code-annotation-code code-with-copy code-annotated"><code class="sourceCode julia"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> <span class="fu">SearchGraph</span>(; B.dist, B.db)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-2" class="code-annotation-target"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> <span class="fu">SearchGraphContext</span>()</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-3" class="code-annotation-target"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a>itime <span class="op">=</span> <span class="pp">@elapsed</span> <span class="fu">index!</span>(G, ctx)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-4-4" class="code-annotation-target"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>atime <span class="op">=</span> <span class="pp">@elapsed</span> knns, dists <span class="op">=</span> <span class="fu">allknn</span>(G, ctx, k)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-4-4" class="code-annotation-target"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a>atime <span class="op">=</span> <span class="pp">@elapsed</span> knns <span class="op">=</span> <span class="fu">allknn</span>(G, ctx, k)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
@@ -302,34 +302,34 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="differences-between-allknng-k-and-searchbatchg-x-k">Differences between <code>allknn(G, k)</code> and <code>searchbatch(G, X, k)</code></h2>
 <p>We can solve similarly with <code>searchbatch</code> but self-references should be removed later, and more important, <code>allknn</code> use special pivoting/boosting strategies that yields to faster searches.</p>
 <div id="10" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>stime <span class="op">=</span> <span class="pp">@elapsed</span> sknns, sdists <span class="op">=</span> <span class="fu">searchbatch</span>(G, ctx, B.db, k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>stime <span class="op">=</span> <span class="pp">@elapsed</span> sknns <span class="op">=</span> <span class="fu">searchbatch</span>(G, ctx, B.db, k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="comparing-solutions" class="level2">
 <h2 class="anchored" data-anchor-id="comparing-solutions">Comparing solutions</h2>
 <p>We can measure the quality of <code>SearchGraph</code> in its different modalities against the exhaustive search (exact) solution.</p>
 <div id="12" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>allknn_recall <span class="op">=</span> <span class="fu">macrorecall</span>(eknns, knns)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>search_recall <span class="op">=</span> <span class="fu">macrorecall</span>(eknns, sknns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>allknn_recall <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>search_recall <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, sknns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="14" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="markdown"><p>Times:</p>
 <ul>
-<li><p>indexing: 5.549563584</p>
+<li><p>indexing: 18.166401396</p>
 </li>
-<li><p><code>allknn</code> with <code>SearchGraph</code>: 0.345918259</p>
+<li><p><code>allknn</code> with <code>SearchGraph</code>: 0.515946127</p>
 </li>
-<li><p><code>searchbatch</code> with <code>SearchGraph</code>: 0.394764559</p>
+<li><p><code>searchbatch</code> with <code>SearchGraph</code>: 1.013383502</p>
 </li>
-<li><p><code>allknn</code> with <code>Exhaustivesearch</code>: 7.042033922</p>
+<li><p><code>allknn</code> with <code>Exhaustivesearch</code>: 9.123408697</p>
 </li>
 </ul>
 <p>The search and recall tradeoff:</p>
 <ul>
-<li><p><code>allknn</code> (<code>SearchGraph</code>): 0.89639125</p>
+<li><p><code>allknn</code> (<code>SearchGraph</code>): 0.93061875</p>
 </li>
-<li><p><code>searchbatch</code> (<code>SearchGraph</code>): 0.90699625</p>
+<li><p><code>searchbatch</code> (<code>SearchGraph</code>): 0.9358525</p>
 </li>
 </ul>
 </div>
@@ -344,8 +344,8 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="environment-and-dependencies">Environment and dependencies</h2>
 <div id="16" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>Julia Version 1.10.9
-Commit 5595d20a287 (2025-03-10 12:51 UTC)
+<pre><code>Julia Version 1.10.10
+Commit 95f30e51f41 (2025-06-27 09:51 UTC)
 Build Info:
   Official https://julialang.org/ release
 Platform Info:
@@ -356,28 +356,28 @@ Platform Info:
   LLVM: libLLVM-15.0.7 (ORCJIT, cascadelake)
 Threads: 64 default, 0 interactive, 32 GC (on 64 virtual cores)
 Environment:
-  JULIA_PROJECT = .
   JULIA_NUM_THREADS = auto
+  JULIA_PROJECT = .
   JULIA_LOAD_PATH = @:@stdlib
-Status `~/sites/SimilaritySearchDemos/Project.toml`
+Status `~/Research/SimilaritySearchDemos/Project.toml`
   [aaaa29a8] Clustering v0.15.8
   [944b1d66] CodecZlib v0.7.8
-  [a93c6f00] DataFrames v1.7.0
+  [a93c6f00] DataFrames v1.8.0
   [c5bfea45] Embeddings v0.4.6
   [f67ccb44] HDF5 v0.17.2
-  [b20bd276] InvertedFiles v0.8.0 `~/.julia/dev/InvertedFiles`
+  [b20bd276] InvertedFiles v0.8.1
   [682c06a0] JSON v0.21.4
-  [23fbe1c1] Latexify v0.16.6
+  [23fbe1c1] Latexify v0.16.10
   [eb30cadb] MLDatasets v0.7.18
   [06eb3307] ManifoldLearning v0.9.0
 ⌃ [ca7969ec] PlotlyLight v0.11.0
-  [91a5bcdd] Plots v1.40.11
+  [91a5bcdd] Plots v1.40.20
   [27ebfcd6] Primes v0.5.7
-  [ca7ab67e] SimSearchManifoldLearning v0.3.0 `~/.julia/dev/SimSearchManifoldLearning`
-  [053f045d] SimilaritySearch v0.12.0 `~/.julia/dev/SimilaritySearch`
+  [ca7ab67e] SimSearchManifoldLearning v0.3.1
+  [053f045d] SimilaritySearch v0.13.0
 ⌅ [2913bbd2] StatsBase v0.33.21
   [f3b207a7] StatsPlots v0.15.7
-  [7f6f6c8a] TextSearch v0.19.0 `~/.julia/dev/TextSearch`
+  [7f6f6c8a] TextSearch v0.19.6
 Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
 </div>
 </div>

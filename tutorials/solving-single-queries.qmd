@@ -30,7 +30,7 @@ Suppose you want to compute some $k$ nearest neighbors, for this we use the stru
 ```{julia}
 
 for _ in 1:10
-    res = KnnResult(3)
+    res = knnqueue(ctx, 3)
 
     @time search(G, ctx, randn(Float32, dim), res)
     @show minimum(res), maximum(res), argmin(res), argmax(res)
@@ -39,29 +39,29 @@ for _ in 1:10
 end
 ```
 
-## `KnnResult`
+## `Knn` queue
 This structure is the container for the result and it is also used to specify the number
 of elements to retrieve. As mentioned before, it is a priority queue
 
 ```{julia}
 
-res = KnnResult(4)
+res = knnqueue(ctx, 4)
 push_item!(res, 1, 10)
 push_item!(res, 2, 9)
 push_item!(res, 3, 8)
 push_item!(res, 4, 7)
 push_item!(res, 6, 5)
-@show res
+@show collect(viewitems(res))
 
-# it also supports removals
-@show :popfirst! => popfirst!(res)
+# it also supports removals; yet `pop_min!` is not exported since currently is available only for `KnnSorted` queue backend.
+@show :pop_min! => SimilaritySearch.pop_min!(res) 
 push_item!(res, 7, 0.1)
 @show :push_item! => res
-@show :pop! => pop!(res)
+@show :pop_max! => pop_max!(res)
 res
 # It can be iterated
 
-@show collect(res)
+@show collect(viewitems(res))
 
 ```
 

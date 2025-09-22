@@ -43,7 +43,7 @@ We define a small set of queries being close to the border of the dataset and al
 ```{julia}
 #| output: false
 Q = [Float32[-2, -2], Float32[2, -2], Float32[-2, 0], Float32[-0, 2], Float32[0, 0],   Float32[-3, 3],  Float32[4, 4], Float32[1, 0.5]]
-I, D = searchbatch(G, ctx, VectorDatabase(Q), 30)
+knns = searchbatch(G, ctx, VectorDatabase(Q), 30)
 ```
 
 Please note how queries in low and high dense regions are located.
@@ -53,8 +53,8 @@ scatter(view(M, 1, :), view(M, 2, :), fmt=:png, c=:cyan, ma=0.3, a=0.3, ms=1, ms
 
 scatter!(getindex.(Q, 1), getindex.(Q, 2), c=:red, ma=0.7, a=0.7, ms=6, msw=0)
 
-for c in eachcol(I)
-    X = M[:, c]
+for c in eachcol(knns)
+    X = M[:, sort!(collect(IdView(c)))]
     scatter!(view(X, 1, :), view(X, 2, :), c=:blue, ma=0.5, a=0.5, ms=2, msw=0)
     #scatter!( c=:auto, ms=2)
 end
@@ -67,6 +67,7 @@ Since points are distributed in several regions with disparate density, their ra
 
 ## Distribution of distances for the set of queries
 ```{julia}
+D = collect(DistView(knns[1, :]))
 plot(D, m=:auto, yscale=:log10, title="knn distances for elements in Q", fmt=:png)
 ```
 

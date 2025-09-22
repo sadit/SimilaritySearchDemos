@@ -39,32 +39,33 @@ end
 
 ```{julia}
 #| output: false
+
 B = synthetic_benchmark(10^5, 16) # <1>
 k = 8 # <2>
-etime = @elapsed eknns, edists = allknn(ExhaustiveSearch(; B.db, B.dist),  GenericContext(), k) # <3>
+etime = @elapsed gold_knns = allknn(ExhaustiveSearch(; B.db, B.dist),  GenericContext(), k) # <3>
 ```
 1. Creates a synthetic dataset of dimension $16$ and $10^5$ points.
-2. Defines we will be fetching this number of neighbors.
-3. Creates a gold standard for test and compare.
+2. The number of neighbors to be fetched.
+3. Creates a gold standard for testing and comparing.
 
 ```{julia}
 #| output: false
 G = SearchGraph(; B.dist, B.db) # <1>
 ctx = SearchGraphContext()  # <2>
 itime = @elapsed index!(G, ctx) # <3>
-atime = @elapsed knns, dists = allknn(G, ctx, k) # <4>
+atime = @elapsed knns = allknn(G, ctx, k) # <4>
 ```
 2. Defines the `SearchGraph` index; it does not indexes anything yet!
 3. Defines a search context, it contains several hyperparameters that will be applied for the indexing process, default values just work for now. 
 4. The actual indexing.
-5. Solving allknn with the `G` index; it returns two matrices with nearest neighbor identifiers and their corresponding distances, `knns` and `dists`, respectively. Note that `allknn` preserves the self reference.
+5. Solving allknn with the `G` index; it returns a matrix with nearest neighbor identifiers and their corresponding distances, each entry is a `IdWeight` structure with two entries `id` and `weight`, the later being the associated distance. Note that `allknn` preserves the self reference.
 
 ## Differences between `allknn(G, k)` and `searchbatch(G, X, k)`
 We can solve similarly with `searchbatch` but self-references should be removed later, and more important, `allknn` use special pivoting/boosting strategies that yields to faster searches.
 
 ```{julia}
 #| output: false
-stime = @elapsed sknns, sdists = searchbatch(G, ctx, B.db, k)
+stime = @elapsed sknns = searchbatch(G, ctx, B.db, k)
 ```
 
 ## Comparing solutions
@@ -72,8 +73,8 @@ stime = @elapsed sknns, sdists = searchbatch(G, ctx, B.db, k)
 We can measure the quality of `SearchGraph` in its different modalities against the exhaustive search (exact) solution.
 ```{julia}
 #| output: false
-allknn_recall = macrorecall(eknns, knns)
-search_recall = macrorecall(eknns, sknns)
+allknn_recall = macrorecall(gold_knns, knns)
+search_recall = macrorecall(gold_knns, sknns)
 ```
 
 ```{julia}

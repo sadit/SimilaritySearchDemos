@@ -140,7 +140,7 @@ model = filter_tokens(model) do t
     t.weight >= 0.05
 end
 
-vectors = vectorize_corpus(model, D.caption)
+vectors = VectorDatabase(vectorize_corpus(model, D.caption))
 ```
 
 ## UMAP projections

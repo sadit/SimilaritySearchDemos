@@ -69,7 +69,7 @@ function search_and_render(index, ctx, qnum, qenc, res, k)
         """| nn | num | factors | dist |""",
         """|----|------|--------|------|"""
     ]
-    for (j, p) in enumerate(res)
+    for (j, p) in enumerate(viewitems(res))
         push!(L, """| $j | $(p.id) | $(index[p.id]) | $(round(p.weight, digits=3)) |""")     
     end
 
@@ -78,7 +78,7 @@ end
 
 display(md"## Search examples (random)")
 
-res = KnnResult(12)
+res = knnqueue(ctx, 12)
 for qnum in [42, 51, 1000, 1492, 3192]
     qenc = encode_factors(qnum)
     search_and_render(G, ctx, qnum, qenc, res, maxlength(res)) |> display

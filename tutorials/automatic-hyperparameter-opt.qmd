@@ -31,7 +31,7 @@ k = 12 # <5>
 We will generate a ground truth with an exhaustive method.
 ```{julia}
 #| output: false
-goldI, goldD = searchbatch(ExhaustiveSearch(; db, dist), GenericContext(), queries, k)  
+gold_knns = searchbatch(ExhaustiveSearch(; db, dist), GenericContext(), queries, k)  
 ```
 
 ## Different hyperparameter optimization strategies
@@ -60,16 +60,16 @@ searching times
 #| output: false
 #| echo: false
 # this code is just for ensure compilation times happens here
-@elapsed I1, D1 = searchbatch(G1, C1, queries, k)
-display(size(I1))
+@elapsed knns = searchbatch(G1, C1, queries, k)
+display(size(knns))
 ```
 
 ```{julia}
 #| output: false
-time1 = @elapsed I1, D1 = searchbatch(G1, C1, queries, k)
-time2 = @elapsed I2, D2 = searchbatch(G2, C2, queries, k)
-recall1 = macrorecall(goldI, I1)
-recall2 = macrorecall(goldI, I2)
+time1 = @elapsed knns1 = searchbatch(G1, C1, queries, k)
+time2 = @elapsed knns2 = searchbatch(G2, C2, queries, k)
+recall1 = macrorecall(gold_knns, knns1)
+recall2 = macrorecall(gold_knns, knns2)
 ```
 
 the recall is an score value between 0 to 1 where values close to 1 indicate better qualities.
@@ -113,11 +113,11 @@ after optimizing the index its quality and speed are changed
 
 ```{julia}
 #| output: false
-time1 = @elapsed I1, D1 = searchbatch(G1, C1, queries, k)
-time2 = @elapsed I2, D2 = searchbatch(G2, C1, queries, k)
+time1 = @elapsed knns1 = searchbatch(G1, C1, queries, k)
+time2 = @elapsed knns2 = searchbatch(G2, C1, queries, k)
 
-recall1 = macrorecall(goldI, I1)
-recall2 = macrorecall(goldI, I2)
+recall1 = macrorecall(gold_knns, knns1)
+recall2 = macrorecall(gold_knns, knns2)
 ```
 
 These results on the following performances:
@@ -159,11 +159,11 @@ after optimizing the index its quality and speed are changed
 
 ```{julia}
 #| output: false
-time1 = @elapsed I1, D1 = searchbatch(G1, C1, queries, k)
-time2 = @elapsed I2, D2 = searchbatch(G2, C1, queries, k)
+time1 = @elapsed knns1 = searchbatch(G1, C1, queries, k)
+time2 = @elapsed knns2 = searchbatch(G2, C1, queries, k)
 
-recall1 = macrorecall(goldI, I1)
-recall2 = macrorecall(goldI, I2)
+recall1 = macrorecall(gold_knns, knns1)
+recall2 = macrorecall(gold_knns, knns2)
 ```
 
 These results on the following performances:

@@ -61,7 +61,7 @@ function search_and_render(index, ctx, vocab, q, res, k, qword)
         """| nn | word | wordID | dist |""",
         """|----|------|--------|------|"""
     ]
-    for (j, p) in enumerate(res)
+    for (j, p) in enumerate(viewitems(res))
         push!(L, """| $j | $(vocab[p.id]) | $(p.id) | $(round(p.weight, digits=3)) |""")     
     end
 
@@ -70,7 +70,7 @@ end
 
 display(md"## Search examples (random)")
 
-res = KnnResult(12)
+res = knnqueue(ctx, 12)
 for word in ["hat", "bat", "car", "dinosaur"]
     #for qid in rand(1:length(vocab))
     qid = vocab2id[word]

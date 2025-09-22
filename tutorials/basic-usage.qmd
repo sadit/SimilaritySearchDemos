@@ -45,9 +45,9 @@ this will display a lot of information in the console, since as construction adv
 ```{julia}
 #| output: false
 k = 16
-I, D = searchbatch(G, ctx, B.queries, k) #<1>
+knns = searchbatch(G, ctx, B.queries, k) #<1>
 ```
-1. The `searchbatch` functions takes a set of queries and solve them using the given index. `I` is a matrix of identifiers in `db` and `D` their corresponding distances.
+1. The `searchbatch` functions takes a set of queries and solve them using the given index. `knns` is a matrix with identifiers and their corresponding distances packed into a special structure `IdWeight`.
  
 ## Visualizing what we just did
 
@@ -55,8 +55,8 @@ I, D = searchbatch(G, ctx, B.queries, k) #<1>
 using Plots
 
 scatter(B.db.matrix[1, :], B.db.matrix[2, :], size=(600, 600), color=:cyan, ma=0.3, a=0.3, ms=1, msw=0, label="")
-for c in eachcol(I)
-    R = B.db.matrix[:, c]
+for c in eachcol(knns)
+    R = B.db.matrix[:, sort!(collect(IdView(c)))]
     @views scatter!(R[1, :], R[2, :], m=:diamond, ma=0.3, a=0.3, color=:auto, ms=2, msw=0, label="")
 end
 

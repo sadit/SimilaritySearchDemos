@@ -183,7 +183,7 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#knnresult" id="toc-knnresult" class="nav-link active" data-scroll-target="#knnresult"><code>KnnResult</code></a></li>
+  <li><a href="#knn-queue" id="toc-knn-queue" class="nav-link active" data-scroll-target="#knn-queue"><code>Knn</code> queue</a></li>
   <li><a href="#environment-and-dependencies" id="toc-environment-and-dependencies" class="nav-link" data-scroll-target="#environment-and-dependencies">Environment and dependencies</a></li>
   </ul>
 </nav>
@@ -228,7 +228,7 @@ window.Quarto = {
 <div id="6" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="fu">KnnResult</span>(<span class="fl">3</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="fu">knnqueue</span>(ctx, <span class="fl">3</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@time</span> <span class="fu">search</span>(G, ctx, <span class="fu">randn</span>(<span class="dt">Float32</span>, dim), res)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">minimum</span>(res), <span class="fu">maximum</span>(res), <span class="fu">argmin</span>(res), <span class="fu">argmax</span>(res)</span>
@@ -236,76 +236,76 @@ window.Quarto = {
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">DistView</span>(res))</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  0.207479 seconds (118.20 k allocations: 7.439 MiB, 99.96% compilation time)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.17419f0, 3.781705f0, 0x00000042, 0x00000023)
-collect(IdView(res)) = UInt32[0x00000042, 0x0000001c, 0x00000023]
-collect(DistView(res)) = Float32[2.17419, 2.7570584, 3.781705]
-  0.000015 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.9567637f0, 8.3428545f0, 0x00000009, 0x00000059)
-collect(IdView(res)) = UInt32[0x00000009, 0x00000047, 0x00000059]
-collect(DistView(res)) = Float32[2.9567637, 6.4577327, 8.3428545]
-  0.000006 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.8161318f0, 2.363171f0, 0x00000051, 0x00000007)
-collect(IdView(res)) = UInt32[0x00000051, 0x00000023, 0x00000007]
-collect(DistView(res)) = Float32[1.8161318, 2.3379018, 2.363171]
-  0.000008 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.8514413f0, 3.9120069f0, 0x00000003, 0x0000001f)
-collect(IdView(res)) = UInt32[0x00000003, 0x0000003c, 0x0000001f]
-collect(DistView(res)) = Float32[1.8514413, 3.377074, 3.9120069]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.570466f0, 3.9146912f0, 0x0000002c, 0x00000064)
-collect(IdView(res)) = UInt32[0x0000002c, 0x00000058, 0x00000064]
-collect(DistView(res)) = Float32[3.570466, 3.8789546, 3.9146912]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.2877853f0, 5.390996f0, 0x0000004f, 0x00000013)
-collect(IdView(res)) = UInt32[0x0000004f, 0x0000003f, 0x00000013]
-collect(DistView(res)) = Float32[2.2877853, 4.867247, 5.390996]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.23781f0, 5.603115f0, 0x00000023, 0x00000032)
-collect(IdView(res)) = UInt32[0x00000023, 0x0000004f, 0x00000032]
-collect(DistView(res)) = Float32[4.23781, 5.4622717, 5.603115]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.6007833f0, 5.5480776f0, 0x0000002a, 0x0000001b)
-collect(IdView(res)) = UInt32[0x0000002a, 0x00000023, 0x0000001b]
-collect(DistView(res)) = Float32[4.6007833, 5.0899153, 5.5480776]
-  0.000004 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.8126698f0, 4.8592696f0, 0x00000024, 0x00000001)
-collect(IdView(res)) = UInt32[0x00000024, 0x00000004, 0x00000001]
-collect(DistView(res)) = Float32[4.8126698, 4.813215, 4.8592696]
-  0.000003 seconds (3 allocations: 160 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.365991f0, 4.04924f0, 0x0000002c, 0x00000020)
-collect(IdView(res)) = UInt32[0x0000002c, 0x00000003, 0x00000020]
-collect(DistView(res)) = Float32[2.365991, 3.51064, 4.04924]</code></pre>
+<pre><code>  0.302833 seconds (154.11 k allocations: 10.185 MiB, 99.98% compilation time)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (5.73508f0, 8.136073f0, 0x00000047, 0x00000049)
+collect(IdView(res)) = UInt32[0x00000047, 0x0000000c, 0x00000049]
+collect(DistView(res)) = Float32[5.73508, 8.045934, 8.136073]
+  0.000016 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.4517207f0, 4.1300344f0, 0x00000054, 0x0000001a)
+collect(IdView(res)) = UInt32[0x00000054, 0x0000002d, 0x0000001a]
+collect(DistView(res)) = Float32[2.4517207, 3.6453025, 4.1300344]
+  0.000007 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (5.665649f0, 6.3988633f0, 0x00000019, 0x0000003d)
+collect(IdView(res)) = UInt32[0x00000019, 0x00000022, 0x0000003d]
+collect(DistView(res)) = Float32[5.665649, 6.12617, 6.3988633]
+  0.000006 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.363997f0, 6.268838f0, 0x0000000c, 0x00000029)
+collect(IdView(res)) = UInt32[0x0000000c, 0x00000025, 0x00000029]
+collect(DistView(res)) = Float32[4.363997, 4.8510885, 6.268838]
+  0.000005 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.9081182f0, 3.2303193f0, 0x00000061, 0x00000054)
+collect(IdView(res)) = UInt32[0x00000061, 0x0000000d, 0x00000054]
+collect(DistView(res)) = Float32[1.9081182, 2.8516128, 3.2303193]
+  0.000004 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.5657682f0, 7.0970955f0, 0x0000002a, 0x0000003e)
+collect(IdView(res)) = UInt32[0x0000002a, 0x00000056, 0x0000003e]
+collect(DistView(res)) = Float32[3.5657682, 6.842711, 7.0970955]
+  0.000004 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.0025893f0, 2.340893f0, 0x00000017, 0x0000000d)
+collect(IdView(res)) = UInt32[0x00000017, 0x0000000c, 0x0000000d]
+collect(DistView(res)) = Float32[1.0025893, 1.2908223, 2.340893]
+  0.000005 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.1722112f0, 5.5402813f0, 0x00000027, 0x00000002)
+collect(IdView(res)) = UInt32[0x00000027, 0x00000021, 0x00000002]
+collect(DistView(res)) = Float32[2.1722112, 4.0453386, 5.5402813]
+  0.000004 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.3056961f0, 3.5194216f0, 0x00000060, 0x00000062)
+collect(IdView(res)) = UInt32[0x00000060, 0x00000023, 0x00000062]
+collect(DistView(res)) = Float32[1.3056961, 3.0779376, 3.5194216]
+  0.000003 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.4991374f0, 4.457182f0, 0x0000000d, 0x00000034)
+collect(IdView(res)) = UInt32[0x0000000d, 0x0000001c, 0x00000034]
+collect(DistView(res)) = Float32[2.4991374, 3.6591063, 4.457182]</code></pre>
 </div>
 </div>
-<section id="knnresult" class="level2">
-<h2 class="anchored" data-anchor-id="knnresult"><code>KnnResult</code></h2>
+<section id="knn-queue" class="level2">
+<h2 class="anchored" data-anchor-id="knn-queue"><code>Knn</code> queue</h2>
 <p>This structure is the container for the result and it is also used to specify the number of elements to retrieve. As mentioned before, it is a priority queue</p>
 <div id="8" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> <span class="fu">KnnResult</span>(<span class="fl">4</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> <span class="fu">knnqueue</span>(ctx, <span class="fl">4</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">1</span>, <span class="fl">10</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">2</span>, <span class="fl">9</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">3</span>, <span class="fl">8</span>)</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">4</span>, <span class="fl">7</span>)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">6</span>, <span class="fl">5</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> res</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">viewitems</span>(res))</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># it also supports removals</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="op">:</span>popfirst! <span class="op">=&gt;</span> <span class="fu">popfirst!</span>(res)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># it also supports removals; yet `pop_min!` is not exported since currently is available only for `KnnSorted` queue backend.</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="op">:</span>pop_min! <span class="op">=&gt;</span> SimilaritySearch.<span class="fu">pop_min!</span>(res) </span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">7</span>, <span class="fl">0.1</span>)</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="op">:</span>push_item! <span class="op">=&gt;</span> res</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="op">:</span>pop! <span class="op">=&gt;</span> <span class="fu">pop!</span>(res)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="op">:</span>pop_max! <span class="op">=&gt;</span> <span class="fu">pop_max!</span>(res)</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>res</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># It can be iterated</span></span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="fu">collect</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">viewitems</span>(res))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>res = SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)], 4)
-:popfirst! =&gt; popfirst!(res) = :popfirst! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0)
-:push_item! =&gt; res = :push_item! =&gt; SimilaritySearch.KnnResult(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)], 4)
-:pop! =&gt; pop!(res) = :pop! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)
-collect(res) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)]</code></pre>
+<pre><code>collect(viewitems(res)) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)]
+:pop_min! =&gt; SimilaritySearch.pop_min!(res) = :pop_min! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0)
+:push_item! =&gt; res = :push_item! =&gt; SimilaritySearch.KnnSorted{Vector{SimilaritySearch.AdjacencyLists.IdWeight}}(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)], 1, 4, 4, 0, 0)
+:pop_max! =&gt; pop_max!(res) = :pop_max! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)
+collect(viewitems(res)) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <pre><code>3-element Vector{IdWeight}:
@@ -319,8 +319,8 @@ collect(res) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.Adjacen
 <h2 class="anchored" data-anchor-id="environment-and-dependencies">Environment and dependencies</h2>
 <div id="10" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>Julia Version 1.10.9
-Commit 5595d20a287 (2025-03-10 12:51 UTC)
+<pre><code>Julia Version 1.10.10
+Commit 95f30e51f41 (2025-06-27 09:51 UTC)
 Build Info:
   Official https://julialang.org/ release
 Platform Info:
@@ -331,28 +331,28 @@ Platform Info:
   LLVM: libLLVM-15.0.7 (ORCJIT, cascadelake)
 Threads: 64 default, 0 interactive, 32 GC (on 64 virtual cores)
 Environment:
-  JULIA_PROJECT = .
   JULIA_NUM_THREADS = auto
+  JULIA_PROJECT = .
   JULIA_LOAD_PATH = @:@stdlib
-Status `~/sites/SimilaritySearchDemos/Project.toml`
+Status `~/Research/SimilaritySearchDemos/Project.toml`
   [aaaa29a8] Clustering v0.15.8
   [944b1d66] CodecZlib v0.7.8
-  [a93c6f00] DataFrames v1.7.0
+  [a93c6f00] DataFrames v1.8.0
   [c5bfea45] Embeddings v0.4.6
   [f67ccb44] HDF5 v0.17.2
-  [b20bd276] InvertedFiles v0.8.0 `~/.julia/dev/InvertedFiles`
+  [b20bd276] InvertedFiles v0.8.1
   [682c06a0] JSON v0.21.4
-  [23fbe1c1] Latexify v0.16.6
+  [23fbe1c1] Latexify v0.16.10
   [eb30cadb] MLDatasets v0.7.18
   [06eb3307] ManifoldLearning v0.9.0
 ⌃ [ca7969ec] PlotlyLight v0.11.0
-  [91a5bcdd] Plots v1.40.11
+  [91a5bcdd] Plots v1.40.20
   [27ebfcd6] Primes v0.5.7
-  [ca7ab67e] SimSearchManifoldLearning v0.3.0 `~/.julia/dev/SimSearchManifoldLearning`
-  [053f045d] SimilaritySearch v0.12.0 `~/.julia/dev/SimilaritySearch`
+  [ca7ab67e] SimSearchManifoldLearning v0.3.1
+  [053f045d] SimilaritySearch v0.13.0
 ⌅ [2913bbd2] StatsBase v0.33.21
   [f3b207a7] StatsPlots v0.15.7
-  [7f6f6c8a] TextSearch v0.19.0 `~/.julia/dev/TextSearch`
+  [7f6f6c8a] TextSearch v0.19.6
 Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
 </div>
 </div>

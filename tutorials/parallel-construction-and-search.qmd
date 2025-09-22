@@ -49,16 +49,15 @@ In contrast with append, these functions can be called in multithreading algorit
 However, you must _pause_ the searching requests while perform insertions (parallel or sequential); mixing insertions and search produces an undefined behavior for search results.
 
 ```{julia}
-I, D = searchbatch(G, ctx, queries, 10)
+knns = searchbatch(G, ctx, queries, 10)
 
 Threads.@threads for i in eachindex(queries)
-    p = search(G, ctx, queries[i], KnnResult(10))
-    res = p.res
+    res = search(G, ctx, queries[i], knnqueue(ctx, 10))
     
     print("=== $i -- nearest neighbor:")
-    println(res[1])
+    println(nearest(res))
     print("=== $i -- result set:")
-    println(collect(res))
+    println(collect(viewitems(res)))
     print("=== $i -- identifiers:")
     println(collect(IdView(res))) # do something with `res`
     print("=== $i -- distances:")

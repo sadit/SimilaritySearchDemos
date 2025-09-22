@@ -231,7 +231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="computing-ground-truth">Computing ground truth</h2>
 <p>We will generate a ground truth with an exhaustive method.</p>
 <div id="4" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>goldI, goldD <span class="op">=</span> <span class="fu">searchbatch</span>(<span class="fu">ExhaustiveSearch</span>(; db, dist), <span class="fu">GenericContext</span>(), queries, k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>gold_knns <span class="op">=</span> <span class="fu">searchbatch</span>(<span class="fu">ExhaustiveSearch</span>(; db, dist), <span class="fu">GenericContext</span>(), queries, k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="different-hyperparameter-optimization-strategies" class="level2">
@@ -254,33 +254,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="performances">Performances</h2>
 <p>searching times</p>
 <div id="12" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>time1 <span class="op">=</span> <span class="pp">@elapsed</span> I1, D1 <span class="op">=</span> <span class="fu">searchbatch</span>(G1, C1, queries, k)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>time2 <span class="op">=</span> <span class="pp">@elapsed</span> I2, D2 <span class="op">=</span> <span class="fu">searchbatch</span>(G2, C2, queries, k)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>recall1 <span class="op">=</span> <span class="fu">macrorecall</span>(goldI, I1)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>recall2 <span class="op">=</span> <span class="fu">macrorecall</span>(goldI, I2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>time1 <span class="op">=</span> <span class="pp">@elapsed</span> knns1 <span class="op">=</span> <span class="fu">searchbatch</span>(G1, C1, queries, k)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>time2 <span class="op">=</span> <span class="pp">@elapsed</span> knns2 <span class="op">=</span> <span class="fu">searchbatch</span>(G2, C2, queries, k)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>recall1 <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns1)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>recall2 <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>the recall is an score value between 0 to 1 where values close to 1 indicate better qualities.</p>
 <div id="14" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="markdown"><p>build time:</p>
 <ul>
-<li><p>buildtime1: 5.648114106</p>
+<li><p>buildtime1: 16.843500805</p>
 </li>
-<li><p>buildtime2: 0.523501032</p>
+<li><p>buildtime2: 10.951805646</p>
 </li>
 </ul>
 <p>search time:</p>
 <ul>
-<li><p>time1: 0.002314346</p>
+<li><p>time1: 0.022308873</p>
 </li>
-<li><p>time2: 0.001370323</p>
+<li><p>time2: 0.021209033</p>
 </li>
 </ul>
 <p>recall values:</p>
 <ul>
-<li><p>recall1: 0.96783333333333</p>
+<li><p>recall1: 0.9206666666666642</p>
 </li>
-<li><p>recall2: 0.8649999999999989</p>
+<li><p>recall2: 0.6424166666666662</p>
 </li>
 </ul>
 </div>
@@ -298,34 +298,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>after optimizing the index its quality and speed are changed</p>
 <div id="18" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>time1 <span class="op">=</span> <span class="pp">@elapsed</span> I1, D1 <span class="op">=</span> <span class="fu">searchbatch</span>(G1, C1, queries, k)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>time2 <span class="op">=</span> <span class="pp">@elapsed</span> I2, D2 <span class="op">=</span> <span class="fu">searchbatch</span>(G2, C1, queries, k)</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>time1 <span class="op">=</span> <span class="pp">@elapsed</span> knns1 <span class="op">=</span> <span class="fu">searchbatch</span>(G1, C1, queries, k)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>time2 <span class="op">=</span> <span class="pp">@elapsed</span> knns2 <span class="op">=</span> <span class="fu">searchbatch</span>(G2, C1, queries, k)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>recall1 <span class="op">=</span> <span class="fu">macrorecall</span>(goldI, I1)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>recall2 <span class="op">=</span> <span class="fu">macrorecall</span>(goldI, I2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>recall1 <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns1)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>recall2 <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>These results on the following performances:</p>
 <div id="20" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="markdown"><p>build time:</p>
 <ul>
-<li><p>buildtime1: 5.648114106</p>
+<li><p>buildtime1: 16.843500805</p>
 </li>
-<li><p>buildtime2: 0.523501032</p>
+<li><p>buildtime2: 10.951805646</p>
 </li>
 </ul>
 <p>search time:</p>
 <ul>
-<li><p>time1: 0.001014245</p>
+<li><p>time1: 0.021069843</p>
 </li>
-<li><p>time2: 0.000905641</p>
+<li><p>time2: 0.013914675</p>
 </li>
 </ul>
 <p>recall values:</p>
 <ul>
-<li><p>recall1: 0.6443333333333329</p>
+<li><p>recall1: 0.5348333333333343</p>
 </li>
-<li><p>recall2: 0.7148333333333333</p>
+<li><p>recall2: 0.6850833333333333</p>
 </li>
 </ul>
 </div>
@@ -344,34 +344,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>after optimizing the index its quality and speed are changed</p>
 <div id="24" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>time1 <span class="op">=</span> <span class="pp">@elapsed</span> I1, D1 <span class="op">=</span> <span class="fu">searchbatch</span>(G1, C1, queries, k)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>time2 <span class="op">=</span> <span class="pp">@elapsed</span> I2, D2 <span class="op">=</span> <span class="fu">searchbatch</span>(G2, C1, queries, k)</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>time1 <span class="op">=</span> <span class="pp">@elapsed</span> knns1 <span class="op">=</span> <span class="fu">searchbatch</span>(G1, C1, queries, k)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>time2 <span class="op">=</span> <span class="pp">@elapsed</span> knns2 <span class="op">=</span> <span class="fu">searchbatch</span>(G2, C1, queries, k)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>recall1 <span class="op">=</span> <span class="fu">macrorecall</span>(goldI, I1)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>recall2 <span class="op">=</span> <span class="fu">macrorecall</span>(goldI, I2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>recall1 <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns1)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>recall2 <span class="op">=</span> <span class="fu">macrorecall</span>(gold_knns, knns2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>These results on the following performances:</p>
 <div id="26" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div class="markdown"><p>build time:</p>
 <ul>
-<li><p>buildtime1: 5.648114106</p>
+<li><p>buildtime1: 16.843500805</p>
 </li>
-<li><p>buildtime2: 0.523501032</p>
+<li><p>buildtime2: 10.951805646</p>
 </li>
 </ul>
 <p>search time:</p>
 <ul>
-<li><p>time1: 0.013517147</p>
+<li><p>time1: 0.013584659</p>
 </li>
-<li><p>time2: 0.010678581</p>
+<li><p>time2: 0.014764835</p>
 </li>
 </ul>
 <p>recall values:</p>
 <ul>
-<li><p>recall1: 0.9045833333333309</p>
+<li><p>recall1: 0.8644166666666662</p>
 </li>
-<li><p>recall2: 0.9097499999999987</p>
+<li><p>recall2: 0.8860833333333309</p>
 </li>
 </ul>
 </div>
@@ -384,8 +384,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="environment-and-dependencies">Environment and dependencies</h2>
 <div id="28" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>Julia Version 1.10.9
-Commit 5595d20a287 (2025-03-10 12:51 UTC)
+<pre><code>Julia Version 1.10.10
+Commit 95f30e51f41 (2025-06-27 09:51 UTC)
 Build Info:
   Official https://julialang.org/ release
 Platform Info:
@@ -396,28 +396,28 @@ Platform Info:
   LLVM: libLLVM-15.0.7 (ORCJIT, cascadelake)
 Threads: 64 default, 0 interactive, 32 GC (on 64 virtual cores)
 Environment:
-  JULIA_PROJECT = .
   JULIA_NUM_THREADS = auto
+  JULIA_PROJECT = .
   JULIA_LOAD_PATH = @:@stdlib
-Status `~/sites/SimilaritySearchDemos/Project.toml`
+Status `~/Research/SimilaritySearchDemos/Project.toml`
   [aaaa29a8] Clustering v0.15.8
   [944b1d66] CodecZlib v0.7.8
-  [a93c6f00] DataFrames v1.7.0
+  [a93c6f00] DataFrames v1.8.0
   [c5bfea45] Embeddings v0.4.6
   [f67ccb44] HDF5 v0.17.2
-  [b20bd276] InvertedFiles v0.8.0 `~/.julia/dev/InvertedFiles`
+  [b20bd276] InvertedFiles v0.8.1
   [682c06a0] JSON v0.21.4
-  [23fbe1c1] Latexify v0.16.6
+  [23fbe1c1] Latexify v0.16.10
   [eb30cadb] MLDatasets v0.7.18
   [06eb3307] ManifoldLearning v0.9.0
 ⌃ [ca7969ec] PlotlyLight v0.11.0
-  [91a5bcdd] Plots v1.40.11
+  [91a5bcdd] Plots v1.40.20
   [27ebfcd6] Primes v0.5.7
-  [ca7ab67e] SimSearchManifoldLearning v0.3.0 `~/.julia/dev/SimSearchManifoldLearning`
-  [053f045d] SimilaritySearch v0.12.0 `~/.julia/dev/SimilaritySearch`
+  [ca7ab67e] SimSearchManifoldLearning v0.3.1
+  [053f045d] SimilaritySearch v0.13.0
 ⌅ [2913bbd2] StatsBase v0.33.21
   [f3b207a7] StatsPlots v0.15.7
-  [7f6f6c8a] TextSearch v0.19.0 `~/.julia/dev/TextSearch`
+  [7f6f6c8a] TextSearch v0.19.6
 Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
 </div>
 </div>

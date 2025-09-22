@@ -52,7 +52,7 @@ function search_and_render(index, ctx, q, res)
     Gray.(h)
 end
 
-res = KnnResult(12)
+res = knnqueue(ctx, 12)
 for _ in 1:7
     for qid in rand(1:length(index))
         display(search_and_render(index, ctx, index[qid], res))

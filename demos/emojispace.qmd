@@ -66,7 +66,7 @@ model = VectorModel(EntropyWeighting(), BinaryLocalWeighting(), voc, D.text, D.k
 model = filter_tokens(model) do t
     t.weight >= 0.075
 end
-vectors = vectorize_corpus(model, D.text)
+vectors = VectorDatabase(vectorize_corpus(model, D.text))
 ```
 
 ## UMAP projections

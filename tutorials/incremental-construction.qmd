@@ -63,9 +63,8 @@ Once the index is created, the index can solve nearest neighbor queries
 
 Q = MatrixDatabase(rand(dim, 30)) # <1>
 k = 5 # <2>
-I, D = searchbatch(G, ctx, Q, k)  # <3>
-display((typeof(I), typeof(D)))
-display((size(I), size(D)))
+knns = searchbatch(G, ctx, Q, k)  # <3>
+display((typeof(knns), sizeof(knns)))
 ```
 1. Creates the query
 2. The number of nearest neighbors to retrieve
