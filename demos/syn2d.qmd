@@ -21,7 +21,7 @@ n = 100_000
 
 M = randn(Float16, 2, n)
 db = MatrixDatabase(M)
-dist = SqL2_asf32()
+dist = Dist.CastF32.SqL2()
 size(M)
 ```
 

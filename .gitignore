@@ -27,3 +27,5 @@ Project.toml
 /.quarto/
 
 /_*.local
+
+**/*.quarto_ipynb

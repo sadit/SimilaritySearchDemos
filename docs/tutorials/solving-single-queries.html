@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Solving single queries – SimilaritySearch</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -21,8 +24,9 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -33,7 +37,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -64,15 +68,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5c67a7444eebc356e54fdce0a63e8750.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -102,7 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -115,7 +120,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -134,7 +139,7 @@ window.Quarto = {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -212,21 +217,21 @@ window.Quarto = {
 
 <p>by: Eric S. Téllez</p>
 <div id="2" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SimilaritySearch</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SimilaritySearch</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This example shows how to perform single queries instead of solving a batch of them. This is particularly useful for some applications, and we also show how they are solved, which could be used to avoid some memory allocations.</p>
 <div id="4" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dim <span class="op">=</span> <span class="fl">8</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dim <span class="op">=</span> <span class="fl">8</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> <span class="fu">MatrixDatabase</span>(<span class="fu">randn</span>(<span class="dt">Float32</span>, dim, <span class="fl">10</span><span class="op">^</span><span class="fl">4</span>))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>queries <span class="op">=</span> db <span class="op">=</span> <span class="fu">MatrixDatabase</span>(<span class="fu">randn</span>(<span class="dt">Float32</span>, dim, <span class="fl">100</span>))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dist <span class="op">=</span> <span class="fu">SqL2Distance</span>()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>dist <span class="op">=</span> Dist.<span class="fu">SqL2</span>()</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> <span class="fu">SearchGraph</span>(; dist, db)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> <span class="fu">SearchGraphContext</span>()</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">index!</span>(G, ctx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">index!</span>(G, ctx)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Suppose you want to compute some <span class="math inline">\(k\)</span> nearest neighbors, for this we use the structure <code>KnnResult</code> which is a priority queue of maximum size <span class="math inline">\(k\)</span>.</p>
 <div id="6" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="fu">knnqueue</span>(ctx, <span class="fl">3</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -234,55 +239,55 @@ window.Quarto = {
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">minimum</span>(res), <span class="fu">maximum</span>(res), <span class="fu">argmin</span>(res), <span class="fu">argmax</span>(res)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">IdView</span>(res))</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">DistView</span>(res))</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  0.302833 seconds (154.11 k allocations: 10.185 MiB, 99.98% compilation time)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (5.73508f0, 8.136073f0, 0x00000047, 0x00000049)
-collect(IdView(res)) = UInt32[0x00000047, 0x0000000c, 0x00000049]
-collect(DistView(res)) = Float32[5.73508, 8.045934, 8.136073]
+<pre><code>  0.462829 seconds (207.71 k allocations: 12.447 MiB, 99.94% compilation time)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.7572472f0, 5.1388474f0, 0x00000045, 0x00000032)
+collect(IdView(res)) = Any[0x00000045, 0x00000035, 0x00000032]
+collect(DistView(res)) = Any[2.7572472f0, 3.2580721f0, 5.1388474f0]
+  0.000020 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.7343612f0, 5.4609103f0, 0x0000003f, 0x00000005)
+collect(IdView(res)) = Any[0x0000003f, 0x0000004d, 0x00000005]
+collect(DistView(res)) = Any[2.7343612f0, 4.6991982f0, 5.4609103f0]
+  0.000009 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.7020392f0, 5.581727f0, 0x00000039, 0x00000010)
+collect(IdView(res)) = Any[0x00000039, 0x0000001a, 0x00000010]
+collect(DistView(res)) = Any[4.7020392f0, 4.923954f0, 5.581727f0]
+  0.000013 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.1701465f0, 2.477129f0, 0x0000005b, 0x00000018)
+collect(IdView(res)) = Any[0x0000005b, 0x00000044, 0x00000018]
+collect(DistView(res)) = Any[2.1701465f0, 2.3919196f0, 2.477129f0]
+  0.000018 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.3622675f0, 6.021051f0, 0x0000003f, 0x00000006)
+collect(IdView(res)) = Any[0x0000003f, 0x00000029, 0x00000006]
+collect(DistView(res)) = Any[4.3622675f0, 4.4897676f0, 6.021051f0]
+  0.000022 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3828528f0, 4.3723474f0, 0x0000002a, 0x00000062)
+collect(IdView(res)) = Any[0x0000002a, 0x00000047, 0x00000062]
+collect(DistView(res)) = Any[3.3828528f0, 3.9411547f0, 4.3723474f0]
+  0.000020 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3619611f0, 4.0181656f0, 0x0000005c, 0x0000004a)
+collect(IdView(res)) = Any[0x0000005c, 0x00000005, 0x0000004a]
+collect(DistView(res)) = Any[3.3619611f0, 3.6916745f0, 4.0181656f0]
   0.000016 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.4517207f0, 4.1300344f0, 0x00000054, 0x0000001a)
-collect(IdView(res)) = UInt32[0x00000054, 0x0000002d, 0x0000001a]
-collect(DistView(res)) = Float32[2.4517207, 3.6453025, 4.1300344]
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.2805197f0, 4.7268863f0, 0x00000032, 0x0000000c)
+collect(IdView(res)) = Any[0x00000032, 0x00000045, 0x0000000c]
+collect(DistView(res)) = Any[2.2805197f0, 4.53319f0, 4.7268863f0]
+  0.000015 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3533053f0, 4.9639907f0, 0x00000062, 0x00000052)
+collect(IdView(res)) = Any[0x00000062, 0x00000032, 0x00000052]
+collect(DistView(res)) = Any[3.3533053f0, 3.492895f0, 4.9639907f0]
   0.000007 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (5.665649f0, 6.3988633f0, 0x00000019, 0x0000003d)
-collect(IdView(res)) = UInt32[0x00000019, 0x00000022, 0x0000003d]
-collect(DistView(res)) = Float32[5.665649, 6.12617, 6.3988633]
-  0.000006 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.363997f0, 6.268838f0, 0x0000000c, 0x00000029)
-collect(IdView(res)) = UInt32[0x0000000c, 0x00000025, 0x00000029]
-collect(DistView(res)) = Float32[4.363997, 4.8510885, 6.268838]
-  0.000005 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.9081182f0, 3.2303193f0, 0x00000061, 0x00000054)
-collect(IdView(res)) = UInt32[0x00000061, 0x0000000d, 0x00000054]
-collect(DistView(res)) = Float32[1.9081182, 2.8516128, 3.2303193]
-  0.000004 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.5657682f0, 7.0970955f0, 0x0000002a, 0x0000003e)
-collect(IdView(res)) = UInt32[0x0000002a, 0x00000056, 0x0000003e]
-collect(DistView(res)) = Float32[3.5657682, 6.842711, 7.0970955]
-  0.000004 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.0025893f0, 2.340893f0, 0x00000017, 0x0000000d)
-collect(IdView(res)) = UInt32[0x00000017, 0x0000000c, 0x0000000d]
-collect(DistView(res)) = Float32[1.0025893, 1.2908223, 2.340893]
-  0.000005 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.1722112f0, 5.5402813f0, 0x00000027, 0x00000002)
-collect(IdView(res)) = UInt32[0x00000027, 0x00000021, 0x00000002]
-collect(DistView(res)) = Float32[2.1722112, 4.0453386, 5.5402813]
-  0.000004 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.3056961f0, 3.5194216f0, 0x00000060, 0x00000062)
-collect(IdView(res)) = UInt32[0x00000060, 0x00000023, 0x00000062]
-collect(DistView(res)) = Float32[1.3056961, 3.0779376, 3.5194216]
-  0.000003 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.4991374f0, 4.457182f0, 0x0000000d, 0x00000034)
-collect(IdView(res)) = UInt32[0x0000000d, 0x0000001c, 0x00000034]
-collect(DistView(res)) = Float32[2.4991374, 3.6591063, 4.457182]</code></pre>
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.0630336f0, 5.5816345f0, 0x00000062, 0x00000039)
+collect(IdView(res)) = Any[0x00000062, 0x00000024, 0x00000039]
+collect(DistView(res)) = Any[3.0630336f0, 3.8779063f0, 5.5816345f0]</code></pre>
 </div>
 </div>
 <section id="knn-queue" class="level2">
 <h2 class="anchored" data-anchor-id="knn-queue"><code>Knn</code> queue</h2>
 <p>This structure is the container for the result and it is also used to specify the number of elements to retrieve. As mentioned before, it is a priority queue</p>
 <div id="8" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> <span class="fu">knnqueue</span>(ctx, <span class="fl">4</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">1</span>, <span class="fl">10</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">push_item!</span>(res, <span class="fl">2</span>, <span class="fl">9</span>)</span>
@@ -299,19 +304,19 @@ collect(DistView(res)) = Float32[2.4991374, 3.6591063, 4.457182]</code></pre>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>res</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co"># It can be iterated</span></span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">viewitems</span>(res))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">viewitems</span>(res))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>collect(viewitems(res)) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)]
-:pop_min! =&gt; SimilaritySearch.pop_min!(res) = :pop_min! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000006, 5.0f0)
-:push_item! =&gt; res = :push_item! =&gt; SimilaritySearch.KnnSorted{Vector{SimilaritySearch.AdjacencyLists.IdWeight}}(SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)], 1, 4, 4, 0, 0)
-:pop_max! =&gt; pop_max!(res) = :pop_max! =&gt; SimilaritySearch.AdjacencyLists.IdWeight(0x00000002, 9.0f0)
-collect(viewitems(res)) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySearch.AdjacencyLists.IdWeight(0x00000007, 0.1f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000004, 7.0f0), SimilaritySearch.AdjacencyLists.IdWeight(0x00000003, 8.0f0)]</code></pre>
+<pre><code>collect(viewitems(res)) = SimilaritySearch.IdDist[SimilaritySearch.IdDist(0x00000006, 5.0f0), SimilaritySearch.IdDist(0x00000004, 7.0f0), SimilaritySearch.IdDist(0x00000003, 8.0f0), SimilaritySearch.IdDist(0x00000002, 9.0f0)]
+:pop_min! =&gt; SimilaritySearch.pop_min!(res) = :pop_min! =&gt; SimilaritySearch.IdDist(0x00000006, 5.0f0)
+:push_item! =&gt; res = :push_item! =&gt; SimilaritySearch.KnnSorted{Vector{SimilaritySearch.IdDist}}(SimilaritySearch.IdDist[SimilaritySearch.IdDist(0x00000007, 0.1f0), SimilaritySearch.IdDist(0x00000004, 7.0f0), SimilaritySearch.IdDist(0x00000003, 8.0f0), SimilaritySearch.IdDist(0x00000002, 9.0f0)], 1, 4, 4, 0, 0)
+:pop_max! =&gt; pop_max!(res) = :pop_max! =&gt; SimilaritySearch.IdDist(0x00000002, 9.0f0)
+collect(viewitems(res)) = SimilaritySearch.IdDist[SimilaritySearch.IdDist(0x00000007, 0.1f0), SimilaritySearch.IdDist(0x00000004, 7.0f0), SimilaritySearch.IdDist(0x00000003, 8.0f0)]</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>3-element Vector{IdWeight}:
- IdWeight(0x00000007, 0.1f0)
- IdWeight(0x00000004, 7.0f0)
- IdWeight(0x00000003, 8.0f0)</code></pre>
+<pre><code>3-element Vector{IdDist}:
+ IdDist(0x00000007, 0.1f0)
+ IdDist(0x00000004, 7.0f0)
+ IdDist(0x00000003, 8.0f0)</code></pre>
 </div>
 </div>
 </section>
@@ -319,41 +324,44 @@ collect(viewitems(res)) = SimilaritySearch.AdjacencyLists.IdWeight[SimilaritySea
 <h2 class="anchored" data-anchor-id="environment-and-dependencies">Environment and dependencies</h2>
 <div id="10" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>Julia Version 1.10.10
-Commit 95f30e51f41 (2025-06-27 09:51 UTC)
+<div class="ansi-escaped-output">
+<pre>Julia Version 1.10.11
+Commit a2b11907d7b (2026-03-09 14:59 UTC)
 Build Info:
   Official https://julialang.org/ release
 Platform Info:
-  OS: Linux (x86_64-linux-gnu)
-  CPU: 64 × Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz
+  OS: macOS (x86_64-apple-darwin24.0.0)
+  CPU: 8 × Intel(R) Core(TM) i5-8257U CPU @ 1.40GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
-  LLVM: libLLVM-15.0.7 (ORCJIT, cascadelake)
-Threads: 64 default, 0 interactive, 32 GC (on 64 virtual cores)
+  LLVM: libLLVM-15.0.7 (ORCJIT, skylake)
+Threads: 8 default, 0 interactive, 4 GC (on 8 virtual cores)
 Environment:
   JULIA_NUM_THREADS = auto
-  JULIA_PROJECT = .
+  JULIA_PROJECT = @.
   JULIA_LOAD_PATH = @:@stdlib
-Status `~/Research/SimilaritySearchDemos/Project.toml`
-  [aaaa29a8] Clustering v0.15.8
-  [944b1d66] CodecZlib v0.7.8
-  [a93c6f00] DataFrames v1.8.0
-  [c5bfea45] Embeddings v0.4.6
-  [f67ccb44] HDF5 v0.17.2
-  [b20bd276] InvertedFiles v0.8.1
-  [682c06a0] JSON v0.21.4
-  [23fbe1c1] Latexify v0.16.10
-  [eb30cadb] MLDatasets v0.7.18
-  [06eb3307] ManifoldLearning v0.9.0
-⌃ [ca7969ec] PlotlyLight v0.11.0
-  [91a5bcdd] Plots v1.40.20
-  [27ebfcd6] Primes v0.5.7
-  [ca7ab67e] SimSearchManifoldLearning v0.3.1
-  [053f045d] SimilaritySearch v0.13.0
-⌅ [2913bbd2] StatsBase v0.33.21
-  [f3b207a7] StatsPlots v0.15.7
-  [7f6f6c8a] TextSearch v0.19.6
-Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
+<span class="ansi-green-fg ansi-bold">Status</span> `~/Research/SimilaritySearchDemos/Project.toml`
+  <span class="ansi-bright-black-fg">[aaaa29a8] </span>Clustering v0.15.8
+  <span class="ansi-bright-black-fg">[944b1d66] </span>CodecZlib v0.7.8
+  <span class="ansi-bright-black-fg">[a93c6f00] </span>DataFrames v1.8.1
+  <span class="ansi-bright-black-fg">[c5bfea45] </span>Embeddings v0.4.6
+  <span class="ansi-bright-black-fg">[f67ccb44] </span>HDF5 v0.17.2
+  <span class="ansi-bright-black-fg">[b20bd276] </span>InvertedFiles v0.9.2
+<span class="ansi-yellow-fg">⌅</span> <span class="ansi-bright-black-fg">[682c06a0] </span>JSON v0.21.4
+  <span class="ansi-bright-black-fg">[23fbe1c1] </span>Latexify v0.16.10
+  <span class="ansi-bright-black-fg">[eb30cadb] </span>MLDatasets v0.7.21
+  <span class="ansi-bright-black-fg">[06eb3307] </span>ManifoldLearning v0.9.0
+<span class="ansi-green-fg">⌃</span> <span class="ansi-bright-black-fg">[ca7969ec] </span>PlotlyLight v0.11.0
+  <span class="ansi-bright-black-fg">[91a5bcdd] </span>Plots v1.41.6
+  <span class="ansi-bright-black-fg">[27ebfcd6] </span>Primes v0.5.7
+  <span class="ansi-bright-black-fg">[ca7ab67e] </span>SimSearchManifoldLearning v0.4.0
+  <span class="ansi-bright-black-fg">[053f045d] </span>SimilaritySearch v0.14.2
+<span class="ansi-yellow-fg">⌅</span> <span class="ansi-bright-black-fg">[2913bbd2] </span>StatsBase v0.33.21
+  <span class="ansi-bright-black-fg">[f3b207a7] </span>StatsPlots v0.15.8
+  <span class="ansi-bright-black-fg">[7f6f6c8a] </span>TextSearch v0.20.0
+<span class="ansi-cyan-fg ansi-bold">Info</span> Packages marked with <span class="ansi-green-fg">⌃</span> and <span class="ansi-yellow-fg">⌅</span> have new versions available. Those with <span class="ansi-green-fg">⌃</span> may be upgradable, but those with <span class="ansi-yellow-fg">⌅</span> are restricted by compatibility constraints from upgrading. To see why use `status --outdated`
+</pre>
+</div>
 </div>
 </div>
 
@@ -362,236 +370,243 @@ Info Packages marked with ⌃ and ⌅ have new versions available. Those with �
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -599,185 +614,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 
 

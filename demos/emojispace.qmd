@@ -82,7 +82,7 @@ e2, e3 = let min_dist=0.5f0, # <1>
              tol=1e-3,
              layout=SpectralLayout(),
              indexsize=768,
-             dist=NormalizedCosineDistance()
+             dist=Dist.NormCosine()
 
     index = ExhaustiveSearch(; db=rand(vectors, indexsize), dist) # <2>
     @time U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>

@@ -17,7 +17,7 @@ using SimilaritySearch, Markdown
 dim = 16 # <1>
 db = MatrixDatabase(rand(Float32, dim, 10^5)) # <2>
 queries = MatrixDatabase(rand(Float32, dim, 10^3)) # <3>
-dist = SqL2Distance() # <4>
+dist = Dist.SqL2() # <4>
 k = 12 # <5>
 ```
 1. The dimension to use in the synthetic data

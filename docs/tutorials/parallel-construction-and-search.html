@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Parallel construction and parallel search – SimilaritySearch</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -21,8 +24,9 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -33,7 +37,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -64,15 +68,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5c67a7444eebc356e54fdce0a63e8750.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -102,7 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -115,7 +120,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -134,7 +139,7 @@ window.Quarto = {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -212,17 +217,17 @@ window.Quarto = {
 
 <p>by: Eric S. Téllez</p>
 <div id="2" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SimilaritySearch</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SimilaritySearch</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Similarity search on very large datasets and high-dimensional datasets require high computational resources. In this example we show how to arallelize both the construction and search to be able to handle this kind of databases.</p>
 <div id="4" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="annotated-cell-2"><pre class="sourceCode julia code-annotation-code code-with-copy code-annotated"><code class="sourceCode julia"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a>dim <span class="op">=</span> <span class="fl">16</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="annotated-cell-2"><pre class="sourceCode julia code-annotation-code code-with-copy code-annotated"><code class="sourceCode julia"><span id="annotated-cell-2-1"><a href="#annotated-cell-2-1" aria-hidden="true" tabindex="-1"></a>dim <span class="op">=</span> <span class="fl">16</span></span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-2-2" class="code-annotation-target"><a href="#annotated-cell-2-2" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> <span class="fu">MatrixDatabase</span>(<span class="fu">randn</span>(<span class="dt">Float32</span>, dim, <span class="fl">10</span><span class="op">^</span><span class="fl">5</span>))</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-2-3" class="code-annotation-target"><a href="#annotated-cell-2-3" aria-hidden="true" tabindex="-1"></a>queries <span class="op">=</span> <span class="fu">MatrixDatabase</span>(<span class="fu">randn</span>(<span class="dt">Float32</span>, dim, <span class="fl">30</span>))</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-4" class="code-annotation-target"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a>dist <span class="op">=</span> <span class="fu">SqL2Distance</span>()</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-2-5" class="code-annotation-target"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> <span class="fu">SearchGraphContext</span>(parallel_first_block<span class="op">=</span><span class="fl">256</span>, parallel_block<span class="op">=</span><span class="fl">512</span>)</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-2-4" class="code-annotation-target"><a href="#annotated-cell-2-4" aria-hidden="true" tabindex="-1"></a>dist <span class="op">=</span> Dist.<span class="fu">SqL2</span>()</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-2-5" class="code-annotation-target"><a href="#annotated-cell-2-5" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> <span class="fu">SearchGraphContext</span>(parallel_block<span class="op">=</span><span class="fl">512</span>)</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-2-6" class="code-annotation-target"><a href="#annotated-cell-2-6" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> <span class="fu">SearchGraph</span>(; dist, db)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">index!</span>(G, ctx)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-2" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-2-7" class="code-annotation-target"><a href="#annotated-cell-2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">index!</span>(G, ctx)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-2" data-target-annotation="1">1</dt>
@@ -258,13 +263,13 @@ window.Quarto = {
 <li>If the index is not empty, the element is inserted and connected to its nearest neighbors (looking into the current index).</li>
 </ul>
 <p>The parallel construction is made with <code>index!</code> or <code>append_items!</code>; for this matter these functions accept a <code>parallel_block</code> argument via the <code>ctx</code> context, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.</p>
-<p>As in the sequential version, a minimum number of elements must exists to work, and therefore, the <code>parallel_first_block</code> argument can also be specified. By default, it is equal to <code>parallel_block</code>. The <code>parallel_block</code> argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.</p>
+<p>The <code>parallel_block</code> argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.</p>
 <p>Note that you must not call <code>push_item!</code>, <code>append_items!</code>, or <code>index!</code> from several threads. The default algorithm will takes advantage of the available threads using a single call.</p>
 <section id="searching" class="level2">
 <h2 class="anchored" data-anchor-id="searching">Searching</h2>
 <p>Once the index is constructed, you can solve batches in parallel and also single queries. In contrast with append, these functions can be called in multithreading algorithms. However, you must <em>pause</em> the searching requests while perform insertions (parallel or sequential); mixing insertions and search produces an undefined behavior for search results.</p>
 <div id="6" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>knns <span class="op">=</span> <span class="fu">searchbatch</span>(G, ctx, queries, <span class="fl">10</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>knns <span class="op">=</span> <span class="fu">searchbatch</span>(G, ctx, queries, <span class="fl">10</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Threads</span>.<span class="pp">@threads</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(queries)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> <span class="fu">search</span>(G, ctx, queries[i], <span class="fu">knnqueue</span>(ctx, <span class="fl">10</span>))</span>
@@ -277,128 +282,128 @@ window.Quarto = {
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="fu">collect</span>(<span class="fu">IdView</span>(res))) <span class="co"># do something with `res`</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">"=== </span><span class="sc">$</span>i<span class="st"> -- distances:"</span>)</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="fu">collect</span>(<span class="fu">DistView</span>(res))) <span class="co"># do something with `res`</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>=== 4 -- nearest neighbor:=== 18 -- nearest neighbor:=== 5 -- nearest neighbor:=== 2 -- nearest neighbor:=== 25 -- nearest neighbor:=== 16 -- nearest neighbor:=== 11 -- nearest neighbor:=== 9 -- nearest neighbor:=== 22 -- nearest neighbor:=== 14 -- nearest neighbor:IdWeight(=== 13 -- nearest neighbor:=== 15 -- nearest neighbor:=== 29 -- nearest neighbor:=== 12 -- nearest neighbor:=== 3 -- nearest neighbor:=== 23 -- nearest neighbor:=== 6 -- nearest neighbor:=== 20 -- nearest neighbor:=== 21 -- nearest neighbor:=== 8 -- nearest neighbor:=== 19 -- nearest neighbor:=== 10 -- nearest neighbor:=== 30 -- nearest neighbor:=== 17 -- nearest neighbor:=== 24 -- nearest neighbor:=== 26 -- nearest neighbor:=== 27 -- nearest neighbor:0x=== 1 -- nearest neighbor:=== 7 -- nearest neighbor:=== 28 -- nearest neighbor:000016da, 7.475581f0)
-=== 2 -- result set:IdWeight(0x00013680, 4.9501705f0)
-=== 16 -- result set:IdWeight(0x000125c7, 3.8281355f0)
-=== 23 -- result set:IdWeight(0x0000bf56, 3.0849502f0)
-=== 21 -- result set:IdWeight(0x000136ca, 3.826608f0)
-IdWeight=== 30 -- result set:(0x0000f7e7, 4.6755185f0)
-=== 8 -- result set:IdWeight(0x00015d31, 3.6273217f0)
-=== 13 -- result set:IdWeight(0x000160b1, 2.3851268f0)
-=== 28 -- result set:IdWeight(0x0000aeee, 3.5925267f0)
-=== 11 -- result set:IdWeight[IdWeight(0x00015d31, 3.6273217f0), IdWeight(0x0000741a, 4.68003f0), IdWeight(0x00007f8c, 4.6882257f0), IdWeight(0x00001cdb, 4.823663f0), IdWeight(0x0000457e, 4.9092054f0), IdWeight(0x00003b62, 5.076417f0), IdWeight(0x00015c30, 5.1616125f0), IdWeight(0x00012b9a, 5.189806f0), IdWeight(0x0000ce62, 5.21961f0), IdWeight(0x0000af4f, 5.2996163f0)]
-=== 13 -- identifiers:IdWeight(0x0000d133, 4.866582f0)
-=== 18 -- result set:IdWeight[IdWeight(0x0000f7e7, 4.6755185f0), IdWeight(0x0000d4cf, 4.946041f0), IdWeight(0x0000b23b, 5.5497537f0), IdWeight(0x000155a8, 5.938352f0), IdWeight(0x000032ab, 6.959454f0), IdWeight(0x00015c19, 7.180469f0), IdWeight(0x000056d6, 7.3057566f0), IdWeight(0x00001b74, 7.4702315f0), IdWeight(0x0000a034, 7.6433163f0), IdWeight(0x00003876, 7.6469784f0)]
-=== 8 -- identifiers:IdWeight(0x00017958, 3.694816f0)
-=== 7 -- result set:IdWeight(0x0000c5ca, 4.836586f0)
-=== 29 -- result set:IdWeight(0x0000b841, 8.626275f0)
-=== 19 -- result set:IdWeight(0x0001335a, 1.9811906f0)
-=== 26 -- result set:IdWeight(0x00007931, 5.2518964f0)
-=== 6 -- result set:IdWeight(0x00005dfe, 3.8714378f0)
-=== 9 -- result set:IdWeight(0x0001147d, 5.2202907f0)
-=== 4 -- result set:IdWeight[IdWeight(0x0000aeee, 3.5925267f0), IdWeight(0x0000abd8, 4.8545127f0), IdWeight(0x00018285, 4.8720684f0), IdWeight(0x000095f0, 5.0156937f0), IdWeight(0x0001504c, 5.435365f0), IdWeight(0x000155e1, 5.5563474f0), IdWeight(0x000139fc, 5.5843096f0), IdWeight(0x00000b8f, 5.6968827f0), IdWeight(0x00007c65, 5.760248f0), IdWeight(0x00016814, 5.9182396f0)]
-=== 11 -- identifiers:IdWeight(0x00011832, 8.325138f0)
-=== 14 -- result set:IdWeight(0x0001618b, 7.4726634f0)
-=== 27 -- result set:IdWeight[IdWeight(0x00007931, 5.2518964f0), IdWeight(0x00007573, 6.288773f0), IdWeight(0x0000ae65, 6.386692f0), IdWeight(0x0000f57a, 6.7786574f0), IdWeight(0x0000dec7, 6.819204f0), IdWeight(0x00012cd9, 7.134268f0), IdWeight(0x00016e8e, 7.211961f0), IdWeight(0x0000e668, 7.213861f0), IdWeight(0x00005fee, 7.3557243f0), IdWeight(0x0001514d, 7.396805f0)]
-=== 6 -- identifiers:IdWeight[IdWeight(0x00013680, 4.9501705f0), IdWeight(0x0000aa98, 5.1672125f0), IdWeight(0x0000e825, 5.3883085f0), IdWeight(0x00012b73, 5.624281f0), IdWeight(0x0000d45f, 5.640246f0), IdWeight(0x0000cded, 5.6415195f0), IdWeight(0x00012e0a, 5.776929f0), IdWeight(0x00014bfa, 5.7929277f0), IdWeight(0x0000a356, 5.8185754f0), IdWeight(0x00001f22, 6.1403303f0)]
-=== 16 -- identifiers:IdWeight[IdWeight(0x000016da, 7.475581f0), IdWeight(0x00007baf, 8.006167f0), IdWeight(0x0001527c, 8.374749f0), IdWeight(0x00007b77, 8.457133f0), IdWeight(0x00004218, 8.552438f0), IdWeight(0x00007386, 9.258151f0), IdWeight(0x000126e7, 9.500102f0), IdWeight(0x000185fd, 9.53086f0), IdWeight(0x00007e18, 10.121296f0), IdWeight(0x00013d21, 10.250516f0)]
-=== 2 -- identifiers:IdWeight[IdWeight(0x0000c5ca, 4.836586f0), IdWeight(0x0000f32f, 6.0106325f0), IdWeight(0x000153e4, 6.1220074f0), IdWeight(0x0000110a, 6.2072845f0), IdWeight(0x0000d160, 6.2607503f0), IdWeight(0x0000bbd6, 6.4195223f0), IdWeight(0x00006b0b, 6.4675875f0), IdWeight(0x0000fdbf, 6.9372935f0), IdWeight(0x00012f4b, 6.9403267f0), IdWeight(0x00001394, 7.0028744f0)]
-=== 29 -- identifiers:UInt32[0x0000f7e7, 0x0000d4cf, 0x0000b23b, 0x000155a8, 0x000032ab, 0x00015c19, 0x000056d6, 0x00001b74, 0x0000a034, 0x00003876]
-=== 8 -- distances:UInt32[0x00015d31, 0x0000741a, 0x00007f8c, 0x00001cdb, 0x0000457e, 0x00003b62, 0x00015c30, 0x00012b9a, 0x0000ce62, 0x0000af4f]
-IdWeight=== 13 -- distances:(0x0000b80e, 3.8890228f0)
-=== 12 -- result set:IdWeight[IdWeight(0x000160b1, 2.3851268f0), IdWeight(0x0000fdf9, 3.9968753f0), IdWeight(0x000163aa, 4.6616535f0), IdWeight(0x000095d6, 4.8628407f0), IdWeight(0x000036f4, 5.220222f0), IdWeight(0x0000673d, 5.311993f0), IdWeight(0x0000766f, 5.3134274f0), IdWeight(0x0000755f, 5.539219f0), IdWeight(0x00008b38, 5.9165697f0), IdWeight(0x00013e7d, 6.0329785f0)]
-=== 28 -- identifiers:IdWeight(0x000171f9, 3.3012612f0)
-=== 10 -- result set:UInt32[0x0000aeee, 0x0000abd8, 0x00018285, 0x000095f0, 0x0001504c, 0x000155e1, 0x000139fc, 0x00000b8f, 0x00007c65, 0x00016814]
-=== 11 -- distances:UInt32[0x000160b1, 0x0000fdf9, 0x000163aa, 0x000095d6, 0x000036f4, 0x0000673d, 0x0000766f, 0x0000755f, 0x00008b38, 0x00013e7d]
-=== 28 -- distances:IdWeight[IdWeight(0x000125c7, 3.8281355f0), IdWeight(0x000139a8, 4.411647f0), IdWeight(0x00010827, 4.412861f0), IdWeight(0x0000148d, 4.612425f0), IdWeight(0x00017a1b, 4.7452927f0), IdWeight(0x00003349, 4.8092985f0), IdWeight(0x000080b4, 5.1169624f0), IdWeight(0x00017c8d, 5.1910243f0), IdWeight(0x0000e280, 5.2516203f0), IdWeight(0x00004904, 5.3864393f0)]
-=== 23 -- identifiers:IdWeight[IdWeight(0x0001335a, 1.9811906f0), IdWeight(0x0000fff2, 2.7188296f0), IdWeight(0x00002716, 2.8710415f0), IdWeight(0x0000904d, 3.2169006f0), IdWeight(0x0001279d, 3.3474293f0), IdWeight(0x00017a6f, 3.4758518f0), IdWeight(0x00008dc9, 3.535749f0), IdWeight(0x0001794c, 3.6799278f0), IdWeight(0x00001336, 3.680181f0), IdWeight(0x00006122, 3.7101126f0)]
-=== 26 -- identifiers:IdWeight[IdWeight(0x0000bf56, 3.0849502f0), IdWeight(0x00003169, 3.809248f0), IdWeight(0x00007b91, 4.0175047f0), IdWeight(0x000170b9, 4.21555f0), IdWeight(0x0000860c, 4.567765f0), IdWeight(0x00002528, 4.651129f0), IdWeight(0x00002b25, 4.9866815f0), IdWeight(0x0000be55, 5.197236f0), IdWeight(0x00000728, 5.262011f0), IdWeight(0x000086f9, 5.273572f0)]
-=== 21 -- identifiers:IdWeight[IdWeight(0x0000b841, 8.626275f0), IdWeight(0x000170bd, 10.916844f0), IdWeight(0x00002105, 11.194837f0), IdWeight(0x00003050, 11.668236f0), IdWeight(0x00007688, 12.329492f0), IdWeight(0x0000fd5e, 12.629101f0), IdWeight(0x00003572, 12.665984f0), IdWeight(0x0000d552, 12.900963f0), IdWeight(0x00001339, 12.96817f0), IdWeight(0x00012423, 13.102973f0)]
-=== 19 -- identifiers:IdWeight(0x0000dd13, 3.1978405f0)
-=== 15 -- result set:IdWeight(0x00010ef6, 4.618901f0)
-=== 5 -- result set:UInt32[0x000125c7, 0x000139a8, 0x00010827, 0x0000148d, 0x00017a1b, 0x00003349, 0x000080b4, 0x00017c8d, 0x0000e280, 0x00004904]
-=== 23 -- distances:Float32[3.5925267, 4.8545127, 4.8720684, 5.0156937, 5.435365, 5.5563474, 5.5843096, 5.6968827, 5.760248, 5.9182396]
-IdWeight[IdWeight(0x00011832, 8.325138f0), IdWeight(0x0000d7f3, 8.770528f0), IdWeight(0x00017ab3, 9.436805f0), IdWeight(0x00000913, 11.315607f0), IdWeight(0x00009ce0, 11.644699f0), IdWeight(0x00017484, 12.10246f0), IdWeight(0x000042bf, 12.268001f0), IdWeight(0x00005d56, 12.469366f0), IdWeight(0x00004535, 12.628713f0), IdWeight(0x00004471, 12.8754225f0)]
-=== 14 -- identifiers:UInt32[0x00013680, 0x0000aa98, 0x0000e825, 0x00012b73, 0x0000d45f, 0x0000cded, 0x00012e0a, 0x00014bfa, 0x0000a356, 0x00001f22]
-=== 16 -- distances:IdWeight[IdWeight(0x000171f9, 3.3012612f0), IdWeight(0x000065a7, 4.3635774f0), IdWeight(0x00002665, 4.4735656f0), IdWeight(0x0000c13c, 4.477754f0), IdWeight(0x00008df1, 4.544302f0), IdWeight(0x000027ac, 4.616445f0), IdWeight(0x000028eb, 4.885664f0), IdWeight(0x0000a3d3, 5.060929f0), IdWeight(0x0000080b, 5.1638126f0), IdWeight(0x0000f5aa, 5.466307f0)]
-=== 10 -- identifiers:IdWeight(0x0000bdab, 5.939122f0)
-IdWeight=== 1 -- result set:[IdWeight(0x0000dd13, 3.1978405f0), IdWeight(0x00005013, 4.7813525f0), IdWeight(0x00012f9a, 4.946647f0), IdWeight(0x000101cc, 4.9642615f0), IdWeight(0x00016bda, 5.127922f0), IdWeight(0x0000d9ab, 5.484438f0), IdWeight(0x000085cf, 5.5215507f0), IdWeight(0x000174fe, 5.572069f0), IdWeight(0x00015a61, 5.6021905f0), IdWeight(0x00015f3a, 5.624522f0)]
-IdWeight=== 15 -- identifiers:(0x00001b25, 4.318264f0)
-=== 20 -- result set:IdWeight(0x0001765d, 4.811967f0)
-=== 25 -- result set:IdWeight[IdWeight(0x0001618b, 7.4726634f0), IdWeight(0x00013c19, 8.921653f0), IdWeight(0x0000c465, 9.109844f0), IdWeight(0x00002589, 9.152566f0), IdWeight(0x00000e41, 9.217521f0), IdWeight(0x000012b2, 9.565677f0), IdWeight(0x00008613, 9.627638f0), IdWeight(0x0000d960, 9.70625f0), IdWeight(0x0001351e, 9.757255f0), IdWeight(0x0000549c, 9.865978f0)]
-=== 27 -- identifiers:IdWeight(0x000108ba, 5.3042355f0)
-=== 22 -- result set:IdWeight[IdWeight(0x0001147d, 5.2202907f0), IdWeight(0x000147e4, 5.766921f0), IdWeight(0x00007d21, 5.814475f0), IdWeight(0x00006fc3, 6.45201f0), IdWeight(0x00010252, 6.5615616f0), IdWeight(0x0000c4ff, 6.6209016f0), IdWeight(0x000014b7, 6.736498f0), IdWeight(0x00001195, 6.759311f0), IdWeight(0x00012094, 6.8746343f0), IdWeight(0x000155ab, 6.986366f0)]
-=== 4 -- identifiers:UInt32[0x0000bf56, 0x00003169, 0x00007b91, 0x000170b9, 0x0000860c, 0x00002528, 0x00002b25, 0x0000be55, 0x00000728, 0x000086f9]
-=== 21 -- distances:Float32[3.8281355, 4.411647, 4.412861, 4.612425, 4.7452927, 4.8092985, 5.1169624, 5.1910243, 5.2516203, 5.3864393]
-Float32[2.3851268, 3.9968753, 4.6616535, 4.8628407, 5.220222, 5.311993, 5.3134274, 5.539219, 5.9165697, 6.0329785]
-IdWeight(0x00001753, 4.4825764f0)
-=== 24 -- result set:UInt32[0x0001618b, 0x00013c19, 0x0000c465, 0x00002589, 0x00000e41, 0x000012b2, 0x00008613, 0x0000d960, 0x0001351e, 0x0000549c]
-=== 27 -- distances:IdWeight[IdWeight(0x0000d133, 4.866582f0), IdWeight(0x0000f29c, 5.166498f0), IdWeight(0x00007170, 5.3683376f0), IdWeight(0x0000c668, 5.801767f0), IdWeight(0x00007fe4, 5.9378157f0), IdWeight(0x0000ae10, 5.981952f0), IdWeight(0x000098b4, 6.3435497f0), IdWeight(0x00005b0a, 6.4227424f0), IdWeight(0x0000d512, 6.520656f0), IdWeight(0x00006c2c, 6.749601f0)]
-IdWeight=== 18 -- identifiers:(0x0000b2ca, 8.162801f0)
-=== 3 -- result set:UInt32[0x00007931, 0x00007573, 0x0000ae65, 0x0000f57a, 0x0000dec7, 0x00012cd9, 0x00016e8e, 0x0000e668, 0x00005fee, 0x0001514d]
-=== 6 -- distances:Float32[3.6273217, 4.68003, 4.6882257, 4.823663, 4.9092054, 5.076417, 5.1616125, 5.189806, 5.21961, 5.2996163]
-IdWeight[IdWeight(0x0001765d, 4.811967f0), IdWeight(0x0000f2ba, 6.1820726f0), IdWeight(0x00010e42, 6.619271f0), IdWeight(0x0000f59b, 6.9272494f0), IdWeight(0x0000be57, 7.116349f0), IdWeight(0x000014c7, 7.279584f0), IdWeight(0x00015df7, 7.4337163f0), IdWeight(0x0000102a, 7.463205f0), IdWeight(0x0000f1b8, 8.1107f0), IdWeight(0x00018461, 8.138579f0)]
-IdWeight=== 25 -- identifiers:[IdWeight(0x00001b25, 4.318264f0), IdWeight(0x00005c6b, 4.5169024f0), IdWeight(0x0000b4bd, 4.8121605f0), IdWeight(0x0000cdda, 5.0930715f0), IdWeight(0x00003a64, 5.432807f0), IdWeight(0x000040b0, 5.5089235f0), IdWeight(0x00009fed, 5.5533485f0), IdWeight(0x000025b8, 5.559684f0), IdWeight(0x00007d10, 5.564309f0), IdWeight(0x0000ceaa, 5.599265f0)]
-=== 20 -- identifiers:UInt32[0x0001335a, 0x0000fff2, 0x00002716, 0x0000904d, 0x0001279d, 0x00017a6f, 0x00008dc9, 0x0001794c, 0x00001336, 0x00006122]
-Float32=== 26 -- distances:[3.0849502, 3.809248, 4.0175047, 4.21555, 4.567765, 4.651129, 4.9866815, 5.197236, 5.262011, 5.273572]
-IdWeight[IdWeight(0x0000bdab, 5.939122f0), IdWeight(0x00000630, 6.1346354f0), IdWeight(0x000165e0, 6.1812754f0), IdWeight(0x00000a0d, 6.23616f0), IdWeight(0x00013a26, 6.284336f0), IdWeight(0x00009c40, 6.6272836f0), IdWeight(0x00000840, 6.6400914f0), IdWeight(0x00017d58, 6.8352456f0), IdWeight(0x0000ba54, 7.066995f0), IdWeight(0x000009ea, 7.0923777f0)]
-=== 1 -- identifiers:UInt32[0x000016da, 0x00007baf, 0x0001527c, 0x00007b77, 0x00004218, 0x00007386, 0x000126e7, 0x000185fd, 0x00007e18, 0x00013d21]
-=== 2 -- distances:UInt32[0x0001765d, 0x0000f2ba, 0x00010e42, 0x0000f59b, 0x0000be57, 0x000014c7, 0x00015df7, 0x0000102a, 0x0000f1b8, 0x00018461]
-=== 25 -- distances:UInt32[0x0000c5ca, 0x0000f32f, 0x000153e4, 0x0000110a, 0x0000d160, 0x0000bbd6, 0x00006b0b, 0x0000fdbf, 0x00012f4b, 0x00001394]
-=== 29 -- distances:IdWeight[IdWeight(0x0000b80e, 3.8890228f0), IdWeight(0x0000f102, 4.003773f0), IdWeight(0x00013d59, 4.313168f0), IdWeight(0x00005843, 4.3866534f0), IdWeight(0x00011f71, 4.606645f0), IdWeight(0x0000834b, 4.7492075f0), IdWeight(0x000115ce, 4.884559f0), IdWeight(0x0000d70f, 5.047111f0), IdWeight(0x0001851f, 5.320671f0), IdWeight(0x00015947, 5.4546676f0)]
-=== 12 -- identifiers:Float32[7.475581, 8.006167, 8.374749, 8.457133, 8.552438, 9.258151, 9.500102, 9.53086, 10.121296, 10.250516]
-IdWeight[IdWeight(0x000108ba, 5.3042355f0), IdWeight(0x000113e0, 6.928343f0), IdWeight(0x00017c69, 7.091271f0), IdWeight(0x00001383, 7.166015f0), IdWeight(0x000022a8, 7.180992f0), IdWeight(0x000080dc, 7.4562817f0), IdWeight(0x0000d99a, 7.6668825f0), IdWeight(0x00003e60, 7.6743126f0), IdWeight(0x000022cc, 7.7288504f0), IdWeight(0x00007e8a, 7.8605657f0)]
-=== 22 -- identifiers:Float32[4.836586, 6.0106325, 6.1220074, 6.2072845, 6.2607503, 6.4195223, 6.4675875, 6.9372935, 6.9403267, 7.0028744]
-IdWeight[IdWeight(0x00001753, 4.4825764f0), IdWeight(0x000093c7, 4.589796f0), IdWeight(0x0000426a, 5.227733f0), IdWeight(0x0000fb83, 5.28668f0), IdWeight(0x000133f7, 5.33499f0), IdWeight(0x00014f38, 5.446783f0), IdWeight(0x0000157f, 5.7493796f0), IdWeight(0x0000fc3c, 5.8062396f0), IdWeight(0x00007e01, 5.9697576f0), IdWeight(0x0000b56a, 6.137463f0)]
-=== 24 -- identifiers:UInt32[0x000171f9, 0x000065a7, 0x00002665, 0x0000c13c, 0x00008df1, 0x000027ac, 0x000028eb, 0x0000a3d3, 0x0000080b, 0x0000f5aa]
-=== 10 -- distances:Float32[7.4726634, 8.921653, 9.109844, 9.152566, 9.217521, 9.565677, 9.627638, 9.70625, 9.757255, 9.865978]
-UInt32[0x000108ba, 0x000113e0, 0x00017c69, 0x00001383, 0x000022a8, 0x000080dc, 0x0000d99a, 0x00003e60, 0x000022cc, 0x00007e8a]
-=== 22 -- distances:UInt32[0x0001147d, 0x000147e4, 0x00007d21, 0x00006fc3, 0x00010252, 0x0000c4ff, 0x000014b7, 0x00001195, 0x00012094, 0x000155ab]
-UInt32=== 4 -- distances:[0x00001753, 0x000093c7, 0x0000426a, 0x0000fb83, 0x000133f7, 0x00014f38, 0x0000157f, 0x0000fc3c, 0x00007e01, 0x0000b56a]
-=== 24 -- distances:UInt32[0x0000b80e, 0x0000f102, 0x00013d59, 0x00005843, 0x00011f71, 0x0000834b, 0x000115ce, 0x0000d70f, 0x0001851f, 0x00015947]
-=== 12 -- distances:Float32[5.2202907, 5.766921, 5.814475, 6.45201, 6.5615616, 6.6209016, 6.736498, 6.759311, 6.8746343, 6.986366]
-Float32[4.9501705, 5.1672125, 5.3883085, 5.624281, 5.640246, 5.6415195, 5.776929, 5.7929277, 5.8185754, 6.1403303]
-IdWeight[IdWeight(0x00010ef6, 4.618901f0), IdWeight(0x00013bc2, 5.249596f0), IdWeight(0x00012285, 5.2502456f0), IdWeight(0x0000ade7, 5.4808574f0), IdWeight(0x0000b966, 5.543613f0), IdWeight(0x0000c8c6, 5.632665f0), IdWeight(0x00003575, 5.6673555f0), IdWeight(0x00017377, 5.7408757f0), IdWeight(0x0000812d, 5.827993f0), IdWeight(0x0000aeaa, 5.94431f0)]
-=== 5 -- identifiers:Float32[4.811967, 6.1820726, 6.619271, 6.9272494, 7.116349, 7.279584, 7.4337163, 7.463205, 8.1107, 8.138579]
-Float32[4.4825764, 4.589796, 5.227733, 5.28668, 5.33499, 5.446783, 5.7493796, 5.8062396, 5.9697576, 6.137463]
-UInt32[0x00001b25, 0x00005c6b, 0x0000b4bd, 0x0000cdda, 0x00003a64, 0x000040b0, 0x00009fed, 0x000025b8, 0x00007d10, 0x0000ceaa]
-=== 20 -- distances:IdWeight[IdWeight(0x0000b2ca, 8.162801f0), IdWeight(0x00007f5b, 8.172299f0), IdWeight(0x000008b5, 8.466345f0), IdWeight(0x0000f25c, 8.790724f0), IdWeight(0x000165a0, 8.812614f0), IdWeight(0x00002114, 8.944562f0), IdWeight(0x000179ed, 9.057051f0), IdWeight(0x0000b438, 9.155389f0), IdWeight(0x000105d6, 9.412525f0), IdWeight(0x00017aec, 9.4614725f0)]
-=== 3 -- identifiers:Float32[4.6755185, 4.946041, 5.5497537, 5.938352, 6.959454, 7.180469, 7.3057566, 7.4702315, 7.6433163, 7.6469784]
-Float32[3.8890228, 4.003773, 4.313168, 4.3866534, 4.606645, 4.7492075, 4.884559, 5.047111, 5.320671, 5.4546676]
-UInt32[0x00011832, 0x0000d7f3, 0x00017ab3, 0x00000913, 0x00009ce0, 0x00017484, 0x000042bf, 0x00005d56, 0x00004535, 0x00004471]
-=== 14 -- distances:UInt32[0x0000d133, 0x0000f29c, 0x00007170, 0x0000c668, 0x00007fe4, 0x0000ae10, 0x000098b4, 0x00005b0a, 0x0000d512, 0x00006c2c]
-=== 18 -- distances:Float32[4.318264, 4.5169024, 4.8121605, 5.0930715, 5.432807, 5.5089235, 5.5533485, 5.559684, 5.564309, 5.599265]
-Float32[3.3012612, 4.3635774, 4.4735656, 4.477754, 4.544302, 4.616445, 4.885664, 5.060929, 5.1638126, 5.466307]
-IdWeight[IdWeight(0x00005dfe, 3.8714378f0), IdWeight(0x00014824, 4.1736383f0), IdWeight(0x00010c26, 4.1928906f0), IdWeight(0x00007634, 4.4356766f0), IdWeight(0x000101ad, 4.5587573f0), IdWeight(0x000097b2, 4.616823f0), IdWeight(0x00000823, 4.649187f0), IdWeight(0x000073a1, 4.7033167f0), IdWeight(0x0000c687, 5.002816f0), IdWeight(0x0001452f, 5.1380653f0)]
-Float32=== 9 -- identifiers:[4.866582, 5.166498, 5.3683376, 5.801767, 5.9378157, 5.981952, 6.3435497, 6.4227424, 6.520656, 6.749601]
-IdWeight[IdWeight(0x000136ca, 3.826608f0), IdWeight(0x0000cbd8, 4.0310855f0), IdWeight(0x00000097, 4.4534807f0), IdWeight(0x0000fb78, 4.984945f0), IdWeight(0x00001144, 5.003295f0), IdWeight(0x00011f88, 5.204737f0), IdWeight(0x00000715, 5.342997f0), IdWeight(0x00008b3b, 5.3612533f0), IdWeight(0x0000dcd8, 5.398158f0), IdWeight(0x00011441, 5.6264014f0)]
-=== 30 -- identifiers:UInt32[0x0000dd13, 0x00005013, 0x00012f9a, 0x000101cc, 0x00016bda, 0x0000d9ab, 0x000085cf, 0x000174fe, 0x00015a61, 0x00015f3a]
-=== 15 -- distances:UInt32[0x00005dfe, 0x00014824, 0x00010c26, 0x00007634, 0x000101ad, 0x000097b2, 0x00000823, 0x000073a1, 0x0000c687, 0x0001452f]
-=== 9 -- distances:IdWeight[IdWeight(0x00017958, 3.694816f0), IdWeight(0x0000298e, 4.437228f0), IdWeight(0x00006383, 4.8647146f0), IdWeight(0x00001fb3, 5.173919f0), IdWeight(0x0001082b, 5.5999002f0), IdWeight(0x0000b91e, 5.6336226f0), IdWeight(0x00014b3a, 5.6359906f0), IdWeight(0x00000e6f, 6.0748305f0), IdWeight(0x00013784, 6.212242f0), IdWeight(0x0000de31, 6.2498913f0)]
-=== 7 -- identifiers:Float32[1.9811906, 2.7188296, 2.8710415, 3.2169006, 3.3474293, 3.4758518, 3.535749, 3.6799278, 3.680181, 3.7101126]
-UInt32[0x0000bdab, 0x00000630, 0x000165e0, 0x00000a0d, 0x00013a26, 0x00009c40, 0x00000840, 0x00017d58, 0x0000ba54, 0x000009ea]
-=== 1 -- distances:UInt32[0x000136ca, 0x0000cbd8, 0x00000097, 0x0000fb78, 0x00001144, 0x00011f88, 0x00000715, 0x00008b3b, 0x0000dcd8, 0x00011441]
-=== 30 -- distances:UInt32[0x00017958, 0x0000298e, 0x00006383, 0x00001fb3, 0x0001082b, 0x0000b91e, 0x00014b3a, 0x00000e6f, 0x00013784, 0x0000de31]
-=== 7 -- distances:Float32[5.939122, 6.1346354, 6.1812754, 6.23616, 6.284336, 6.6272836, 6.6400914, 6.8352456, 7.066995, 7.0923777]
-Float32[3.694816, 4.437228, 4.8647146, 5.173919, 5.5999002, 5.6336226, 5.6359906, 6.0748305, 6.212242, 6.2498913]
-UInt32[0x0000b2ca, 0x00007f5b, 0x000008b5, 0x0000f25c, 0x000165a0, 0x00002114, 0x000179ed, 0x0000b438, 0x000105d6, 0x00017aec]
-=== 3 -- distances:Float32[3.1978405, 4.7813525, 4.946647, 4.9642615, 5.127922, 5.484438, 5.5215507, 5.572069, 5.6021905, 5.624522]
-Float32[8.325138, 8.770528, 9.436805, 11.315607, 11.644699, 12.10246, 12.268001, 12.469366, 12.628713, 12.8754225]
-Float32[3.826608, 4.0310855, 4.4534807, 4.984945, 5.003295, 5.204737, 5.342997, 5.3612533, 5.398158, 5.6264014]
-IdWeight(0x0000a64d, 3.0492332f0)
-=== 17 -- result set:Float32[5.3042355, 6.928343, 7.091271, 7.166015, 7.180992, 7.4562817, 7.6668825, 7.6743126, 7.7288504, 7.8605657]
-Float32[5.2518964, 6.288773, 6.386692, 6.7786574, 6.819204, 7.134268, 7.211961, 7.213861, 7.3557243, 7.396805]
-Float32[8.162801, 8.172299, 8.466345, 8.790724, 8.812614, 8.944562, 9.057051, 9.155389, 9.412525, 9.4614725]
-UInt32[0x0000b841, 0x000170bd, 0x00002105, 0x00003050, 0x00007688, 0x0000fd5e, 0x00003572, 0x0000d552, 0x00001339, 0x00012423]
-=== 19 -- distances:Float32[3.8714378, 4.1736383, 4.1928906, 4.4356766, 4.5587573, 4.616823, 4.649187, 4.7033167, 5.002816, 5.1380653]
-Float32[8.626275, 10.916844, 11.194837, 11.668236, 12.329492, 12.629101, 12.665984, 12.900963, 12.96817, 13.102973]
-UInt32[0x00010ef6, 0x00013bc2, 0x00012285, 0x0000ade7, 0x0000b966, 0x0000c8c6, 0x00003575, 0x00017377, 0x0000812d, 0x0000aeaa]
-=== 5 -- distances:IdWeight[IdWeight(0x0000a64d, 3.0492332f0), IdWeight(0x00001e14, 4.57377f0), IdWeight(0x0000373d, 4.6223364f0), IdWeight(0x00009bab, 5.1395545f0), IdWeight(0x00017c0e, 5.399426f0), IdWeight(0x00002168, 5.7276f0), IdWeight(0x00006d71, 5.8193226f0), IdWeight(0x00007623, 6.3015385f0), IdWeight(0x0000df61, 6.599091f0), IdWeight(0x0000fb5c, 6.636065f0)]
-=== 17 -- identifiers:Float32[4.618901, 5.249596, 5.2502456, 5.4808574, 5.543613, 5.632665, 5.6673555, 5.7408757, 5.827993, 5.94431]
-UInt32[0x0000a64d, 0x00001e14, 0x0000373d, 0x00009bab, 0x00017c0e, 0x00002168, 0x00006d71, 0x00007623, 0x0000df61, 0x0000fb5c]
-=== 17 -- distances:Float32[3.0492332, 4.57377, 4.6223364, 5.1395545, 5.399426, 5.7276, 5.8193226, 6.3015385, 6.599091, 6.636065]</code></pre>
+<pre><code>=== 17 -- nearest neighbor:=== 9 -- nearest neighbor:=== 25 -- nearest neighbor:=== 13 -- nearest neighbor:=== 1 -- nearest neighbor:IdDist(=== 5 -- nearest neighbor:=== 28 -- nearest neighbor:=== 21 -- nearest neighbor:0x0000b4c0, 9.312348f0)
+=== 17 -- result set:IdDist(0x00016be5, 4.491197f0)
+=== 1 -- result set:IdDist(0x00017713, 3.4502177f0)
+IdDist=== 5 -- result set:(0x00005a61, 4.147565f0)
+=== 9 -- result set:IdDist(0x00011059, 6.4069996f0)
+=== 25 -- result set:IdDist(0x00014429, 4.7928247f0)
+=== 13 -- result set:IdDist(0x00007af0, 5.9085164f0)
+=== 28 -- result set:IdDist(0x00011dfb, 6.317665f0)
+=== 21 -- result set:IdDist[IdDist(0x0000b4c0, 9.312348f0), IdDist(0x00010cbf, 11.354725f0), IdDist(0x00011977, 11.372493f0), IdDist(0x00014fa2, 11.406246f0), IdDist(0x00007f80, 12.2514715f0), IdDist(0x00013774, 12.407486f0), IdDist(0x000099bc, 12.69104f0), IdDist(0x0000afc2, 13.63078f0), IdDist(0x000031b3, 14.040728f0), IdDist(0x00013771, 14.0650625f0)]
+=== 17 -- identifiers:IdDist[IdDist(0x00007af0, 5.9085164f0), IdDist(0x0001320f, 6.471859f0), IdDist(0x00000f2b, 6.587625f0), IdDist(0x00003a21, 6.6845117f0), IdDist(0x000095d3, 6.8834696f0), IdDist(0x0000679a, 6.9670954f0), IdDist(0x00000de5, 7.003459f0), IdDist(0x00009906, 7.158867f0), IdDist(0x000069b0, 7.5590134f0), IdDist(0x0001572d, 7.6643405f0)]
+=== 28 -- identifiers:IdDist[IdDist(0x00017713, 3.4502177f0), IdDist(0x00015d52, 4.672448f0), IdDist(0x00009262, 5.0319376f0), IdDist(0x000138ec, 5.7290087f0), IdDist(0x0000e177, 5.9026365f0), IdDist(0x00001385, 6.7239475f0), IdDist(0x000168e1, 6.942773f0), IdDist(0x00000561, 7.4773064f0), IdDist(0x00012d7a, 7.510306f0), IdDist(0x00005ea4, 7.7854724f0)]
+=== 5 -- identifiers:IdDist[IdDist(0x00014429, 4.7928247f0), IdDist(0x0000bf4a, 5.3157043f0), IdDist(0x000158ee, 5.9425364f0), IdDist(0x0001348e, 5.9811544f0), IdDist(0x0000f8cd, 6.152834f0), IdDist(0x00014f8d, 6.527856f0), IdDist(0x00014908, 6.914243f0), IdDist(0x0000776c, 7.0013256f0), IdDist(0x00007758, 7.0401974f0), IdDist(0x00011476, 7.1473856f0)]
+=== 13 -- identifiers:IdDist[IdDist(0x00005a61, 4.147565f0), IdDist(0x000050f6, 4.8433843f0), IdDist(0x000128e1, 4.935316f0), IdDist(0x0000a5e1, 4.9421062f0), IdDist(0x00008b68, 5.0177455f0), IdDist(0x00015411, 5.205652f0), IdDist(0x0000f035, 5.3903894f0), IdDist(0x0000f203, 5.396057f0), IdDist(0x00005414, 5.662838f0), IdDist(0x0000bb16, 5.882571f0)]
+=== 9 -- identifiers:IdDist[IdDist(0x00011059, 6.4069996f0), IdDist(0x000004f0, 6.5061073f0), IdDist(0x00000a2a, 6.628213f0), IdDist(0x00000675, 6.6819873f0), IdDist(0x00002136, 6.9350147f0), IdDist(0x000091af, 6.947022f0), IdDist(0x000176a4, 7.517867f0), IdDist(0x00003f9b, 7.798259f0), IdDist(0x0000e76b, 7.9786863f0), IdDist(0x0000427b, 7.982317f0)]
+=== 25 -- identifiers:IdDist[IdDist(0x00011dfb, 6.317665f0), IdDist(0x00018119, 7.136003f0), IdDist(0x0000703c, 7.7857876f0), IdDist(0x0000d4a5, 8.579927f0), IdDist(0x0000ce7c, 8.844639f0), IdDist(0x0000f36d, 8.880948f0), IdDist(0x000047dc, 9.231961f0), IdDist(0x000073dd, 9.583295f0), IdDist(0x00000f92, 9.604466f0), IdDist(0x00001722, 9.885213f0)]
+=== 21 -- identifiers:IdDist[IdDist(0x00016be5, 4.491197f0), IdDist(0x0000e843, 5.133954f0), IdDist(0x0000eb64, 5.6407065f0), IdDist(0x0001407c, 5.652916f0), IdDist(0x0000fcc4, 5.7858872f0), IdDist(0x00001387, 6.3219047f0), IdDist(0x0000d6cd, 6.4986434f0), IdDist(0x00007925, 6.5595264f0), IdDist(0x0000349f, 6.5884247f0), IdDist(0x000125ea, 6.615559f0)]
+=== 1 -- identifiers:Any[0x0000b4c0, 0x00010cbf, 0x00011977, 0x00014fa2, 0x00007f80, 0x00013774, 0x000099bc, 0x0000afc2, 0x000031b3, 0x00013771]
+=== 17 -- distances:Any[0x00005a61, 0x000050f6, 0x000128e1, 0x0000a5e1, 0x00008b68, 0x00015411, 0x0000f035, 0x0000f203, 0x00005414, 0x0000bb16]
+Any=== 9 -- distances:[0x00011059, 0x000004f0, 0x00000a2a, 0x00000675, 0x00002136, 0x000091af, 0x000176a4, 0x00003f9b, 0x0000e76b, 0x0000427b]
+Any=== 25 -- distances:[0x00014429, 0x0000bf4a, 0x000158ee, 0x0001348e, 0x0000f8cd, 0x00014f8d, 0x00014908, 0x0000776c, 0x00007758, 0x00011476]
+Any=== 13 -- distances:[6.4069996f0, 6.5061073f0, 6.628213f0, 6.6819873f0, 6.9350147f0, 6.947022f0, 7.517867f0, 7.798259f0, 7.9786863f0, 7.982317f0]
+Any[0x00007af0, 0x=== 26 -- nearest neighbor:0001320f, 0x00000f2b, 0x00003a21, 0x000095d3, 0x0000679a, 0x00000de5, 0x00009906, 0x000069b0, 0x0001572d]
+=== 28 -- distances:Any[4.147565f0, 4.8433843f0, 4.935316f0, 4.9421062f0, 5.0177455f0, 5.205652f0, 5.3903894f0, 5.396057f0, 5.662838f0, 5.882571f0]
+Any[0x00011dfb,=== 10 -- nearest neighbor: 0x00018119, 0x0000703c, 0x0000d4a5, 0x0000ce7c, 0x0000f36d, 0x000047dc, 0x000073dd, 0x00000f92, 0x00001722]
+=== 21 -- distances:Any[0x00017713, 0x00015d52, 0x00009262, 0x000138ec, 0x0000e177, 0x00001385, 0x000168e1, 0x00000561, 0x00012d7a, 0x00005ea4]
+=== 5 -- distances:IdDist(0x00003b81, 3.7801142f0)
+=== 26 -- result set:Any[9.312348f0, 11.354725f0, 11.372493f0, 11.406246f0, 12.2514715f0, 12.407486f0, 12.69104f0, 13.63078f0, 14.040728f0, 14.0650625f0]
+Any[0x=== 18 -- nearest neighbor:00016be5, 0x0000e843, 0x0000eb64, 0x0001407c, 0x0000fcc4, 0x00001387, 0x0000d6cd, 0x00007925, 0x0000349f, 0x000125ea]
+=== 1 -- distances:Any[6.317665f0, 7.136003f0, 7.7857876f0, 8.579927f0, 8.844639f0, 8.880948f0, 9.231961f0, 9.583295f0, 9.604466f0, 9.885213f0]
+Any[4.7928247f0,=== 22 -- nearest neighbor: 5.3157043f0, 5.9425364f0, 5.9811544f0, 6.152834f0, 6.527856f0, 6.914243f0, 7.0013256f0, 7.0401974f0, 7.1473856f0]
+IdDist[IdDist=== 14 -- nearest neighbor:(0x00003b81, 3.7801142f0), IdDist(0x00014aec, 3.7908938f0), IdDist(0x00016271, 4.1164546f0), IdDist(0x0000febe, 4.233123f0), IdDist(0x0000da32, 4.2732515f0), IdDist(0x0000ed4f, 4.3305135f0), IdDist(0x0000f679, 4.334014f0), IdDist(0x0000e6dd, 4.4696093f0), IdDist(0x00008a90, 4.6744943f0), IdDist(0x0000fb6b, 4.6971836f0)]
+=== 26 -- identifiers:Any[3.4502177f0, 4.672448f0, 5.0319376f0, 5.7290087f0, 5.9026365f0, 6.7239475f0, 6.942773f0, 7.4773064f0, 7.510306f0, 7.7854724f0]
+IdDist(=== 6 -- nearest neighbor:0x00011580, 4.7286325f0)
+=== 22 -- result set:IdDist(0x000123d2, 7.53307f0)
+=== 14 -- result set:Any[4.491197f0, 5.133954f0, 5.6407065f0, 5.652916f0, 5.7858872f0, 6.3219047f0, 6.4986434f0, 6.5595264f0, 6.5884247f0, 6.615559f0]
+IdDist(0x=== 2 -- nearest neighbor:00010e61, 3.3011055f0)
+=== 6 -- result set:IdDist(0x00010199, 5.0437613f0)
+IdDist=== 10 -- result set:(0x00006267, 6.7353907f0)
+Any=== 18 -- result set:[0x00003b81, 0x00014aec, 0x00016271, 0x0000febe, 0x0000da32, 0x0000ed4f, 0x0000f679, 0x0000e6dd, 0x00008a90, 0x0000fb6b]
+=== 26 -- distances:IdDist[IdDist(0x00010199, 5.0437613f0), IdDist(0x00010223, 5.0989017f0), IdDist(0x0000c239, 5.320483f0), IdDist(0x0000b71e, 5.5840864f0), IdDist(0x0000d031, 5.9819975f0), IdDist(0x000004e4, 6.043315f0), IdDist(0x00007e2f, 6.0526457f0), IdDist(0x0000e324, 6.3085947f0), IdDist(0x00009b2f, 6.336043f0), IdDist(0x000033f1, 6.4139996f0)]
+=== 10 -- identifiers:Any[5.9085164f0, 6.471859f0, 6.587625f0, 6.6845117f0, 6.8834696f0, 6.9670954f0, 7.003459f0, 7.158867f0, 7.5590134f0, 7.6643405f0]
+IdDist[IdDist(=== 29 -- nearest neighbor:0x00006267, 6.7353907f0), IdDist(0x00016a5b, 7.68474f0), IdDist(0x000181e5, 7.8012486f0), IdDist(0x0000e93b, 8.320339f0), IdDist(0x00006eae, 8.442297f0), IdDist(0x0000ace5, 8.489298f0), IdDist(0x000161f2, 8.646951f0), IdDist(0x00007edc, 8.740034f0), IdDist(0x0000de34, 9.067251f0), IdDist(0x00004619, 9.118347f0)]
+IdDist=== 18 -- identifiers:[IdDist(0x000123d2, 7.53307f0), IdDist(0x0000afdc, 7.5843573f0), IdDist(0x000112f8, 8.33586f0), IdDist(0x00008486, 8.912033f0), IdDist(0x0000629d, 9.106766f0), IdDist(0x0000c9fd, 9.150422f0), IdDist(0x00009777, 9.2738695f0), IdDist(0x000075d3, 9.29971f0), IdDist(0x00013df6, 9.43061f0), IdDist(0x00011939, 9.626683f0)]
+=== 14 -- identifiers:Any[3.7801142f0, 3.7908938f0, 4.1164546f0, 4.233123f0, 4.2732515f0, 4.3305135f0, 4.334014f0, 4.4696093f0, 4.6744943f0, 4.6971836f0]
+Any[0x00010199=== 27 -- nearest neighbor:, 0x00010223, 0x0000c239, 0x0000b71e, 0x0000d031, 0x000004e4, 0x00007e2f, 0x0000e324, 0x00009b2f, 0x000033f1]
+IdDist=== 10 -- distances:(0x0000bb20, 6.1351023f0)
+=== 2 -- result set:IdDist(0x000081ac, 3.4341817f0)
+=== 29 -- result set:Any[0x00006267, 0x00016a5b, 0x000181e5, 0x0000e93b, 0x00006eae, 0x0000ace5, 0x000161f2, 0x00007edc, 0x0000de34, 0x00004619]
+=== 18 -- distances:IdDist[IdDist(0x00010e61, 3.3011055f0), IdDist(0x00013faa, 4.5069313f0), IdDist(0x0000fa47, 4.7490997f0), IdDist(0x00010560, 5.44589f0), IdDist(0x00005276, 5.483196f0), IdDist(0x00013955, 5.53378f0), IdDist(0x00002a14, 5.753072f0), IdDist(0x00012b84, 6.136776f0), IdDist(0x0000a76b, 6.1538167f0), IdDist(0x0000aa7e, 6.153967f0)]
+Any=== 6 -- identifiers:[5.0437613f0, 5.0989017f0, 5.320483f0, 5.5840864f0, 5.9819975f0, 6.043315f0, 6.0526457f0, 6.3085947f0, 6.336043f0, 6.4139996f0]
+IdDist[IdDist(=== 11 -- nearest neighbor:0x000081ac, 3.4341817f0), IdDist(0x00013c0b, 4.3089676f0), IdDist(0x0000bc92, 5.0761604f0), IdDist(0x0000cd41, 5.177414f0), IdDist(0x00007be7, 5.218285f0), IdDist(0x00012dee, 5.4331822f0), IdDist(0x0000da32, 5.591558f0), IdDist(0x000009bb, 5.7301035f0), IdDist(0x00010723, 5.8040447f0), IdDist(0x00004bb5, 6.0316653f0)]
+=== 29 -- identifiers:IdDist[IdDist(0x00011580, 4.7286325f0), IdDist(0x00001142, 6.87679f0), IdDist(0x0000fc79, 7.1894875f0), IdDist(0x00007f2e, 7.4550657f0), IdDist(0x00012efb, 7.831294f0), IdDist(0x000026de, 7.836902f0), IdDist(0x00000a42, 7.9799967f0), IdDist(0x00009e77, 8.188637f0), IdDist(0x0000a462, 8.52163f0), IdDist(0x00005b29, 8.560376f0)]
+=== 22 -- identifiers:IdDist[IdDist(0x0000bb20, 6.1351023f0), IdDist(0x00015c57, 6.508809f0), IdDist(0x0000972a, 6.634699f0), IdDist(0x000137c4, 6.684341f0), IdDist(0x000035d9, 6.9044113f0), IdDist(0x00004c2a, 7.028182f0), IdDist(0x0000c75b, 7.0938616f0), IdDist(0x000051b5, 7.1530366f0), IdDist(0x00010401, 7.35036f0), IdDist(0x000164ad, 7.480469f0)]
+IdDist=== 2 -- identifiers:(0x000055db, 5.516987f0)
+Any=== 11 -- result set:[0x00010e61, 0x00013faa, 0x0000fa47, 0x00010560, 0x00005276, 0x00013955, 0x00002a14, 0x00012b84, 0x0000a76b, 0x0000aa7e]
+=== 6 -- distances:Any[6.7353907f0, 7.68474f0, 7.8012486f0, 8.320339f0, 8.442297f0, 8.489298f0, 8.646951f0, 8.740034f0, 9.067251f0, 9.118347f0]
+Any[0x000081ac=== 19 -- nearest neighbor:, 0x00013c0b, 0x0000bc92, 0x0000cd41, 0x00007be7, 0x00012dee, 0x0000da32, 0x000009bb, 0x00010723, 0x00004bb5]
+=== 29 -- distances:Any[0x00011580, 0x00001142, 0x0000fc79, 0x00007f2e, 0x00012efb, 0x000026de, 0x00000a42, 0x00009e77, 0x0000a462, 0x00005b29]
+=== 22 -- distances:Any[0x000123d2, 0x0000afdc, 0x000112f8, 0x00008486, 0x0000629d, 0x0000c9fd, 0x00009777, 0x000075d3, 0x00013df6, 0x00011939]
+=== 14 -- distances:Any[3.3011055f0, 4.5069313f0, 4.7490997f0, 5.44589f0, 5.483196f0, 5.53378f0, 5.753072f0, 6.136776f0, 6.1538167f0, 6.153967f0]
+Any[4.7286325f0=== 7 -- nearest neighbor:, 6.87679f0, 7.1894875f0, 7.4550657f0, 7.831294f0, 7.836902f0, 7.9799967f0, 8.188637f0, 8.52163f0, 8.560376f0]
+IdDist=== 23 -- nearest neighbor:[IdDist(0x000055db, 5.516987f0), IdDist(0x00007b39, 5.649432f0), IdDist(0x000054ba, 6.4328704f0), IdDist(0x00000e12, 7.0688734f0), IdDist(0x0000754e, 7.1851673f0), IdDist(0x0000268e, 7.2448764f0), IdDist(0x0000e5b5, 7.285473f0), IdDist(0x000050a2, 7.429569f0), IdDist(0x00010d9d, 7.458493f0), IdDist(0x0000be2c, 7.821396f0)]
+IdDist=== 11 -- identifiers:(0x000078de, 4.6397734f0)
+Any=== 7 -- result set:[7.53307f0, 7.5843573f0, 8.33586f0, 8.912033f0, 9.106766f0, 9.150422f0, 9.2738695f0, 9.29971f0, 9.43061f0, 9.626683f0]
+IdDist(0x0000a861, === 15 -- nearest neighbor:2.999268f0)
+=== 19 -- result set:IdDist[IdDist(0x000078de, 4.6397734f0), IdDist(0x00007dda, 5.2465553f0), IdDist(0x000034be, 5.2891407f0), IdDist(0x00008be0, 5.7459536f0), IdDist(0x0000edc3, 5.776966f0), IdDist(0x000065b1, 5.794364f0), IdDist(0x0000e20c, 5.9227095f0), IdDist(0x0000c543, 6.271632f0), IdDist(0x0000b963, 6.308795f0), IdDist(0x00007930, 6.3280716f0)]
+IdDist=== 7 -- identifiers:(0x00007950, 2.9931521f0)
+=== 15 -- result set:IdDist[IdDist(0x0000a861, 2.999268f0), IdDist(0x0001110e, 4.5313063f0), IdDist(0x0001787f, 5.1025577f0), IdDist(0x00017ec9, 5.105109f0), IdDist(0x0000801b, 5.2557535f0), IdDist(0x00002045, 6.07496f0), IdDist(0x0000c6f6, 6.356038f0), IdDist(0x0000d30e, 6.4030476f0), IdDist(0x000170f1, 6.449109f0), IdDist(0x00000e64, 6.4690514f0)]
+=== 19 -- identifiers:Any[3.4341817f0, 4.3089676f0, 5.0761604f0, 5.177414f0, 5.218285f0, 5.4331822f0, 5.591558f0, 5.7301035f0, 5.8040447f0, 6.0316653f0]
+IdDist(0x=== 30 -- nearest neighbor:00004083, 4.813116f0)
+Any=== 27 -- result set:[0x0000bb20, 0x00015c57, 0x0000972a, 0x000137c4, 0x000035d9, 0x00004c2a, 0x0000c75b, 0x000051b5, 0x00010401, 0x000164ad]
+=== 2 -- distances:Any[0x000078de, 0x00007dda, 0x000034be, 0x00008be0, 0x0000edc3, 0x000065b1, 0x0000e20c, 0x0000c543, 0x0000b963, 0x00007930]
+=== 7 -- distances:IdDist(0x000158a7, 5.5358496f0)
+=== 23 -- result set:IdDist[IdDist(0x00007950, 2.9931521f0), IdDist(0x00000145, 3.232054f0), IdDist(0x00001a74, 4.073816f0), IdDist(0x0000a821, 4.129713f0), IdDist(0x00000a4e, 4.1620326f0), IdDist(0x000095ec, 4.2596493f0), IdDist(0x0001544f, 4.344497f0), IdDist(0x00009bb3, 4.358096f0), IdDist(0x00015fa7, 4.4028482f0), IdDist(0x00002020, 4.525528f0)]
+Any=== 15 -- identifiers:[0x000055db, 0x00007b39, 0x000054ba, 0x00000e12, 0x0000754e, 0x0000268e, 0x0000e5b5, 0x000050a2, 0x00010d9d, 0x0000be2c]
+Any=== 11 -- distances:[4.6397734f0, 5.2465553f0, 5.2891407f0, 5.7459536f0, 5.776966f0, 5.794364f0, 5.9227095f0, 6.271632f0, 6.308795f0, 6.3280716f0]
+Any=== 8 -- nearest neighbor:[6.1351023f0, 6.508809f0, 6.634699f0, 6.684341f0, 6.9044113f0, 7.028182f0, 7.0938616f0, 7.1530366f0, 7.35036f0, 7.480469f0]
+IdDist(0x0000839f, === 3 -- nearest neighbor:6.011754f0)
+=== 30 -- result set:IdDist[IdDist(0x00004083, 4.813116f0), IdDist(0x00010683, 6.118844f0), IdDist(0x000098d9, 6.198883f0), IdDist(0x00008c5a, 6.9908543f0), IdDist(0x00004b5c, 7.178061f0), IdDist(0x0000b398, 7.284836f0), IdDist(0x00001754, 7.6863585f0), IdDist(0x0000b2c3, 7.7351413f0), IdDist(0x0000fdca, 7.76408f0), IdDist(0x00001f22, 8.46016f0)]
+=== 27 -- identifiers:Any[0x0000a861, 0x0001110e, 0x0001787f, 0x00017ec9, 0x0000801b, 0x00002045, 0x0000c6f6, 0x0000d30e, 0x000170f1, 0x00000e64]
+Any=== 19 -- distances:[0x00007950, 0x00000145, 0x00001a74, 0x0000a821, 0x00000a4e, 0x000095ec, 0x0001544f, 0x00009bb3, 0x00015fa7, 0x00002020]
+=== 15 -- distances:IdDist[IdDist(0x000158a7, 5.5358496f0), IdDist(0x0000a10e, 5.768696f0), IdDist(0x000100c3, 6.915768f0), IdDist(0x0000def0, 7.0302324f0), IdDist(0x0000e913, 8.006296f0), IdDist(0x00002470, 8.1223135f0), IdDist(0x00007bf1, 8.213261f0), IdDist(0x0001698f, 8.278067f0), IdDist(0x00017c1f, 8.334563f0), IdDist(0x00009d9f, 8.3653555f0)]
+Any=== 23 -- identifiers:[5.516987f0, 5.649432f0, 6.4328704f0, 7.0688734f0, 7.1851673f0, 7.2448764f0, 7.285473f0, 7.429569f0, 7.458493f0, 7.821396f0]
+Any[2.999268f0,=== 12 -- nearest neighbor: 4.5313063f0, 5.1025577f0, 5.105109f0, 5.2557535f0, 6.07496f0, 6.356038f0, 6.4030476f0, 6.449109f0, 6.4690514f0]
+IdDist[IdDist(=== 20 -- nearest neighbor:0x0000839f, 6.011754f0), IdDist(0x00012333, 6.0515466f0), IdDist(0x0000844c, 6.600541f0), IdDist(0x00012c01, 7.2177362f0), IdDist(0x0000a4ed, 7.317481f0), IdDist(0x00015062, 7.3667f0), IdDist(0x00009271, 7.614403f0), IdDist(0x00000f31, 7.7302437f0), IdDist(0x00008234, 7.870245f0), IdDist(0x00007c6e, 8.022522f0)]
+=== 30 -- identifiers:IdDist(0x00013e89, 2.6188927f0)
+=== 8 -- result set:IdDist(0x0000854f, 3.4438066f0)
+=== 20 -- result set:Any[2.9931521f0, 3.232054f0, 4.073816f0, 4.129713f0, 4.1620326f0, 4.2596493f0, 4.344497f0, 4.358096f0, 4.4028482f0, 4.525528f0]
+Any[0x000158a7=== 16 -- nearest neighbor:, 0x0000a10e, 0x000100c3, 0x0000def0, 0x0000e913, 0x00002470, 0x00007bf1, 0x0001698f, 0x00017c1f, 0x00009d9f]
+Any=== 23 -- distances:[0x00004083, 0x00010683, 0x000098d9, 0x00008c5a, 0x00004b5c, 0x0000b398, 0x00001754, 0x0000b2c3, 0x0000fdca, 0x00001f22]
+IdDist=== 27 -- distances:(0x00000c6b, 4.7464256f0)
+=== 16 -- result set:IdDist[IdDist(0x00013e89, 2.6188927f0), IdDist(0x0000129c, 4.8583136f0), IdDist(0x00002aa5, 4.953515f0), IdDist(0x000181e7, 5.3334284f0), IdDist(0x00012a15, 5.6287856f0), IdDist(0x0000cc4d, 5.9119015f0), IdDist(0x00005788, 6.1829586f0), IdDist(0x00010dca, 6.2066894f0), IdDist(0x00011b21, 6.240591f0), IdDist(0x00007c40, 6.2492857f0)]
+=== 8 -- identifiers:IdDist(0x00010ca9, 3.1264122f0)
+Any=== 3 -- result set:[5.5358496f0, 5.768696f0, 6.915768f0, 7.0302324f0, 8.006296f0, 8.1223135f0, 8.213261f0, 8.278067f0, 8.334563f0, 8.3653555f0]
+Any[0x0000839f=== 24 -- nearest neighbor:, 0x00012333, 0x0000844c, 0x00012c01, 0x0000a4ed, 0x00015062, 0x00009271, 0x00000f31, 0x00008234, 0x00007c6e]
+=== 30 -- distances:IdDist[IdDist(0x00000c6b, 4.7464256f0), IdDist(0x0000b9ca, 6.36644f0), IdDist(0x000037f2, 6.6163135f0), IdDist(0x00007abd, 6.721054f0), IdDist(0x0000faa3, 6.7893763f0), IdDist(0x000027e9, 6.968994f0), IdDist(0x0001036b, 7.1093082f0), IdDist(0x0000d8f6, 7.3071675f0), IdDist(0x000009d6, 7.470578f0), IdDist(0x00003dbd, 7.5437517f0)]
+=== 16 -- identifiers:IdDist[IdDist(0x00010ca9, 3.1264122f0), IdDist(0x00005788, 3.2195306f0), IdDist(0x000042a7, 3.2765884f0), IdDist(0x00001d6d, 4.286276f0), IdDist(0x00010dca, 4.4369936f0), IdDist(0x00004113, 4.7279954f0), IdDist(0x00017394, 4.7429733f0), IdDist(0x0000825f, 4.940167f0), IdDist(0x0000775d, 4.9691772f0), IdDist(0x00013b20, 5.1247077f0)]
+Any=== 3 -- identifiers:[0x00013e89, 0x0000129c, 0x00002aa5, 0x000181e7, 0x00012a15, 0x0000cc4d, 0x00005788, 0x00010dca, 0x00011b21, 0x00007c40]
+IdDist=== 8 -- distances:(0x0000d20d, 4.8088055f0)
+=== 24 -- result set:Any[4.813116f0, 6.118844f0, 6.198883f0, 6.9908543f0, 7.178061f0, 7.284836f0, 7.6863585f0, 7.7351413f0, 7.76408f0, 8.46016f0]
+Any[6.011754f0, 6.0515466f0, 6.600541f0, 7.2177362f0, 7.317481f0, 7.3667f0, 7.614403f0, 7.7302437f0, 7.870245f0, 8.022522f0]
+IdDist[IdDist(0x0000854f, 3.4438066f0), IdDist(0x00006c36, 4.3278155f0), IdDist(0x0000d10f, 4.453581f0), IdDist(0x00007912, 4.506344f0), IdDist(0x0000c40a, 4.555215f0), IdDist(0x00010678, 4.5995693f0), IdDist(0x0000f8a4, 4.73787f0), IdDist(0x00003de4, 4.759076f0), IdDist(0x0000f408, 4.8311667f0), IdDist(0x000130a2, 4.92357f0)]
+=== 20 -- identifiers:Any[2.6188927f0, 4.8583136f0, 4.953515f0, 5.3334284f0, 5.6287856f0, 5.9119015f0, 6.1829586f0, 6.2066894f0, 6.240591f0, 6.2492857f0]
+Any[0x00010ca9, 0x00005788, 0x000042a7, 0x00001d6d, 0x00010dca, 0x00004113, 0x00017394, 0x0000825f, 0x0000775d, 0x00013b20]
+IdDist=== 3 -- distances:[IdDist(0x0000d20d, 4.8088055f0), IdDist(0x0000cd75, 5.2064476f0), IdDist(0x00006fba, 5.2081957f0), IdDist(0x000122fb, 5.2627506f0), IdDist(0x000125e2, 5.264118f0), IdDist(0x00006621, 5.3607607f0), IdDist(0x00006bbd, 5.495757f0), IdDist(0x0000335c, 5.6693916f0), IdDist(0x00002bd7, 5.725196f0), IdDist(0x00015139, 5.741132f0)]
+=== 24 -- identifiers:IdDist(0x00009673, 4.340767f0)
+=== 12 -- result set:Any[3.1264122f0, 3.2195306f0, 3.2765884f0, 4.286276f0, 4.4369936f0, 4.7279954f0, 4.7429733f0, 4.940167f0, 4.9691772f0, 5.1247077f0]
+Any[0x0000d20d,=== 4 -- nearest neighbor: 0x0000cd75, 0x00006fba, 0x000122fb, 0x000125e2, 0x00006621, 0x00006bbd, 0x0000335c, 0x00002bd7, 0x00015139]
+=== 24 -- distances:IdDist[IdDist(0x00009673, 4.340767f0), IdDist(0x00001f9f, 4.9315877f0), IdDist(0x000018dd, 5.06955f0), IdDist(0x000056f7, 5.110918f0), IdDist(0x000182df, 5.111009f0), IdDist(0x0000031c, 5.1866307f0), IdDist(0x00015236, 5.656749f0), IdDist(0x00007d61, 5.689913f0), IdDist(0x0000ca0a, 5.8000703f0), IdDist(0x000023ef, 5.8285694f0)]
+=== 12 -- identifiers:IdDist(0x0001866f, 5.2776146f0)
+=== 4 -- result set:Any[0x00000c6b, 0x0000b9ca, 0x000037f2, 0x00007abd, 0x0000faa3, 0x000027e9, 0x0001036b, 0x0000d8f6, 0x000009d6, 0x00003dbd]
+=== 16 -- distances:Any[0x0000854f, 0x00006c36, 0x0000d10f, 0x00007912, 0x0000c40a, 0x00010678, 0x0000f8a4, 0x00003de4, 0x0000f408, 0x000130a2]
+=== 20 -- distances:IdDist[IdDist(0x0001866f, 5.2776146f0), IdDist(0x0000153c, 6.021542f0), IdDist(0x000026b0, 6.254937f0), IdDist(0x000150af, 6.352112f0), IdDist(0x000112bb, 6.482046f0), IdDist(0x0000adeb, 6.5237665f0), IdDist(0x0000ef90, 6.97108f0), IdDist(0x0000eae3, 7.097598f0), IdDist(0x0000f161, 7.2179985f0), IdDist(0x00001e5d, 7.4121656f0)]
+=== 4 -- identifiers:Any[4.7464256f0, 6.36644f0, 6.6163135f0, 6.721054f0, 6.7893763f0, 6.968994f0, 7.1093082f0, 7.3071675f0, 7.470578f0, 7.5437517f0]
+Any[4.8088055f0, 5.2064476f0, 5.2081957f0, 5.2627506f0, 5.264118f0, 5.3607607f0, 5.495757f0, 5.6693916f0, 5.725196f0, 5.741132f0]
+Any[3.4438066f0, 4.3278155f0, 4.453581f0, 4.506344f0, 4.555215f0, 4.5995693f0, 4.73787f0, 4.759076f0, 4.8311667f0, 4.92357f0]
+Any[0x00009673, 0x00001f9f, 0x000018dd, 0x000056f7, 0x000182df, 0x0000031c, 0x00015236, 0x00007d61, 0x0000ca0a, 0x000023ef]
+=== 12 -- distances:Any[0x0001866f, 0x0000153c, 0x000026b0, 0x000150af, 0x000112bb, 0x0000adeb, 0x0000ef90, 0x0000eae3, 0x0000f161, 0x00001e5d]
+=== 4 -- distances:Any[4.340767f0, 4.9315877f0, 5.06955f0, 5.110918f0, 5.111009f0, 5.1866307f0, 5.656749f0, 5.689913f0, 5.8000703f0, 5.8285694f0]
+Any[5.2776146f0, 6.021542f0, 6.254937f0, 6.352112f0, 6.482046f0, 6.5237665f0, 6.97108f0, 7.097598f0, 7.2179985f0, 7.4121656f0]</code></pre>
 </div>
 </div>
 </section>
@@ -406,41 +411,44 @@ UInt32[0x0000a64d, 0x00001e14, 0x0000373d, 0x00009bab, 0x00017c0e, 0x00002168, 0
 <h2 class="anchored" data-anchor-id="environment-and-dependencies">Environment and dependencies</h2>
 <div id="8" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
-<pre><code>Julia Version 1.10.10
-Commit 95f30e51f41 (2025-06-27 09:51 UTC)
+<div class="ansi-escaped-output">
+<pre>Julia Version 1.10.11
+Commit a2b11907d7b (2026-03-09 14:59 UTC)
 Build Info:
   Official https://julialang.org/ release
 Platform Info:
-  OS: Linux (x86_64-linux-gnu)
-  CPU: 64 × Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz
+  OS: macOS (x86_64-apple-darwin24.0.0)
+  CPU: 8 × Intel(R) Core(TM) i5-8257U CPU @ 1.40GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
-  LLVM: libLLVM-15.0.7 (ORCJIT, cascadelake)
-Threads: 64 default, 0 interactive, 32 GC (on 64 virtual cores)
+  LLVM: libLLVM-15.0.7 (ORCJIT, skylake)
+Threads: 8 default, 0 interactive, 4 GC (on 8 virtual cores)
 Environment:
   JULIA_NUM_THREADS = auto
-  JULIA_PROJECT = .
+  JULIA_PROJECT = @.
   JULIA_LOAD_PATH = @:@stdlib
-Status `~/Research/SimilaritySearchDemos/Project.toml`
-  [aaaa29a8] Clustering v0.15.8
-  [944b1d66] CodecZlib v0.7.8
-  [a93c6f00] DataFrames v1.8.0
-  [c5bfea45] Embeddings v0.4.6
-  [f67ccb44] HDF5 v0.17.2
-  [b20bd276] InvertedFiles v0.8.1
-  [682c06a0] JSON v0.21.4
-  [23fbe1c1] Latexify v0.16.10
-  [eb30cadb] MLDatasets v0.7.18
-  [06eb3307] ManifoldLearning v0.9.0
-⌃ [ca7969ec] PlotlyLight v0.11.0
-  [91a5bcdd] Plots v1.40.20
-  [27ebfcd6] Primes v0.5.7
-  [ca7ab67e] SimSearchManifoldLearning v0.3.1
-  [053f045d] SimilaritySearch v0.13.0
-⌅ [2913bbd2] StatsBase v0.33.21
-  [f3b207a7] StatsPlots v0.15.7
-  [7f6f6c8a] TextSearch v0.19.6
-Info Packages marked with ⌃ and ⌅ have new versions available. Those with ⌃ may be upgradable, but those with ⌅ are restricted by compatibility constraints from upgrading. To see why use `status --outdated`</code></pre>
+<span class="ansi-green-fg ansi-bold">Status</span> `~/Research/SimilaritySearchDemos/Project.toml`
+  <span class="ansi-bright-black-fg">[aaaa29a8] </span>Clustering v0.15.8
+  <span class="ansi-bright-black-fg">[944b1d66] </span>CodecZlib v0.7.8
+  <span class="ansi-bright-black-fg">[a93c6f00] </span>DataFrames v1.8.1
+  <span class="ansi-bright-black-fg">[c5bfea45] </span>Embeddings v0.4.6
+  <span class="ansi-bright-black-fg">[f67ccb44] </span>HDF5 v0.17.2
+  <span class="ansi-bright-black-fg">[b20bd276] </span>InvertedFiles v0.9.2
+<span class="ansi-yellow-fg">⌅</span> <span class="ansi-bright-black-fg">[682c06a0] </span>JSON v0.21.4
+  <span class="ansi-bright-black-fg">[23fbe1c1] </span>Latexify v0.16.10
+  <span class="ansi-bright-black-fg">[eb30cadb] </span>MLDatasets v0.7.21
+  <span class="ansi-bright-black-fg">[06eb3307] </span>ManifoldLearning v0.9.0
+<span class="ansi-green-fg">⌃</span> <span class="ansi-bright-black-fg">[ca7969ec] </span>PlotlyLight v0.11.0
+  <span class="ansi-bright-black-fg">[91a5bcdd] </span>Plots v1.41.6
+  <span class="ansi-bright-black-fg">[27ebfcd6] </span>Primes v0.5.7
+  <span class="ansi-bright-black-fg">[ca7ab67e] </span>SimSearchManifoldLearning v0.4.0
+  <span class="ansi-bright-black-fg">[053f045d] </span>SimilaritySearch v0.14.2
+<span class="ansi-yellow-fg">⌅</span> <span class="ansi-bright-black-fg">[2913bbd2] </span>StatsBase v0.33.21
+  <span class="ansi-bright-black-fg">[f3b207a7] </span>StatsPlots v0.15.8
+  <span class="ansi-bright-black-fg">[7f6f6c8a] </span>TextSearch v0.20.0
+<span class="ansi-cyan-fg ansi-bold">Info</span> Packages marked with <span class="ansi-green-fg">⌃</span> and <span class="ansi-yellow-fg">⌅</span> have new versions available. Those with <span class="ansi-green-fg">⌃</span> may be upgradable, but those with <span class="ansi-yellow-fg">⌅</span> are restricted by compatibility constraints from upgrading. To see why use `status --outdated`
+</pre>
+</div>
 </div>
 </div>
 
@@ -449,236 +457,243 @@ Info Packages marked with ⌃ and ⌅ have new versions available. Those with �
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -686,185 +701,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 
 

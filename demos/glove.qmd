@@ -28,12 +28,12 @@ emb, vocab = let emb = load_embeddings(GloVe{:en}, 2)  # you can change with any
     Float16.(emb.embeddings), emb.vocab # <2>
 end
 
-dist = NormalizedCosine_asf32() # <3>
+dist = Dist.CastF32.NormCosine() # <3>
 vocab2id = Dict(w => i for (i, w) in enumerate(vocab)) # <4>
 ```
 1. Normalizes all vectors to have a unitary norm; this allow us to use the dot product as similarity (see point 3)
 2. The speed can be improved through memory's bandwidth using less memory per vector; using `Float16` as memory representation is a good idea even if your computer doesn't support 16-bit floating point arithmetic natively.
-3. Since we have unitary norm vectors we can simplify the cosine distance (i.e., $1 - dot(\cdot, \cdot)$); note that we are using `Float16` and the suffix `_asf32` will select a distance function that converts numbers to `Float32` just before performing arithmetic operations.
+3. Since we have unitary norm vectors we can simplify the cosine distance (i.e., $1 - dot(\cdot, \cdot)$); note that we are using `Float16` and the module `Dist.CastF32` which selects a distance function that converts numbers to `Float32` just before performing arithmetic operations.
 4. Inverse map from words to identifiers in `vocab`.
 
 Now we can create the index
@@ -62,7 +62,7 @@ function search_and_render(index, ctx, vocab, q, res, k, qword)
         """|----|------|--------|------|"""
     ]
     for (j, p) in enumerate(viewitems(res))
-        push!(L, """| $j | $(vocab[p.id]) | $(p.id) | $(round(p.weight, digits=3)) |""")     
+        push!(L, """| $j | $(vocab[p.id]) | $(p.id) | $(round(p.dist, digits=3)) |""")     
     end
 
     Markdown.parse(join(L, "\n"))

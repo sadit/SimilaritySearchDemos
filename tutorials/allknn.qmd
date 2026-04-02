@@ -29,7 +29,7 @@ we will use a synthetic dataset
 #| output: false
 function synthetic_benchmark(n, dim)
     db = MatrixDatabase(randn(Float32, dim, n))  # <1>
-    dist = SqL2Distance()  # <2>
+    dist = Dist.SqL2()  # <2>
     (; db, dist) # <3>
 end
 ```
@@ -58,7 +58,7 @@ atime = @elapsed knns = allknn(G, ctx, k) # <4>
 2. Defines the `SearchGraph` index; it does not indexes anything yet!
 3. Defines a search context, it contains several hyperparameters that will be applied for the indexing process, default values just work for now. 
 4. The actual indexing.
-5. Solving allknn with the `G` index; it returns a matrix with nearest neighbor identifiers and their corresponding distances, each entry is a `IdWeight` structure with two entries `id` and `weight`, the later being the associated distance. Note that `allknn` preserves the self reference.
+5. Solving allknn with the `G` index; it returns a matrix with nearest neighbor identifiers and their corresponding distances, each entry is a `IdDist` structure with two entries `id` and `dist`, the later being the associated distance. Note that `allknn` preserves the self reference.
 
 ## Differences between `allknn(G, k)` and `searchbatch(G, X, k)`
 We can solve similarly with `searchbatch` but self-references should be removed later, and more important, `allknn` use special pivoting/boosting strategies that yields to faster searches.

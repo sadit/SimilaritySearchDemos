@@ -19,7 +19,7 @@ This example shows how to perform single queries instead of solving a batch of t
 dim = 8
 db = MatrixDatabase(randn(Float32, dim, 10^4))
 queries = db = MatrixDatabase(randn(Float32, dim, 100))
-dist = SqL2Distance()
+dist = Dist.SqL2()
 G = SearchGraph(; dist, db)
 ctx = SearchGraphContext()
 index!(G, ctx)

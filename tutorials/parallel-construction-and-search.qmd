@@ -20,8 +20,8 @@ Similarity search on very large datasets and high-dimensional datasets require h
 dim = 16
 db = MatrixDatabase(randn(Float32, dim, 10^5)) # <1>
 queries = MatrixDatabase(randn(Float32, dim, 30)) # <2>
-dist = SqL2Distance() # <3>
-ctx = SearchGraphContext(parallel_first_block=256, parallel_block=512) # <4>
+dist = Dist.SqL2() # <3>
+ctx = SearchGraphContext(parallel_block=512) # <4>
 G = SearchGraph(; dist, db) # <5>
 index!(G, ctx) # <6>
 ```
@@ -39,7 +39,7 @@ The `SearchGraph` construction algorithm is incremental:
 
 The parallel construction is made with `index!` or `append_items!`; for this matter these functions accept a `parallel_block` argument via the `ctx` context, that controls how many elements are inserted at once, i.e., looking for its nearest neighbors in parallel and connected also in parallel.
 
-As in the sequential version, a minimum number of elements must exists to work, and therefore, the `parallel_first_block` argument can also be specified. By default, it is equal to `parallel_block`. The `parallel_block` argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.
+The `parallel_block` argument should be set to at least the number of available threads, and perhaps multiplying it by a small constant is also a good approach.
 
 Note that you must not call `push_item!`, `append_items!`, or `index!` from several threads. The default algorithm will takes advantage of the available threads using a single call.
 

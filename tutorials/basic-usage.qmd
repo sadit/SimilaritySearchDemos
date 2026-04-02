@@ -22,7 +22,7 @@ MatrixDatabase is a required wrapper that tells `SimilaritySearch` how to access
 function synthetic_benchmark(n, m, dim)
     db = MatrixDatabase(randn(Float32, dim, n))  # <1>
     queries = MatrixDatabase(randn(Float32, dim, m))
-    dist = SqL2Distance()  # <2>
+    dist = Dist.SqL2()  # <2>
     (; db, queries, dist) # <3>
 end
 ```
@@ -47,7 +47,7 @@ this will display a lot of information in the console, since as construction adv
 k = 16
 knns = searchbatch(G, ctx, B.queries, k) #<1>
 ```
-1. The `searchbatch` functions takes a set of queries and solve them using the given index. `knns` is a matrix with identifiers and their corresponding distances packed into a special structure `IdWeight`.
+1. The `searchbatch` functions takes a set of queries and solve them using the given index. `knns` is a matrix with identifiers and their corresponding distances packed into a special structure `IdDist`.
  
 ## Visualizing what we just did
 

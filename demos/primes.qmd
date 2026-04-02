@@ -37,7 +37,7 @@ db = VectorDatabase(F)
 #dist = JaccardDistance()  # Other distances from SimilaritySearch
 #dist = IntersectionDissimilarity()
 #dist = CosineDistanceSet()
-dist = DiceDistance() 
+dist = Dist.Sets.Dice() 
 ```
 We use Int32 ordered arrays to store prime factors to represent each integer. In the following cell define the cosine distance equivalent for this representation. While other representations may perform faster, this is quite straighforward and demonstrates the use of user's defined distance functions.
 
@@ -70,7 +70,7 @@ function search_and_render(index, ctx, qnum, qenc, res, k)
         """|----|------|--------|------|"""
     ]
     for (j, p) in enumerate(viewitems(res))
-        push!(L, """| $j | $(p.id) | $(index[p.id]) | $(round(p.weight, digits=3)) |""")     
+        push!(L, """| $j | $(p.id) | $(index[p.id]) | $(round(p.dist, digits=3)) |""")     
     end
 
     Markdown.parse(join(L, "\n"))
