@@ -241,46 +241,46 @@ window.Quarto = {
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> <span class="fu">collect</span>(<span class="fu">DistView</span>(res))</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  0.462829 seconds (207.71 k allocations: 12.447 MiB, 99.94% compilation time)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.7572472f0, 5.1388474f0, 0x00000045, 0x00000032)
-collect(IdView(res)) = Any[0x00000045, 0x00000035, 0x00000032]
-collect(DistView(res)) = Any[2.7572472f0, 3.2580721f0, 5.1388474f0]
-  0.000020 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.7343612f0, 5.4609103f0, 0x0000003f, 0x00000005)
-collect(IdView(res)) = Any[0x0000003f, 0x0000004d, 0x00000005]
-collect(DistView(res)) = Any[2.7343612f0, 4.6991982f0, 5.4609103f0]
-  0.000009 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.7020392f0, 5.581727f0, 0x00000039, 0x00000010)
-collect(IdView(res)) = Any[0x00000039, 0x0000001a, 0x00000010]
-collect(DistView(res)) = Any[4.7020392f0, 4.923954f0, 5.581727f0]
-  0.000013 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.1701465f0, 2.477129f0, 0x0000005b, 0x00000018)
-collect(IdView(res)) = Any[0x0000005b, 0x00000044, 0x00000018]
-collect(DistView(res)) = Any[2.1701465f0, 2.3919196f0, 2.477129f0]
-  0.000018 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (4.3622675f0, 6.021051f0, 0x0000003f, 0x00000006)
-collect(IdView(res)) = Any[0x0000003f, 0x00000029, 0x00000006]
-collect(DistView(res)) = Any[4.3622675f0, 4.4897676f0, 6.021051f0]
-  0.000022 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3828528f0, 4.3723474f0, 0x0000002a, 0x00000062)
-collect(IdView(res)) = Any[0x0000002a, 0x00000047, 0x00000062]
-collect(DistView(res)) = Any[3.3828528f0, 3.9411547f0, 4.3723474f0]
-  0.000020 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3619611f0, 4.0181656f0, 0x0000005c, 0x0000004a)
-collect(IdView(res)) = Any[0x0000005c, 0x00000005, 0x0000004a]
-collect(DistView(res)) = Any[3.3619611f0, 3.6916745f0, 4.0181656f0]
+<pre><code>  0.321223 seconds (207.71 k allocations: 12.447 MiB, 99.97% compilation time)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (6.767519f0, 11.06007f0, 0x00000050, 0x0000005d)
+collect(IdView(res)) = UInt32[0x00000050, 0x0000002c, 0x0000005d]
+collect(DistView(res)) = Float32[6.767519, 7.7759, 11.06007]
   0.000016 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.2805197f0, 4.7268863f0, 0x00000032, 0x0000000c)
-collect(IdView(res)) = Any[0x00000032, 0x00000045, 0x0000000c]
-collect(DistView(res)) = Any[2.2805197f0, 4.53319f0, 4.7268863f0]
-  0.000015 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3533053f0, 4.9639907f0, 0x00000062, 0x00000052)
-collect(IdView(res)) = Any[0x00000062, 0x00000032, 0x00000052]
-collect(DistView(res)) = Any[3.3533053f0, 3.492895f0, 4.9639907f0]
-  0.000007 seconds (2 allocations: 128 bytes)
-(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.0630336f0, 5.5816345f0, 0x00000062, 0x00000039)
-collect(IdView(res)) = Any[0x00000062, 0x00000024, 0x00000039]
-collect(DistView(res)) = Any[3.0630336f0, 3.8779063f0, 5.5816345f0]</code></pre>
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.3617616f0, 3.8380947f0, 0x0000000d, 0x00000004)
+collect(IdView(res)) = UInt32[0x0000000d, 0x0000000e, 0x00000004]
+collect(DistView(res)) = Float32[3.3617616, 3.796413, 3.8380947]
+  0.000008 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (8.2357645f0, 9.138306f0, 0x00000053, 0x00000046)
+collect(IdView(res)) = UInt32[0x00000053, 0x00000050, 0x00000046]
+collect(DistView(res)) = Float32[8.2357645, 8.300881, 9.138306]
+  0.000005 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.001161f0, 4.3428016f0, 0x00000063, 0x00000026)
+collect(IdView(res)) = UInt32[0x00000063, 0x00000007, 0x00000026]
+collect(DistView(res)) = Float32[2.001161, 2.1582375, 4.3428016]
+  0.000004 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.4559214f0, 5.295722f0, 0x00000006, 0x00000053)
+collect(IdView(res)) = UInt32[0x00000006, 0x00000034, 0x00000053]
+collect(DistView(res)) = Float32[3.4559214, 4.200401, 5.295722]
+  0.000004 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.8278906f0, 3.5725486f0, 0x00000034, 0x0000005d)
+collect(IdView(res)) = UInt32[0x00000034, 0x0000002d, 0x0000005d]
+collect(DistView(res)) = Float32[2.8278906, 3.2030373, 3.5725486]
+  0.000003 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (3.2511568f0, 4.2245016f0, 0x0000000a, 0x00000007)
+collect(IdView(res)) = UInt32[0x0000000a, 0x00000001, 0x00000007]
+collect(DistView(res)) = Float32[3.2511568, 3.513402, 4.2245016]
+  0.000002 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.131893f0, 3.3929784f0, 0x00000007, 0x00000001)
+collect(IdView(res)) = UInt32[0x00000007, 0x0000003f, 0x00000001]
+collect(DistView(res)) = Float32[2.131893, 3.2005408, 3.3929784]
+  0.000004 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (1.8304625f0, 5.305498f0, 0x00000004, 0x0000001d)
+collect(IdView(res)) = UInt32[0x00000004, 0x00000054, 0x0000001d]
+collect(DistView(res)) = Float32[1.8304625, 5.2072606, 5.305498]
+  0.000005 seconds (2 allocations: 128 bytes)
+(minimum(res), maximum(res), argmin(res), argmax(res)) = (2.8658602f0, 3.7731998f0, 0x0000003e, 0x0000003f)
+collect(IdView(res)) = UInt32[0x0000003e, 0x00000050, 0x0000003f]
+collect(DistView(res)) = Float32[2.8658602, 3.6418056, 3.7731998]</code></pre>
 </div>
 </div>
 <section id="knn-queue" class="level2">
@@ -343,21 +343,21 @@ Environment:
 <span class="ansi-green-fg ansi-bold">Status</span> `~/Research/SimilaritySearchDemos/Project.toml`
   <span class="ansi-bright-black-fg">[aaaa29a8] </span>Clustering v0.15.8
   <span class="ansi-bright-black-fg">[944b1d66] </span>CodecZlib v0.7.8
+  <span class="ansi-bright-black-fg">[5ae59095] </span>Colors v0.13.1
   <span class="ansi-bright-black-fg">[a93c6f00] </span>DataFrames v1.8.1
   <span class="ansi-bright-black-fg">[c5bfea45] </span>Embeddings v0.4.6
   <span class="ansi-bright-black-fg">[f67ccb44] </span>HDF5 v0.17.2
+  <span class="ansi-bright-black-fg">[916415d5] </span>Images v0.26.2
   <span class="ansi-bright-black-fg">[b20bd276] </span>InvertedFiles v0.9.2
 <span class="ansi-yellow-fg">⌅</span> <span class="ansi-bright-black-fg">[682c06a0] </span>JSON v0.21.4
   <span class="ansi-bright-black-fg">[23fbe1c1] </span>Latexify v0.16.10
   <span class="ansi-bright-black-fg">[eb30cadb] </span>MLDatasets v0.7.21
   <span class="ansi-bright-black-fg">[06eb3307] </span>ManifoldLearning v0.9.0
 <span class="ansi-green-fg">⌃</span> <span class="ansi-bright-black-fg">[ca7969ec] </span>PlotlyLight v0.11.0
-  <span class="ansi-bright-black-fg">[91a5bcdd] </span>Plots v1.41.6
   <span class="ansi-bright-black-fg">[27ebfcd6] </span>Primes v0.5.7
   <span class="ansi-bright-black-fg">[ca7ab67e] </span>SimSearchManifoldLearning v0.4.0
-  <span class="ansi-bright-black-fg">[053f045d] </span>SimilaritySearch v0.14.2
+  <span class="ansi-bright-black-fg">[053f045d] </span>SimilaritySearch v0.14.3
 <span class="ansi-yellow-fg">⌅</span> <span class="ansi-bright-black-fg">[2913bbd2] </span>StatsBase v0.33.21
-  <span class="ansi-bright-black-fg">[f3b207a7] </span>StatsPlots v0.15.8
   <span class="ansi-bright-black-fg">[7f6f6c8a] </span>TextSearch v0.20.0
 <span class="ansi-cyan-fg ansi-bold">Info</span> Packages marked with <span class="ansi-green-fg">⌃</span> and <span class="ansi-yellow-fg">⌅</span> have new versions available. Those with <span class="ansi-green-fg">⌃</span> may be upgradable, but those with <span class="ansi-yellow-fg">⌅</span> are restricted by compatibility constraints from upgrading. To see why use `status --outdated`
 </pre>

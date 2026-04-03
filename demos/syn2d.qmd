@@ -1,7 +1,8 @@
 ---
-title: "Visualizing MNIST database"
+title: "Working with 2D points"
 engine: julia
 lang: en-US
+
 ---
 
 by: Eric S. Téllez
@@ -11,18 +12,22 @@ This demonstration shows in a 2D example the functionality of SearchGraph.
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, Random, Printf
-
+using SimilaritySearch, PlotlyLight, StatsBase, LinearAlgebra, Markdown, Random, Printf
 ```
 
 ```{julia}
 #| output: false
-n = 100_000
+#| echo: false
+PlotlyLight.settings.use_iframe = true # needed by quarto
+PlotlyLight.settings.iframe_style = "display:block; border:none; min-height:350px; min-width:350px; width:6in; height:6in;"
+```
 
-M = randn(Float16, 2, n)
+```{julia}
+#| output: false
+
+M = randn(Float16, 2, 10^4)
 db = MatrixDatabase(M)
 dist = Dist.CastF32.SqL2()
-size(M)
 ```
 
 Now we can create the index
@@ -43,23 +48,73 @@ We define a small set of queries being close to the border of the dataset and al
 ```{julia}
 #| output: false
 Q = [Float32[-2, -2], Float32[2, -2], Float32[-2, 0], Float32[-0, 2], Float32[0, 0],   Float32[-3, 3],  Float32[4, 4], Float32[1, 0.5]]
-knns = searchbatch(G, ctx, VectorDatabase(Q), 30)
+knns = searchbatch(G, ctx, VectorDatabase(Q), 12)
 ```
 
 Please note how queries in low and high dense regions are located.
 ```{julia}
-scatter(view(M, 1, :), view(M, 2, :), fmt=:png, c=:cyan, ma=0.3, a=0.3, ms=1, msw=0)
 
-scatter!(getindex.(Q, 1), getindex.(Q, 2), c=:red, ma=0.7, a=0.7, ms=6, msw=0)
+data = Config[]
 
-for c in eachcol(knns)
-    X = M[:, sort!(collect(IdView(c)))]
-    scatter!(view(X, 1, :), view(X, 2, :), c=:blue, ma=0.5, a=0.5, ms=2, msw=0)
-    #scatter!( c=:auto, ms=2)
+# dataset
+push!(data, Config(
+    x = view(M, 1, :),
+    y = view(M, 2, :),
+    mode = "markers",
+    marker = (color = "cyan", opacity = 0.3, size = 2, line = (width = 0,)),
+    name = "Database",
+    showlegend = false
+))
+
+# nearest neighbors
+for (qID, c) in enumerate(eachcol(knns))
+    indices = sort!(collect(IdView(c)))
+    X = M[:, indices] 
+    hovertext = ["neighbor of qID=$qID, dist=$(round(sqrt(d), digits=2)))" for d in DistView(c)]
+
+    push!(data, Config(;
+        x = view(X, 1, :),
+        y = view(X, 2, :),
+        mode = "markers",
+        marker = (color = "blue", opacity = 0.5, size = 4, line = (width = 0,)),
+        hovertext,
+        showlegend = false
+    ))
 end
 
-display(plot!(legend=nothing))
+# queries
+hovertext = [let
+    h = round.(quantile(sqrt.(DistView(c)), 0:0.25:1); digits=2)
+    "query qID=$qID, quant=$h"
+    end for (qID, c) in enumerate(eachcol(knns))]
+
+push!(data, Config(;
+    x = getindex.(Q, 1),
+    y = getindex.(Q, 2),
+    mode = "markers",
+    marker = (color = "red", opacity = 0.7, size = 8, line = (width = 0,)),
+    name = "Queries",
+    hovertext,
+    showlegend = false
+))
+
+# layout
+layout = Config(
+    width = 600,
+    height = 600,
+    xaxis = (
+        showgrid = false,
+    ),
+    yaxis = (
+        showgrid = false,
+    ),
+    hovermode = "closest",
+    showlegend = false
+)
+
+Plot(data, layout)
 ```
+
 Since points are distributed in several regions with disparate density, their radii are also quite diverse. The next list illustrates the distribution of distances for the set of queries
 ```{julia}
 #| echo: false
@@ -67,12 +122,10 @@ Since points are distributed in several regions with disparate density, their ra
 
 println("|query ID | x | y | radius |")
 println("|--------:| --:|--:|-------:|")
-for (i, (q, r)) in enumerate(zip(Q, collect(DistView(knns[30, :]))))
+for (i, (q, r)) in enumerate(zip(Q, collect(DistView(knns[12, :]))))
     println("| $i | $(q[1]) | $(q[2]) | $(@sprintf "%0.4f" sqrt(r)) |")
 end
 
-#plot(D, m=:auto, yscale=:log10, title="knn distances for elements in Q", fmt=:png)
-#plot(D, m=:auto, title="knn distances for elements in Q", fmt=:png)
 ```
 
 Note how the central radius are quite dense.

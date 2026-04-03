@@ -13,8 +13,14 @@ Note: This example needs a lot of computing power; therefore you may want to set
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, MLDatasets, Random
+using SimilaritySearch, SimSearchManifoldLearning, PlotlyLight, Colors, StatsBase, LinearAlgebra, Markdown, MLDatasets, Random
+```
 
+```{julia}
+#| output: false
+#| echo: false
+PlotlyLight.settings.use_iframe = true # needed by quarto
+PlotlyLight.settings.iframe_style = "display:block; border:none; min-height:350px; min-width:350px; width:6in; height:6in;"
 ```
 
 ```{julia}
@@ -62,10 +68,11 @@ end
 ```
 
 ## UMAP Visualization
+Computing the UMAP projections
 ```{julia}
 #| output: false
 
-e2, e3 = let min_dist=0.5f0, # <1>
+e2 = let min_dist=0.5f0, # <1>
              k=7,
              n_epochs=75,
              neg_sample_rate=3,
@@ -73,36 +80,41 @@ e2, e3 = let min_dist=0.5f0, # <1>
              layout=SpectralLayout()
 
     @time "Compute 2D UMAP model" U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
-    @time "Compute 3D UMAP model" U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
-    @time "predicting 2D embeddings" e2 = clamp.(predict(U2), -10f0, 10f0) # <5>
-    @time "predicting 3D embeddings" e3 = clamp.(predict(U3), -10f0, 10f0) # <6>
-    e2, e3
+    @time "predicting 2D embeddings" e2 = clamp.(predict(U2), -10f0, 10f0) # <4>
+    e2
 end
 
 ```
 
+Now visualizing
 ```{julia}
-function normcolors(V)
-    min_, max_ = extrema(V)
-    V .= (V .- min_) ./ (max_ - min_)
-    V .= clamp.(V, 0, 1)
-end
 
-normcolors(@view e3[1, :])
-normcolors(@view e3[2, :])
-normcolors(@view e3[3, :])
+hovertext = ["$t" for t in y]
 
-let C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)],
-    X = view(e2, 1, :),
-    Y = view(e2, 2, :)
-    scatter(X, Y, color=C, fmt=:png, alpha=0.2, size=(600, 600), ma=0.3, ms=2, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
-    for i in 1:100
-        j = rand(1:length(y))
-        annotate!(X[j], Y[j], text(y[j], :black, :right, 8, "noto"))
-    end
-end
+data = [Config(;
+    x = view(e2, 1, :),
+    y = view(e2, 2, :),
+    mode = "markers",
+    marker = (
+        color = y, 
+        colorscale = "Viridis",
+        size = 4, 
+        line = (width = 0,)
+    ),
+    hovertext,
+    type = "scattergl" 
+)]
 
-plot!()
+layout = Config(
+    width = 600,
+    height = 600,
+    xaxis = (visible = false, showgrid = false, zeroline = false),
+    yaxis = (visible = false, showgrid = false, zeroline = false),
+    hovermode = "closest",
+    plot_bgcolor = "white"
+)
+
+Plot(data, layout)
 ```
 
 ## Final notes

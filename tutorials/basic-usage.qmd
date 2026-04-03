@@ -10,6 +10,15 @@ by: Eric S. Téllez
 ```{julia}
 #| output: false
 using SimilaritySearch, Markdown
+using PlotlyLight
+```
+
+```{julia}
+#| output: false
+#| echo: false
+PlotlyLight.settings.use_iframe = true # needed by quarto
+PlotlyLight.settings.iframe_style = "display:block; border:none; min-height:350px; min-width:350px; width:6in; height:6in;" 
+
 ```
 
 
@@ -51,21 +60,68 @@ knns = searchbatch(G, ctx, B.queries, k) #<1>
  
 ## Visualizing what we just did
 
-```{julia}
-using Plots
+Now we wil visualize points with plotlyjs (through `PlotlyLight`)
 
-scatter(B.db.matrix[1, :], B.db.matrix[2, :], size=(600, 600), color=:cyan, ma=0.3, a=0.3, ms=1, msw=0, label="")
-for c in eachcol(knns)
-    R = B.db.matrix[:, sort!(collect(IdView(c)))]
-    @views scatter!(R[1, :], R[2, :], m=:diamond, ma=0.3, a=0.3, color=:auto, ms=2, msw=0, label="")
+```{julia}
+#| fig-width: 6
+#| fig-height: 6
+#| fig-cap: "Visualizing the datasets, queries and its associated knns points"
+
+data = Config[]
+
+# plotting database
+push!(data, Config(
+    x = B.db.matrix[1, :],
+    y = B.db.matrix[2, :],
+    mode = "markers",
+    marker = (color = "cyan", opacity = 0.3, size = 2, line = (width = 0,)),
+    name = "Database",
+    showlegend = false
+))
+
+# plotting search results (i-th column is associated with i-th query)
+for (qID, c) in enumerate(eachcol(knns))
+    indices = sort!(collect(IdView(c)))
+    R = B.db.matrix[:, indices]
+    
+    push!(data, Config(
+        x = R[1, :],
+        y = R[2, :],
+        mode = "markers",
+        marker = (symbol = "diamond", opacity = 0.3, size = 6, line = (width = 0,)),
+        name = "neighbors of qID $qID",
+        showlegend = false
+    ))
 end
 
-@views scatter!(B.queries.matrix[1, :], B.queries.matrix[2, :], color=:black, m=:star, ma=0.5, a=0.5, ms=4, msw=0, label="")
+# plotting queries
+push!(data, Config(
+    x = B.queries.matrix[1, :],
+    y = B.queries.matrix[2, :],
+    mode = "markers",
+    marker = (symbol = "star", color = "black", opacity = 0.5, size = 10, line = (width = 0,)),
+    name = "Queries",
+    showlegend = false
+))
 
-plot!()
+# Configuring the layout
+layout = Config(
+    width = 600,
+    height = 600,
+    xaxis = (
+        range = [-3.6, 3.6],
+    ),
+    yaxis = (
+        range = [-3.6, 3.6],
+    ),
+
+    #margin = (t = 20, b = 20, l = 20, r = 20),
+    hovermode = "closest"
+)
+
+Plot(data, layout)
+
 ```
-
-Cyan points identify the dataset while starts are query points. The nearest neighbor points are colored automatically and can repeat, but they come quite close to query points, in dense areas they are even hidding them.
 
 ## Environment and dependencies
 ```{julia}

@@ -1,5 +1,5 @@
 ---
-title: "Visualizing Twitter Messages with Emojis"
+title: "Visualizing Glove Embeddings (semantic vocabulary)"
 engine: julia
 lang: en-US
 ---
@@ -13,19 +13,29 @@ Note: This example needs a lot of computing power; therefore you may want to set
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase, LinearAlgebra, Markdown, Embeddings, Random
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, PlotlyLight, StatsBase, LinearAlgebra, Markdown, Embeddings, Random
 using Downloads: download
 
 ```
 
+
 ```{julia}
 #| output: false
-emb, vocab = let emb = load_embeddings(GloVe{:en}, 2)  # you can change with any of the available embeddings in `Embeddings`
-    for c in eachcol(emb.embeddings)
+#| echo: false
+PlotlyLight.settings.use_iframe = true # needed by quarto
+PlotlyLight.settings.iframe_style = "display:block; border:none; min-height:350px; min-width:350px; width:6in; height:6in;"
+```
+
+
+```{julia}
+#| output: false
+emb, vocab = let E = load_embeddings(GloVe{:en}, 2)  # you can change with any of the available embeddings in `Embeddings`
+    emb, vocab = E.embeddings[:, 1:50_000], E.vocab[1:50_000]
+    for c in eachcol(emb)
         normalize!(c) # <1>
     end
 
-    Float16.(emb.embeddings), emb.vocab # <2>
+    Float16.(emb), vocab # <2>
 end
 
 dist = Dist.CastF32.NormCosine() # <3>
@@ -102,14 +112,15 @@ analogy("mississippi", "usa", "france", 10)
 4. Different analogies to solve; using 10nn.
 
 ## UMAP Visualization
+Computing UMAP projections
 ```{julia}
 #| output: false
-e2, e3 = let min_dist=0.5f0, # <1>
-             k=12,
+e2, e3 = let min_dist=0.3f0, # <1>
+             k=15,
              n_epochs=75,
              neg_sample_rate=3,
              tol=1e-3,
-             layout=RandomLayout()
+             layout=SpectralLayout()
 
     @time "Compute 2D UMAP model" U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
     @time "Compute 3D UMAP model" U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
@@ -120,24 +131,52 @@ end
 
 ```
 
+Computing visualization
 ```{julia}
-function normcolors(V)
+function normcolors!(V)
     min_, max_ = extrema(V)
-    V .= (V .- min_) ./ (max_ - min_)
-    V .= clamp.(V, 0, 1)
+    s = 255.0 / (max_ - min_)
+    V .= (V .- min_) .* s
+    V .= round.(V; digits=0)
+    V .= clamp.(V, 0, 255)
 end
 
-normcolors(@view e3[1, :])
-normcolors(@view e3[2, :])
-normcolors(@view e3[3, :])
+normcolors!(@view e3[1, :])
+normcolors!(@view e3[2, :])
+normcolors!(@view e3[3, :])
 
-let C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)],
-    X = view(e2, 1, :),
-    Y = view(e2, 2, :)
-    scatter(X, Y, color=C, fmt=:png, alpha=0.2, size=(600, 600), ma=0.3, ms=2, msw=0, label="", yticks=nothing, xticks=nothing, xaxis=false, yaxis=false)
-end
+colors = [
+    "rgba($(Int(c[1])), $(Int(c[2])), $(Int(c[3])), 0.3)" 
+    for c in eachcol(e3)
+]
 
-plot!()
+text = [replace(w, r"\W" => "") for w in vocab] # avoids issues on plotly hovers
+
+#@warn text
+
+data = [Config(;
+    x = view(e2, 1, :),
+    y = view(e2, 2, :),
+    mode = "markers",
+    marker = (
+        color = colors, 
+        size = 4, 
+        line = (width = 0,)
+    ),
+    text,
+    type = "scatter"
+)]
+
+layout = Config(
+    width = 600,
+    height = 600,
+    xaxis = (visible = false, showgrid = false, zeroline = false),
+    yaxis = (visible = false, showgrid = false, zeroline = false),
+    hovermode = "closest",
+    plot_bgcolor = "white"
+)
+
+Plot(data, layout)
 ```
 
 ## Final notes

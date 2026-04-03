@@ -13,14 +13,49 @@ This demonstration is about using `SimilaritySearch` and `ManifoldLearning` meth
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, ManifoldLearning, Primes, Plots, StatsPlots, StatsBase, LinearAlgebra, Markdown, Random
+using SimilaritySearch, SimSearchManifoldLearning, ManifoldLearning, Primes, PlotlyLight, StatsBase, LinearAlgebra, Markdown, Random
+```
+
+```{julia}
+#| output: false
+#| echo: false
+PlotlyLight.settings.use_iframe = true # needed by quarto
+PlotlyLight.settings.iframe_style = "display:block; border:none; min-height:350px; min-width:350px; width:6in; height:6in;"
 ```
 
 ## SCurve example
+
 ```{julia}
+
 X, L = ManifoldLearning.scurve(segments=5)
 
-scatter(X[1, :], X[2, :], X[3, :], color=L, alpha=0.5)
+data = [Config(
+    x = X[1, :],
+    y = X[2, :],
+    z = X[3, :],
+    type = "scatter3d",
+    mode = "markers",
+    marker = (
+        color = L,
+        colorscale = "Viridis", # "Default", "Portland", "Jet", etc.
+        size = 3,
+        opacity = 0.5,
+        line = (width = 0,)
+    )
+)]
+
+layout = Config(
+    width = 800,
+    height = 800,
+    scene = Config(
+        xaxis = (title = "X",),
+        yaxis = (title = "Y",),
+        zaxis = (title = "Z",),
+        aspectmode = "cube" # Mantiene las proporciones iguales en los 3 ejes
+    ),
+)
+
+Plot(data, layout)
 ```
 
 `SimilaritySearch` support exact and approximate algorithms to solve `k` nearest neighbors. Also, it supports different metrics. For instance, let see how the selection of the distance function modifies the projection.
@@ -28,7 +63,21 @@ scatter(X[1, :], X[2, :], X[3, :], color=L, alpha=0.5)
 ### Manhattan distance ($L_1$)
 ```{julia}
 let	Y = predict(fit(Isomap, X, nntype=ApproxManhattan))
-	scatter(Y[1,:], Y[2,:], color=L, alpha=0.5)
+	data = [Config(
+    x = Y[1, :],
+    y = Y[2, :],
+    type = "scatter",
+    mode = "markers",
+    marker = (
+        color = L,
+        colorscale = "Viridis", # "Default", "Portland", "Jet", etc.
+        size = 3,
+        opacity = 0.5,
+        line = (width = 0,)
+    )
+)]
+
+	Plot(data)
 end
 ```
 
@@ -36,8 +85,22 @@ end
 
 ```{julia}
 let
-    E = predict(fit(Isomap, X, nntype=ApproxEuclidean))
-	scatter(E[1,:], E[2,:], color=L, alpha=0.5)
+  E = predict(fit(Isomap, X, nntype=ApproxEuclidean))
+	data = [Config(
+    x = E[1, :],
+    y = E[2, :],
+    type = "scatter",
+    mode = "markers",
+    marker = (
+        color = L,
+        colorscale = "Viridis", # "Default", "Portland", "Jet", etc.
+        size = 3,
+        opacity = 0.5,
+        line = (width = 0,)
+    )
+  )]
+
+	Plot(data)
 end
 ```
 
@@ -45,7 +108,20 @@ end
 ```{julia}
 let
 	Ch = predict(fit(Isomap, X, nntype=ApproxChebyshev))
-	scatter(Ch[1,:], Ch[2,:], color=L, alpha=0.5)
+	data = [Config(
+    x = Ch[1, :],
+    y = Ch[2, :],
+    type = "scatter",
+    mode = "markers",
+    marker = (
+        color = L,
+        colorscale = "Viridis", # "Default", "Portland", "Jet", etc.
+        size = 3,
+        opacity = 0.5,
+        line = (width = 0,)
+    )
+  )]
+
 end
 ```
 
@@ -73,7 +149,6 @@ function create_database_primes_diff(n, w)
 	M
 end
 
-
 x, y = let
     P = create_database_primes_diff(3 * 10^4, 5)
     # or LLE
@@ -86,7 +161,25 @@ end
 
 A 2D histogram
 ```{julia}
-histogram2d(x, y; nbins=100)
+data = [Config(;
+    x = x,
+    y = y,
+    type = "histogram2d",
+    colorscale = "Viridis",   
+    nbinsx = 50,
+    nbinsy = 50, 
+    colorbar = (title = "freq",)
+)]
+
+layout = Config(
+    title = "Isomap proj. 2D of prime gaps",
+    width = 600,
+    height = 600,
+    xaxis = (title = "X",),
+    yaxis = (title = "Y",),
+)
+
+Plot(data, layout)
 ```
 
 

@@ -8,9 +8,16 @@ This example creates a vector space model for classify emojis in Twitter message
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase
+using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, PlotlyLight, StatsBase
 using Downloads: download
 
+```
+
+```{julia}
+#| output: false
+#| echo: false
+PlotlyLight.settings.use_iframe = true # needed by quarto
+PlotlyLight.settings.iframe_style = "display:block; border:none; min-height:350px; min-width:350px; width:6in; height:6in;"
 ```
 
 downloading the dataset, parsing and vectorizing functions
@@ -72,7 +79,6 @@ vectors = VectorDatabase(vectorize_corpus(model, D.text))
 ## UMAP projections
 UMAP projection can take a while, even on multithreading systems. Note that we are creating 2d and 3d projections.
 
-
 ```{julia}
 #| output: false
 e2, e3 = let min_dist=0.5f0, # <1>
@@ -97,29 +103,51 @@ end
 
 ## Visualizations
 
+Plots
 ```{julia}
-function normcolors(V)
+
+function normcolors!(V)
     min_, max_ = extrema(V)
-    V .= (V .- min_) ./ (max_ - min_)
+    range = max_ - min_
+    if range > 0
+        V .= (V .- min_) ./ range
+    end
     V .= clamp.(V, 0, 1)
 end
 
-normcolors(@view e3[1, :])
-normcolors(@view e3[2, :])
-normcolors(@view e3[3, :])
+normcolors!(@view e3[1, :])
+normcolors!(@view e3[2, :])
+normcolors!(@view e3[3, :])
 
-C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)]
+colors = [
+    "rgba($(round(Int, c[1]*255)), $(round(Int, c[2]*255)), $(round(Int, c[3]*255)), 0.3)" 
+    for c in eachcol(e3)
+]
 
-X = @view e2[1, :]
-Y = @view e2[2, :]
-scatter(X, Y, color=C, markersize=4, alpha=0.5)
+data = [Config(;
+    x = view(e2, 1, :),
+    y = view(e2, 2, :),
+    mode = "markers",
+    marker = (
+        color = colors, 
+        size = 4, 
+        line = (width = 0,)
+    ),
+    hovertext = D.klass,
+    type = "scattergl" 
+)]
 
-for i in 1:100
-    j = rand(1:length(D.klass))
-    annotate!(X[j], Y[j], text(D.klass[j], :blue, :right, 8, "noto"))
-end
+layout = Config(
+    width = 600,
+    height = 600,
+    xaxis = (visible = false, showgrid = false, zeroline = false),
+    yaxis = (visible = false, showgrid = false, zeroline = false),
+    hovermode = "closest",
+    plot_bgcolor = "white"
+)
 
-plot!()
+Plot(data, layout)
+
 ```
 
 ## Environment and dependencies
