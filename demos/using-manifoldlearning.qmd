@@ -9,11 +9,15 @@ by: Eric S. Téllez
 
 This demonstration is about using `SimilaritySearch` and `ManifoldLearning` methods through `SimSearchManifoldLearning`.
 
+> **SimSearchManifoldLearning 0.4 note:** The `fit(Isomap, X, nntype=...)` API is unchanged;
+> this release updates the `SimilaritySearch` v1.2 backend internally.
+> `ApproxEuclidean`, `ApproxManhattan`, and `ApproxChebyshev` selectors work exactly as before.
+
 
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, ManifoldLearning, Primes, Plots, StatsPlots, StatsBase, LinearAlgebra, Markdown, Random
+using SimilaritySearch, SimilaritySearch.Dist, SimSearchManifoldLearning, ManifoldLearning, Primes, Plots, StatsPlots, StatsBase, LinearAlgebra, Markdown, Random
 ```
 
 ## SCurve example

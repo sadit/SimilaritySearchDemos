@@ -1,0 +1,284 @@
+---
+title: "Word embeddings de Wikipedia con LSI"
+engine: julia
+lang: es
+---
+
+by: Eric S. Téllez
+
+Este demo muestra cómo usar **Latent Semantic Indexing (LSI)** para generar word embeddings
+densos a partir de la Wikipedia en español e inglés, y cómo usar esos embeddings para búsqueda de
+sinónimos, analogías y visualizaciones UMAP.
+
+Los embeddings se generan con [`TextSearch.jl`](https://github.com/sadit/TextSearch.jl) a partir
+del corpus de Wikipedia (primeros 3 párrafos por artículo). El perfil de vocabulario y pesos TF-IDF
+fue entrenado sobre el corpus completo (~14M párrafos en ES, ~46M en EN), pero el SVD se calcula
+sobre el subconjunto introductorio — dando más peso al contenido definicional de cada artículo.
+
+> **Nota**: Este demo requiere haber ejecutado `generate_wiki_embeddings.jl` para generar los
+> archivos de embeddings en `demos/data/`.
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning
+using TextSearch, TextSearch.LSI
+using Plots, StatsBase, LinearAlgebra, Markdown, Random, Printf, JSON3
+```
+
+## Carga de los embeddings
+
+Los embeddings se guardaron en formato texto similar a GloVe: una línea por token, con el token
+seguido de los valores del vector separados por espacios.
+
+```{julia}
+#| output: false
+"""
+Carga embeddings en formato GloVe-texto.
+Devuelve (matrix Float16 dim×n, vocab Vector{String}).
+Usamos Float16 para reducir uso de memoria; el sufijo `_asf32` en la
+distancia convierte a Float32 justo antes de los cálculos.
+"""
+function load_glove_format(path::String; dtype=Float16)
+    @info "Loading embeddings from $path"
+    lines  = readlines(path)
+    n      = length(lines)
+    dim    = length(split(lines[1])) - 1
+    M      = Matrix{dtype}(undef, dim, n)
+    vocab  = Vector{String}(undef, n)
+    for (i, line) in enumerate(lines)
+        parts    = split(line)
+        vocab[i] = parts[1]
+        for (j, v) in enumerate(@view parts[2:end])
+            M[j, i] = parse(Float32, v)
+        end
+    end
+    M, vocab
+end
+
+# Cargamos los embeddings en español
+emb_es, vocab_es = load_glove_format(joinpath(@__DIR__, "data", "wiki-es-lsi.txt"))
+
+# Mapa inverso: palabra → índice
+vocab2id_es = Dict(w => i for (i, w) in enumerate(vocab_es))
+
+@info "ES: $(length(vocab_es)) tokens, dim=$(size(emb_es, 1))"
+```
+
+```{julia}
+#| output: false
+# Embeddings en inglés
+emb_en, vocab_en = load_glove_format(joinpath(@__DIR__, "data", "wiki-en-lsi.txt"))
+vocab2id_en = Dict(w => i for (i, w) in enumerate(vocab_en))
+@info "EN: $(length(vocab_en)) tokens, dim=$(size(emb_en, 1))"
+```
+
+## Construcción del índice de búsqueda
+
+Usamos `SearchGraph` con distancia coseno normalizada para buscar tokens similares de manera
+aproximada. Como los vectores ya están normalizados (norma 1), `NormCosine` es equivalente
+a la distancia coseno pero sin recalcular normas.
+
+```{julia}
+#| output: false
+dist = Dist.NormCosine(Float16)   # convierte Float16 → Float32 antes de aritmética
+
+# Índice español
+db_es  = MatrixDatabase(emb_es)
+G_es   = SearchGraph(dist, db_es)
+ctx_es = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
+index!(G_es, ctx_es)
+optimize_index!(G_es, ctx_es, MinRecall(0.9))
+
+# Índice inglés
+db_en  = MatrixDatabase(emb_en)
+G_en   = SearchGraph(dist, db_en)
+ctx_en = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
+index!(G_en, ctx_en)
+optimize_index!(G_en, ctx_en, MinRecall(0.9))
+```
+
+## Búsqueda de sinónimos / palabras similares
+
+```{julia}
+function buscar_similares(G, ctx, vocab, vocab2id, palabra::String, k::Int=10)
+    haskey(vocab2id, palabra) || return Markdown.parse("> ⚠️ Palabra '$palabra' no encontrada")
+    qid  = vocab2id[palabra]
+    res  = knnqueue(ctx, k)
+    search(G, ctx, G[qid], res)
+
+    L = [
+        """## Similares a _$(palabra)_""",
+        """| # | Token | Distancia coseno |""",
+        """|---|-------|-----------------|"""
+    ]
+    for (j, p) in enumerate(IdDistView(res))
+        w = vocab[p.id]
+        push!(L, """| $j | **$w** | $(@sprintf "%.4f" p.dist) |""")
+    end
+    Markdown.parse(join(L, "\n"))
+end
+
+# Español
+for palabra in ["física", "historia", "computación", "música", "planeta"]
+    buscar_similares(G_es, ctx_es, vocab_es, vocab2id_es, palabra, 8) |> display
+end
+```
+
+```{julia}
+# Inglés
+for palabra in ["physics", "history", "computer", "music", "planet"]
+    buscar_similares(G_en, ctx_en, vocab_en, vocab2id_en, palabra, 8) |> display
+end
+```
+
+## Red de sinónimos / query expansion
+
+Los embeddings LSI permiten construir una red de expansión de consultas: para cada token,
+sus `k` vecinos más cercanos en el espacio semántico forman una red de sinónimos aproximados.
+
+```{julia}
+# Cargamos la red pre-computada
+qexp_es = let d = JSON3.read(read(joinpath(@__DIR__, "data", "wiki-es-qexp.json"), String))
+    Dict{String,Vector{String}}(String(k) => String.(v) for (k, v) in d["query_expansion"])
+end
+
+function mostrar_red(qexp, palabra)
+    haskey(qexp, palabra) || return Markdown.parse("> ⚠️ '$palabra' no en la red")
+    vecinos = qexp[palabra]
+    isempty(vecinos) && return Markdown.parse("> '$palabra' sin expansión (token muy frecuente)")
+    Markdown.parse("""
+    **$palabra** → $(join(["_$v_" for v in vecinos], ", "))
+    """)
+end
+
+for p in ["ciencia", "guerra", "amor", "tecnología", "ciudad", "arte", "economía"]
+    mostrar_red(qexp_es, p) |> display
+end
+```
+
+## ¿Funcionan las analogías?
+
+Las analogías del estilo _"rey es a hombre como reina es a mujer"_ son clásicas en word2vec.
+En LSI, el espacio semántico es lineal pero derivado de co-ocurrencia documental — no de
+contextos de ventana deslizante. Las analogías pueden funcionar si los conceptos tienen
+distribuciones documentales similares.
+
+La aritmética es: `vec(a) - vec(b) + vec(d) ≈ vec(c)`, donde `a:b :: c:d`.
+
+```{julia}
+function analogia(G, ctx, vocab, vocab2id, a, b, d, k=10)
+    for w in (a, b, d)
+        haskey(vocab2id, w) || return Markdown.parse("> ⚠️ Palabra '$w' no encontrada")
+    end
+    va = Float32.(G[vocab2id[a]])
+    vb = Float32.(G[vocab2id[b]])
+    vd = Float32.(G[vocab2id[d]])
+    vc = va - vb + vd
+    normalize!(vc)
+
+    res = knnqueue(ctx, k + 3)  # pedimos más para poder filtrar a, b, d
+    search(G, ctx, Float16.(vc), res)
+
+    excluir = Set([a, b, d])
+    L = [
+        """### Analogía: _$(a)_ es a _$(b)_ como _?_ es a _$(d)_""",
+        """| # | Token | Dist |""",
+        """|---|-------|------|"""
+    ]
+    j = 0
+    for p in IdDistView(res)
+        w = vocab[p.id]
+        w in excluir && continue
+        j += 1
+        j > k && break
+        push!(L, """| $j | **$w** | $(@sprintf "%.4f" p.dist) |""")
+    end
+    Markdown.parse(join(L, "\n"))
+end
+
+# Analogías clásicas en español
+analogia(G_es, ctx_es, vocab_es, vocab2id_es, "rey", "hombre", "mujer") |> display
+analogia(G_es, ctx_es, vocab_es, vocab2id_es, "París", "Francia", "España") |> display
+analogia(G_es, ctx_es, vocab_es, vocab2id_es, "Madrid", "España", "Francia") |> display
+analogia(G_es, ctx_es, vocab_es, vocab2id_es, "perro", "animal", "planta") |> display
+```
+
+```{julia}
+# Analogías en inglés
+analogia(G_en, ctx_en, vocab_en, vocab2id_en, "king", "man", "woman") |> display
+analogia(G_en, ctx_en, vocab_en, vocab2id_en, "Paris", "France", "Spain") |> display
+analogia(G_en, ctx_en, vocab_en, vocab2id_en, "Madrid", "Spain", "France") |> display
+```
+
+## Visualización UMAP
+
+Proyectamos una muestra de tokens en 2D con UMAP, usando el `SearchGraph` para el grafo kNN.
+Coloreamos los puntos según el primero componente del embedding 3D (para dar color RGB).
+
+```{julia}
+#| output: false
+# Tomamos una muestra de los tokens más frecuentes para la visualización
+# (los más frecuentes en el corpus son también los más representativos)
+sample_size = min(30_000, length(vocab_es))
+sample_idx  = 1:sample_size   # los primeros son los más frecuentes tras el sort del vocabulario
+
+db_sample = SubDatabase(db_es, collect(sample_idx))
+G_sample  = SearchGraph(dist, db_sample)
+ctx_sample = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95)))
+index!(G_sample, ctx_sample)
+
+e2, e3 = let k=15, n_epochs=75, neg_sample_rate=3, tol=1e-3, min_dist=0.3f0,
+              layout=SpectralLayout()
+    @time "UMAP 2D" U2 = fit(UMAP, G_sample; k, neg_sample_rate, layout, n_epochs, tol, min_dist)
+    @time "UMAP 3D" U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)
+    @time "predict 2D" e2 = clamp.(predict(U2), -10f0, 10f0)
+    @time "predict 3D" e3 = clamp.(predict(U3), -10f0, 10f0)
+    e2, e3
+end
+```
+
+```{julia}
+function normcolors(V)
+    mn, mx = extrema(V)
+    @. V = clamp((V - mn) / (mx - mn), 0, 1)
+end
+
+normcolors(@view e3[1, :])
+normcolors(@view e3[2, :])
+normcolors(@view e3[3, :])
+
+C = [RGB(c[1], c[2], c[3]) for c in eachcol(e3)]
+X, Y = view(e2, 1, :), view(e2, 2, :)
+
+scatter(X, Y; color=C, fmt=:png, alpha=0.15, size=(700, 700),
+        ma=0.2, ms=2, msw=0, label="",
+        yticks=nothing, xticks=nothing, xaxis=false, yaxis=false,
+        title="Wikipedia ES — LSI 256d proyectado con UMAP")
+
+# Anotamos ~80 tokens al azar
+for _ in 1:80
+    j = rand(1:sample_size)
+    annotate!(X[j], Y[j], text(vocab_es[sample_idx[j]], :blue, :right, 5, "sans-serif"))
+end
+plot!()
+```
+
+## Notas finales
+
+Este demo muestra cómo los embeddings LSI derivados de Wikipedia capturan **estructura semántica
+real**: palabras relacionadas por co-ocurrencia documental se agrupan en el espacio vectorial.
+
+Diferencias respecto a GloVe/word2vec:
+- LSI usa co-ocurrencia a nivel de **documento completo** (no ventana deslizante), por lo que
+  captura mejor relaciones temáticas amplias que relaciones sintácticas locales.
+- Las analogías de tipo `rey - hombre + mujer ≈ reina` suelen funcionar **cuando los conceptos
+  son temáticamente cohesivos** en Wikipedia (países, capitales, categorías científicas).
+- Funciona peor para relaciones morfológicas o sintácticas (plural/singular, conjugaciones).
+
+## Entorno y dependencias
+
+```{julia}
+#| echo: false
+versioninfo()
+using Pkg; Pkg.status()
+```

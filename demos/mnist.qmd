@@ -13,7 +13,7 @@ Note: This example needs a lot of computing power; therefore you may want to set
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, MLDatasets, Random
+using SimilaritySearch, SimilaritySearch.Dist, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, MLDatasets, Random
 
 ```
 
@@ -22,7 +22,7 @@ using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgeb
 db, y, dist = let data = MNIST(split=:train)
     T, y = data.features, data.targets
     n = size(T, 3)
-    MatrixDatabase(Float32.(reshape(T, (28*28, n)))), y, SqL2_asf32()
+    MatrixDatabase(Float32.(reshape(T, (28*28, n)))), y, Dist.SqL2(Float16)
 end
 
 ```
@@ -31,7 +31,7 @@ Now we can create the index
 ```{julia}
 #| output: false
 
-index = SearchGraph(; dist, db) # <1>
+index = SearchGraph(dist, db) # <1>
 ctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99))) # <1>
 index!(index, ctx) # <2>
 optimize_index!(index, ctx, MinRecall(0.95)) # <3>
@@ -47,7 +47,7 @@ function search_and_render(index, ctx, q, res)
 	res = reuse!(res)
     @time search(index, ctx, q, res)
 	qinverted = 1 .- reshape(q, (28, 28))' # distinguishability
-	h = hcat(qinverted, [reshape(index[id_], (28, 28))' for id_ in IdView(res)]...)
+	h = hcat(qinverted, [reshape(index[id_], (28, 28))' for id_ in res.ids]...)
 	
     Gray.(h)
 end
@@ -105,9 +105,49 @@ end
 plot!()
 ```
 
+## Finding Near-Duplicate MNIST Digits
+
+Near-duplicate detection finds digits that are nearly identical — useful for dataset deduplication or identifying redundant samples.
+
+```{julia}
+#| output: false
+# searchbatch returns (ids, dists) matrices; each column i holds the k neighbors of query i
+ids, dists = searchbatch(index, ctx, index.db, 5)
+```
+
+```{julia}
+# neardup: collect pairs (i, j) where i < j and the distance is below a threshold
+threshold = 50f0  # squared-L2 threshold for "near duplicate" on 28×28 float32 images
+
+neardup_pairs = Tuple{Int,Int}[]
+for i in axes(ids, 2)
+    for ki in axes(ids, 1)
+        j = ids[ki, i]
+        d = dists[ki, i]
+        if j > i && d < threshold
+            push!(neardup_pairs, (i, j))
+        end
+    end
+end
+
+@info "Found $(length(neardup_pairs)) near-duplicate pairs (threshold=$threshold)"
+```
+
+```{julia}
+# Visualize the first few near-duplicate pairs
+n_show = min(6, length(neardup_pairs))
+plots = []
+for (i, j) in neardup_pairs[1:n_show]
+    img_i = Gray.(reshape(index[i], (28, 28))')
+    img_j = Gray.(reshape(index[j], (28, 28))')
+    push!(plots, plot(hcat(img_i, img_j), title="$(y[i]) vs $(y[j])", axis=false, ticks=false))
+end
+plot(plots..., layout=(2, 3), size=(600, 400))
+```
+
 ## Final notes
 
-This example shows how to index and visualize the MNIST dataset using UMAP low dimensional projections. Low dimensional projections are made with `SimSearchManifoldLearning`, note that `SimilaritySearch` is also used for computing the all $k$ nearest neighbors needed by the UMAP model. Note that this notebook should be ran with several threads to reduce time costs.
+This example shows how to index and visualize the MNIST dataset using UMAP low dimensional projections. Low dimensional projections are made with `SimSearchManifoldLearning`, note that `SimilaritySearch` is also used for computing the all $k$ nearest neighbors needed by the UMAP model. The `neardup` section demonstrates how `searchbatch` (which now returns an `(ids, dists)` tuple in SimilaritySearch v1.2) can be used to efficiently detect near-identical images. Note that this notebook should be ran with several threads to reduce time costs.
 
 ## Environment and dependencies
 ```{julia}

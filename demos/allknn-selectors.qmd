@@ -1,0 +1,240 @@
+---
+title: "All-kNN and center selection algorithms"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+This demo shows **all-pairs kNN** and dataset-level **center selection** algorithms available in
+`SimilaritySearch.jl`. These tools are useful for exploratory data analysis, prototype learning,
+and building fast approximations of large datasets.
+
+Algorithms covered:
+
+| Function | What it does |
+|---|---|
+| `allknn` | All-pairs k nearest neighbours graph |
+| `fft` | Farthest-First Traversal — maximally separated centers |
+| `dnet` | Density Net — centers balanced by local density |
+| `randsel` | Random selection of centers |
+| `multirandsel` | Multiple random selection rounds (better coverage) |
+| `neardup` | Near-duplicate detection / data cleaning |
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgebra, Markdown, Random
+```
+
+## Dataset
+
+We use two setups: a small 2D synthetic dataset for visualisation, and Fashion-MNIST for a
+realistic high-dimensional example.
+
+```{julia}
+#| output: false
+# 2D synthetic: mixture of 5 Gaussians with different widths
+Random.seed!(42)
+n2d = 10_000
+centers_gt = Float32[[-4,-4] [0,4] [4,-2] [-2,2] [3,3]]
+σs = Float32[0.4, 0.8, 0.5, 1.2, 0.6]
+M2d = reduce(hcat, [centers_gt[:, mod1(i,5)] .+ σs[mod1(i,5)] .* randn(Float32, 2)
+                    for i in 1:n2d])
+db2d  = MatrixDatabase(M2d)
+dist2d = Dist.SqL2()
+
+G2d   = SearchGraph(dist2d, db2d)
+ctx2d = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.98)))
+index!(G2d, ctx2d)
+```
+
+## All-kNN
+
+`allknn` computes the k nearest neighbours of every item in the dataset simultaneously.
+It returns `(ids, dists)` matrices of size `(k, n)`.
+
+```{julia}
+#| output: false
+k = 15
+gold_ids, gold_dists = allknn(ExhaustiveSearch(dist2d, db2d), GenericContext(), k)
+approx_ids, approx_dists = allknn(G2d, ctx2d, k)
+
+recall_val = macrorecall(gold_ids, approx_ids)
+@info "All-kNN recall: $(round(recall_val * 100, digits=2))%"
+```
+
+```{julia}
+# Visualise the kNN graph (draw edges from each point to its nearest neighbour)
+X, Y = view(M2d, 1, :), view(M2d, 2, :)
+p = scatter(X, Y; fmt=:png, ms=2, msw=0, ma=0.4, c=:gray, label="data", size=(600,550))
+for i in 1:min(500, n2d)
+    j = approx_ids[1, i]
+    plot!([M2d[1,i], M2d[1,j]], [M2d[2,i], M2d[2,j]]; lw=0.4, lc=:steelblue, la=0.3, label="")
+end
+plot!(p; title="All-kNN graph (showing 500 edges)")
+```
+
+## Farthest-First Traversal (fft)
+
+`fft` greedily picks `m` points that are as far apart as possible — good for seeding k-means
+or for selecting representative prototypes.
+
+```{julia}
+#| output: false
+m = 30
+sel_fft = fft(G2d, ctx2d, m)
+centers_fft = sel_fft.centers   # indices of selected centers
+```
+
+```{julia}
+p = scatter(X, Y; fmt=:png, ms=2, msw=0, ma=0.3, c=:lightgray, label="data", size=(600,550))
+scatter!(M2d[1, centers_fft], M2d[2, centers_fft];
+         ms=10, msw=1, c=:red, ma=0.9, label="FFT centers (m=$m)")
+plot!(p; title="Farthest-First Traversal ($m centers)")
+```
+
+## Density Net (dnet)
+
+`dnet` selects centers that are balanced by local density, so dense regions get more
+representatives and sparse regions fewer.
+
+```{julia}
+#| output: false
+sel_dnet = dnet(G2d, ctx2d, m)
+centers_dnet = sel_dnet.centers
+```
+
+```{julia}
+p = scatter(X, Y; fmt=:png, ms=2, msw=0, ma=0.3, c=:lightgray, label="data", size=(600,550))
+scatter!(M2d[1, centers_dnet], M2d[2, centers_dnet];
+         ms=10, msw=1, c=:darkorange, ma=0.9, label="DNet centers (m=$m)")
+plot!(p; title="Density Net ($m centers)")
+```
+
+## Random selection (randsel / multirandsel)
+
+```{julia}
+#| output: false
+sel_rand  = randsel(G2d, ctx2d, m)
+sel_multi = multirandsel(G2d, ctx2d, m)
+```
+
+```{julia}
+p1 = scatter(X, Y; fmt=:png, ms=2, msw=0, ma=0.3, c=:lightgray, label="", size=(580,500))
+scatter!(M2d[1, sel_rand.centers], M2d[2, sel_rand.centers];
+         ms=10, msw=1, c=:purple, ma=0.9, label="randsel")
+plot!(p1; title="randsel")
+
+p2 = scatter(X, Y; fmt=:png, ms=2, msw=0, ma=0.3, c=:lightgray, label="", size=(580,500))
+scatter!(M2d[1, sel_multi.centers], M2d[2, sel_multi.centers];
+         ms=10, msw=1, c=:darkgreen, ma=0.9, label="multirandsel")
+plot!(p2; title="multirandsel")
+
+plot(p1, p2; layout=(1,2), size=(1100, 480))
+```
+
+## Near-duplicate detection (neardup)
+
+`neardup` groups items by distance threshold ε, finding each item's representative center.
+Useful for dataset deduplication and compression.
+
+```{julia}
+#| output: false
+# Use a tight ε: ~1% quantile of the 1-NN distance distribution
+_, nn1_dists = searchbatch(G2d, ctx2d, db2d, 2)
+ε = quantile(vec(nn1_dists[2, :]), 0.02)
+
+sel_nd = neardup(G2d, ctx2d; ε)
+println("ε = $(round(ε, digits=4))")
+println("Unique groups: $(length(sel_nd.centers)) / $n2d items")
+```
+
+```{julia}
+# Color each point by group (up to 50 groups shown distinctly)
+assign_colors = map(sel_nd.assign) do a
+    HSL(360.0f0 * mod(a, 50) / 50, 0.7f0, 0.5f0)
+end
+scatter(X, Y; color=assign_colors, fmt=:png, ms=2.5, msw=0, ma=0.6,
+        label="", title="Near-dup groups (ε=$(round(ε,digits=4)))",
+        xticks=nothing, yticks=nothing)
+```
+
+## Application to Fashion-MNIST: prototype selection
+
+```{julia}
+#| output: false
+using MLDatasets
+
+fmnist = FashionMNIST(split=:train)
+X_fmn  = Float32.(reshape(fmnist.features, 784, :)) ./ 255f0
+labels = fmnist.targets
+
+db_fmn  = MatrixDatabase(X_fmn)
+dist_fmn = Dist.SqL2(Float16)
+
+G_fmn   = SearchGraph(dist_fmn, db_fmn)
+ctx_fmn = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95)))
+index!(G_fmn, ctx_fmn)
+```
+
+```{julia}
+#| output: false
+# Select 100 prototypes via FFT — these are the most diverse/representative images
+m_fmn    = 100
+sel_fmn  = fft(G_fmn, ctx_fmn, m_fmn)
+proto_ids = sel_fmn.centers
+```
+
+```{julia}
+# Show the 48 most representative Fashion-MNIST images
+function show_grid(imgs, ids, ncols=12)
+    nrows = ceil(Int, length(ids) / ncols)
+    tiles = [Gray.(reshape(X_fmn[:, i], 28, 28)') for i in ids[1:min(end, ncols*nrows)]]
+    grid  = reduce(hcat, [reduce(vcat, tiles[(r-1)*ncols+1:min(r*ncols, end)]) for r in 1:nrows])
+    plot(Gray.(grid); fmt=:png, axis=nothing, size=(ncols*28*3, nrows*28*3),
+         title="FFT prototypes ($m_fmn most representative)")
+end
+show_grid(X_fmn, proto_ids[1:48])
+```
+
+```{julia}
+#| output: false
+# Near-duplicates in Fashion-MNIST (very tight threshold)
+_, nn1_dists_fmn = searchbatch(G_fmn, ctx_fmn, SubDatabase(db_fmn, rand(1:60_000, 2000)), 2)
+ε_fmn = quantile(vec(nn1_dists_fmn[2, :]), 0.005)
+
+sel_nd_fmn = neardup(G_fmn, ctx_fmn; ε=ε_fmn)
+println("Fashion-MNIST ε = $(round(ε_fmn, digits=5))")
+println("Near-dup groups: $(length(sel_nd_fmn.centers)) / 60_000")
+```
+
+```{julia}
+# Show some near-duplicate pairs
+fmnist_classes = ["T-shirt", "Trouser", "Pullover", "Dress", "Coat",
+                  "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
+
+pairs_shown = 0
+pair_imgs = []
+for (ci, cid) in enumerate(sel_nd_fmn.centers)
+    members = findall(==(ci), sel_nd_fmn.assign)
+    length(members) < 2 && continue
+    push!(pair_imgs, cid, members[findfirst(!=(cid), members)])
+    pairs_shown += 1
+    pairs_shown >= 6 && break
+end
+
+if !isempty(pair_imgs)
+    tiles = [Gray.(reshape(X_fmn[:, i], 28, 28)') for i in pair_imgs]
+    grid  = reduce(hcat, tiles)
+    plot(Gray.(grid); fmt=:png, axis=nothing, title="Near-duplicate pairs (left=center, right=member)",
+         size=(length(pair_imgs)*84, 90))
+end
+```
+
+## Environment and dependencies
+
+```{julia}
+#| echo: false
+versioninfo()
+using Pkg; Pkg.status()
+```

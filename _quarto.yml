@@ -12,11 +12,11 @@ website:
   navbar:
     left:
       - href: index.qmd
-        text: "Home"      
-      - href: tutorials/index.qmd
-        text: "Tutorials"
+        text: "Home"
+      - text: "Tutorial"
+        url: "https://sadit.github.io/SimilaritySearch.jl/dev/tutorial/"
       - href: demos/index.qmd
-        text: "Examples and demos"
+        text: "Demos"
       - href: about.qmd
         text: "About"
 
@@ -27,6 +27,3 @@ format:
       - brand
     css: styles.css
     toc: true
-
-
-

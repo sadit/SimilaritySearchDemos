@@ -1,0 +1,213 @@
+---
+title: "Bichromatic operations and metric joins"
+engine: julia
+lang: en-US
+---
+
+by: Eric S. Téllez
+
+**Bichromatic** (cross-dataset) operations find closest pairs between two *different* collections
+under a shared metric. This is distinct from standard (monochromatic) nearest-neighbor search,
+which looks inside a single dataset.
+
+`SimilaritySearch.jl` provides three bichromatic functions in its `Bichromatic` submodule
+(re-exported at the top level):
+
+| Function | What it computes |
+|---|---|
+| `bichromatic_closestpair` | The single globally closest pair `(a, b)` across `A × B` |
+| `bichromatic_kclosestpairs` | The `k` closest pairs across `A × B` |
+| `bichromatic_metricjoin` | Adaptive metric join: each `a ∈ A` gets all `b ∈ B` within a *locally adaptive* radius |
+
+```{julia}
+#| output: false
+using SimilaritySearch, SimSearchManifoldLearning
+using Plots, StatsBase, LinearAlgebra, Markdown, Random, Printf
+```
+
+## 2D visual example
+
+We start with a toy 2D dataset to make the operations visually concrete.
+
+```{julia}
+#| output: false
+Random.seed!(1)
+
+# A: 40 blue "facility" points — scattered across the plane
+A_mat = 8f0 .* rand(Float32, 2, 40) .- 4f0
+A_db  = MatrixDatabase(A_mat)
+
+# B: 80 red "client" points — clustered in two dense regions
+B_mat = hcat(randn(Float32, 2, 50) .* 0.6f0 .+ Float32[-2, 1],
+             randn(Float32, 2, 30) .* 0.4f0 .+ Float32[2, -2])
+B_db  = MatrixDatabase(B_mat)
+
+dist  = Dist.L2()
+idxA  = ExhaustiveSearch(dist, A_db)
+ctx   = GenericContext()
+```
+
+```{julia}
+# Baseline scatter
+scatter(A_mat[1, :], A_mat[2, :]; ms=8, msw=1, mc=:royalblue, ma=0.8, label="A (facilities)")
+scatter!(B_mat[1, :], B_mat[2, :]; ms=5, mc=:crimson, ma=0.6, label="B (clients)")
+plot!(; legend=:topright, title="A vs B", xlabel="x", ylabel="y", fmt=:png, size=(600, 520))
+```
+
+## `bichromatic_closestpair`
+
+Finds the single pair `(aᵢ, bⱼ)` with the smallest distance across all of `A × B`.
+
+```{julia}
+i, j, d = bichromatic_closestpair(idxA, ctx, B_db)
+println("Closest pair: A[$i] and B[$j], distance = $(@sprintf "%.4f" d)")
+
+# Draw it
+scatter(A_mat[1, :], A_mat[2, :]; ms=7, mc=:royalblue, ma=0.6, label="A")
+scatter!(B_mat[1, :], B_mat[2, :]; ms=5, mc=:crimson, ma=0.5, label="B")
+scatter!([A_mat[1,i]], [A_mat[2,i]]; ms=14, mc=:royalblue, msw=2, label="closest A[$i]")
+scatter!([B_mat[1,j]], [B_mat[2,j]]; ms=11, mc=:crimson, msw=2, label="closest B[$j]")
+plot!([A_mat[1,i], B_mat[1,j]], [A_mat[2,i], B_mat[2,j]]; lw=2, lc=:black, label="d=$(round(d,digits=3))")
+plot!(; legend=:topright, title="Closest pair", fmt=:png, size=(600, 520))
+```
+
+## `bichromatic_kclosestpairs`
+
+Retrieves the `k` globally closest pairs across `A × B`.
+
+```{julia}
+k = 10
+pairs = bichromatic_kclosestpairs(idxA, ctx, B_db; k)
+
+scatter(A_mat[1, :], A_mat[2, :]; ms=6, mc=:royalblue, ma=0.5, label="A")
+scatter!(B_mat[1, :], B_mat[2, :]; ms=4, mc=:crimson, ma=0.5, label="B")
+for (ai, bi, di) in pairs
+    plot!([A_mat[1,ai], B_mat[1,bi]], [A_mat[2,ai], B_mat[2,bi]];
+          lw=1.5, lc=:black, la=0.5, label="")
+end
+plot!(; legend=:topright, title="Top-$k closest pairs", fmt=:png, size=(600, 520))
+```
+
+## `bichromatic_metricjoin`
+
+Standard joins use a fixed global radius `r`. In non-uniform datasets this produces too many
+matches in dense regions and none in sparse ones. `bichromatic_metricjoin` adapts the cutoff
+radius *per query point* from the local density of its `k` candidate neighbours.
+
+```{julia}
+#| output: false
+# Use approximate bichromatic search (SearchGraph) for the join
+idxA_approx, ctxA_approx = let
+    G = SearchGraph(dist, A_db)
+    gctx = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95)))
+    index!(G, gctx)
+    G, gctx
+end
+
+join_pairs = bichromatic_metricjoin(idxA_approx, ctxA_approx, B_db; k=8)
+println("Adaptive join produced $(length(join_pairs)) matched pairs")
+```
+
+```{julia}
+scatter(A_mat[1, :], A_mat[2, :]; ms=7, mc=:royalblue, ma=0.7, label="A")
+scatter!(B_mat[1, :], B_mat[2, :]; ms=5, mc=:crimson, ma=0.5, label="B")
+for (ai, bi, di) in join_pairs
+    plot!([A_mat[1,ai], B_mat[1,bi]], [A_mat[2,ai], B_mat[2,bi]];
+          lw=0.8, lc=:gray, la=0.4, label="")
+end
+plot!(; legend=:topright, title="Adaptive metric join", fmt=:png, size=(600, 520))
+```
+
+## Exact vs approximate bichromatic search
+
+The convenience form `bichromatic_closestpair(dist, A, B; recall=r)` automatically builds
+an approximate `SearchGraph` when `recall < 1.0`:
+
+```{julia}
+# Exact
+i_ex, j_ex, d_ex = bichromatic_closestpair(dist, A_db, B_db)
+
+# Approximate (builds SearchGraph internally, targets 90% recall)
+i_ap, j_ap, d_ap = bichromatic_closestpair(dist, A_db, B_db; recall=0.9)
+
+println("Exact  : A[$i_ex] — B[$j_ex], d = $(@sprintf "%.4f" d_ex)")
+println("Approx : A[$i_ap] — B[$j_ap], d = $(@sprintf "%.4f" d_ap)")
+println("Same pair: $(i_ex == i_ap && j_ex == j_ap)")
+```
+
+## Word embedding example: cross-language closest pairs
+
+Using the Wikipedia LSI word embeddings generated for this demo site, we can find the English
+words closest to a set of Spanish words — a zero-shot cross-lingual alignment experiment.
+
+> **Note**: requires `demos/data/wiki-es-lsi.txt` and `demos/data/wiki-en-lsi.txt` generated
+> by `generate_wiki_embeddings.jl`.
+
+```{julia}
+#| output: false
+# Helper to load GloVe-format embeddings
+function load_glove(path; n=50_000, dtype=Float16)
+    lines = readlines(path)
+    n = min(n, length(lines))
+    dim = length(split(lines[1])) - 1
+    M   = Matrix{dtype}(undef, dim, n)
+    voc = Vector{String}(undef, n)
+    for i in 1:n
+        parts   = split(lines[i])
+        voc[i]  = parts[1]
+        for (j, v) in enumerate(@view parts[2:end])
+            M[j, i] = parse(Float32, v)
+        end
+    end
+    M, voc
+end
+
+emb_es, voc_es = load_glove(joinpath(@__DIR__, "data", "wiki-es-lsi.txt"); n=80_000)
+emb_en, voc_en = load_glove(joinpath(@__DIR__, "data", "wiki-en-lsi.txt"); n=80_000)
+v2id_es = Dict(w => i for (i, w) in enumerate(voc_es))
+v2id_en = Dict(w => i for (i, w) in enumerate(voc_en))
+```
+
+```{julia}
+#| output: false
+# Pick a set of Spanish words and find their closest English counterparts
+# (Both embedding spaces are independent LSI spaces — alignment is approximate)
+es_words = ["física", "historia", "computación", "música", "filosofía",
+            "matemáticas", "biología", "química", "literatura", "medicina"]
+
+es_ids   = [v2id_es[w] for w in es_words if haskey(v2id_es, w)]
+A_words  = MatrixDatabase(Float32.(emb_es[:, es_ids]))
+
+# Build English index
+B_words  = MatrixDatabase(Float32.(emb_en))
+dist_cos = Dist.NormCosine()
+idx_en   = SearchGraph(dist_cos, B_words)
+ctx_en   = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95)))
+index!(idx_en, ctx_en)
+```
+
+```{julia}
+# For each Spanish word, find the 5 closest English words
+res = knnqueue(ctx_en, 5)
+L = [
+    "## Spanish → English cross-lingual nearest neighbours (LSI-based)",
+    "| Spanish | English neighbours |",
+    "|---------|-------------------|"
+]
+for (es_w, eid) in zip(es_words, es_ids)
+    haskey(v2id_es, es_w) || continue
+    reuse!(res, 5)
+    search(idx_en, ctx_en, Float32.(emb_es[:, eid]), res)
+    en_nn = join(["$(voc_en[p.id]) ($(@sprintf "%.3f" p.dist))" for p in IdDistView(res)], ", ")
+    push!(L, "| **$es_w** | $en_nn |")
+end
+Markdown.parse(join(L, "\n")) |> display
+```
+
+## Environment and dependencies
+
+```{julia}
+#| echo: false
+versioninfo()
+using Pkg; Pkg.status()
+```

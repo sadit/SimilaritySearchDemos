@@ -1,23 +1,61 @@
 ---
-title: "Tutorials"
-lang: en-US
+title: "Demos"
+---
+
+A collection of demonstrations of `SimilaritySearch.jl` and related packages, using real and
+synthetic datasets. Unlike the package tutorials, these demos use larger datasets and longer
+computations to produce richer visualisations.
+
+> **Tip**: run Julia with `-t auto` (or `JULIA_NUM_THREADS=auto`) to enable multithreading in
+> all demos.
 
 ---
 
-## List of examples
-We separate the examples by the kind of data, since some of the datasets are quite large and will require a lot of computer power. We also list how to connect `SimilaritySearch` with other packages that require solving `k` nearest neighbor queries.
+## Synthetic / Geometric
 
-### Synthetic data
-- [2d example](syn2d.qmd)
+Conceptually simple datasets that make algorithmic behaviour easy to visualise.
 
-### Numbers and structure
-- [Prime factors](primes.qmd)
-- [ManifoldLearning -- scurve and prime gaps ](using-manifoldlearning.qmd)
+- [**2D Synthetic Dataset**](syn2d.qmd) — `SearchGraph` on 100k 2D points; batch search,
+  `closestpair`, near-duplicate detection.
+- [**Prime Number Factors**](primes.qmd) — Integers as prime-factor sets; Dice distance;
+  UMAP; all-kNN recall evaluation.
+- [**All-kNN and Center Selection**](allknn-selectors.qmd) — `allknn`, `fft`, `dnet`,
+  `randsel`, `multirandsel`, `neardup`; applied to Fashion-MNIST prototypes.
 
-### Natural language processing
-- [Glove embeddings](glove.qmd)
-- [Emoji space](emojispace.qmd)
-- [Podcast collection](podcast-collection.qmd)
+---
 
-### Images
-- [MNIST](mnist.qmd)
+## Vision / Images
+
+Demos on image datasets: visual search, near-duplicates, and dimensionality reduction.
+
+- [**MNIST Handwritten Digits**](mnist.qmd) — `SearchGraph` + UMAP; visual kNN search;
+  near-duplicate digit detection.
+
+---
+
+## Language / Text
+
+Demos on word embeddings and full-text search.
+
+- [**Wikipedia LSI Word Embeddings**](wikipedia-lsi.qmd) — LSI embeddings from Wikipedia ES/EN;
+  synonym search; analogy test; UMAP projection of the lexicon.
+- [**Emoji-Space**](emojispace.qmd) — Tweet embeddings with TextSearch 1.1 TF-IDF; UMAP.
+
+---
+
+## Advanced Operations
+
+Demos of SimilaritySearch operations beyond basic kNN.
+
+- [**Bichromatic Operations**](bichromatic.qmd) — `bichromatic_closestpair`,
+  `bichromatic_kclosestpairs`, `bichromatic_metricjoin`; visual 2D example + cross-lingual
+  word alignment with Wikipedia embeddings.
+
+---
+
+## Manifold Learning
+
+Using `SimSearchManifoldLearning.jl` with `ManifoldLearning.jl`.
+
+- [**Isomap with ApproxEuclidean**](using-manifoldlearning.qmd) — S-Curve and prime-gap
+  time series embedded with Isomap using approximate nearest neighbours.

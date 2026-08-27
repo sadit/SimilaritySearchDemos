@@ -6,9 +6,13 @@ lang: en-US
 
 This example creates a vector space model for classify emojis in Twitter messages, then process and create vectors from messages and project them using a UMAP model. The projection uses the SimilaritySearch `allknn` operation.
 
+> **TextSearch 1.1 note:** `TextConfig` now accepts `NormalizationConfig` and `TokenizationConfig`
+> sub-structs for fine-grained control. Flat keyword arguments (e.g. `group_usr`, `nlist`) are kept
+> for backward compatibility and are used below.
+
 ```{julia}
 #| output: false
-using SimilaritySearch, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase
+using SimilaritySearch, SimilaritySearch.Dist, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase
 using Downloads: download
 
 ```
@@ -49,6 +53,11 @@ Functions create to encode texto into bag-of-word vectors
 ```{julia}
 #| output: false
 
+# TextSearch 1.1: flat kwargs are still supported as a convenience interface.
+# Equivalent structured form:
+#   textconfig = TextConfig(
+#       norm=NormalizationConfig(del_diac=true, lc=true),
+#       tok=TokenizationConfig(group_usr=true, group_url=true, group_num=true, nlist=[1], qlist=[3]))
 textconfig = TextConfig(
     group_usr=true,
     group_url=true,
@@ -82,9 +91,9 @@ e2, e3 = let min_dist=0.5f0, # <1>
              tol=1e-3,
              layout=SpectralLayout(),
              indexsize=768,
-             dist=NormalizedCosineDistance()
+             dist=Dist.NormCosine()
 
-    index = ExhaustiveSearch(; db=rand(vectors, indexsize), dist) # <2>
+    index = ExhaustiveSearch(dist, rand(vectors, indexsize)) # <2>
     @time U2 = fit(UMAP, index; k, neg_sample_rate, layout, n_epochs, tol, min_dist) # <3>
     @time U3 = fit(U2, 3; neg_sample_rate, n_epochs, tol)  # <4>
     @time e2 = clamp.(predict(U2, vectors), -10f0, 10f0) # <5>
