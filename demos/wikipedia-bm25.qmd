@@ -1,18 +1,14 @@
 ---
-title: "Búsqueda léxica en Wikipedia con BM25 e Inverted Files"
+title: "Wikipedia Full-Text Search with BM25 and Inverted Files"
 engine: julia
-lang: es
+lang: en-US
 ---
 
 by: Eric S. Téllez
 
-Este demo ilustra la búsqueda de texto completo de alto rendimiento utilizando **BM25 Inverted Files**
-con [`TextSearch.jl`](https://github.com/sadit/TextSearch.jl) y [`SimilaritySearch.jl`](https://github.com/sadit/SimilaritySearch.jl).
+This demonstration illustrates high-performance full-text search using **BM25 Inverted Files** with [`TextSearch.jl`](https://github.com/sadit/TextSearch.jl) and [`SimilaritySearch.jl`](https://github.com/sadit/SimilaritySearch.jl).
 
-A diferencia de un índice invertido tradicional que calcula estadísticas locales limitadas a los documentos cargados,
-`BM25InvertedFile` permite utilizar un [`TextProfile`](https://github.com/sadit/TextSearch.jl) pre-entrenado
-(en este caso, entrenado sobre **14.5 millones de párrafos** de Wikipedia en español) para prestar sus
-frecuencias de documentos (IDF) y longitud media de documento a la colección indexada.
+Unlike a conventional inverted index that computes term statistics locally on the loaded documents, `BM25InvertedFile` can leverage a pre-trained [`TextProfile`](https://github.com/sadit/TextSearch.jl) (trained over **14.5 million paragraphs** of Spanish Wikipedia) to borrow corpus-wide Inverse Document Frequencies (IDF) and average document lengths.
 
 ```{julia}
 #| output: false
@@ -23,18 +19,18 @@ using Markdown
 using Printf
 ```
 
-## Carga del Perfil de Wikipedia y del Corpus
+## Loading the Wikipedia Profile and Corpus
 
-Cargamos el perfil pre-entrenado de Wikipedia en español y una colección de **60,000 párrafos** del corpus JSONL.
+We load the pre-trained Spanish Wikipedia profile and a sample collection of **60,000 paragraphs** from the JSONL corpus.
 
 ```{julia}
 #| output: false
-# 1. Cargar el perfil con vocabulario e IDF globales
+# 1. Load the pre-trained profile containing global vocabulary and IDF statistics
 profile_path = joinpath(@__DIR__, "..", "..", "TextSearch.jl", "corpus-profiles", "profiles", "wiki20231101-es-paragraphs.zip")
 profile = load_profile(profile_path)
-@info "Perfil cargado:" vocsize=vocsize(profile.model.voc) trainsize=profile.model.voc.trainsize[]
+@info "Profile loaded:" vocsize=vocsize(profile.model.voc) trainsize=profile.model.voc.trainsize[]
 
-# 2. Cargar párrafos del corpus
+# 2. Load paragraphs from the JSONL corpus
 corpus_path = joinpath(@__DIR__, "..", "..", "TextSearch.jl", "corpus-profiles", "work", "wikipedia", "wiki20231101-es-paragraphs.jsonl")
 
 const MAX_DOCS = 60_000
@@ -53,43 +49,43 @@ open(corpus_path) do f
     end
 end
 
-@info "Párrafos cargados: $(length(texts))"
+@info "Loaded paragraphs: $(length(texts))"
 ```
 
-## Construcción del Índice BM25
+## Building the BM25 Index
 
-Construimos el índice invertido `BM25InvertedFile` utilizando el perfil. Habilitamos la **red de expansión de consultas** (`expansion=true`) para enriquecer las búsquedas automáticamente con términos sinónimos o semánticamente afines.
+We construct the `BM25InvertedFile` using the loaded profile. We enable query expansion (`expansion=true`) to widen queries with the profile's semantic expansion network.
 
 ```{julia}
 #| output: false
 idx = BM25InvertedFile(profile; expansion=true)
 ctx = InvertedFileContext()
 
-# Indexación paralela en memoria
+# Parallel in-memory indexing
 @time append_items!(idx, ctx, texts)
-@info "Documentos indexados en BM25: $(length(idx))"
+@info "Indexed documents in BM25: $(length(idx))"
 ```
 
-## Función de Búsqueda y Visualización
+## Search and Display Helpers
 
-Definimos una función auxiliar para ejecutar consultas y dar formato a los resultados:
+We define a helper function to execute queries and format the retrieved documents:
 
 ```{julia}
-function buscar_wikipedia(invfile, ctx, qtext::String, k::Int=5; t::Int=1, policy::QueryPolicy=invfile.query.policy)
+function search_wikipedia(invfile, ctx, qtext::String, k::Int=5; t::Int=1, policy::QueryPolicy=invfile.query.policy)
     res = knnqueue(KnnSorted, k)
     t_search = @elapsed search(invfile, ctx, qtext, res; t, policy)
 
     md = [
-        "### Consulta: _«$qtext»_",
-        "Tiempo de búsqueda: **$(@sprintf "%.2f ms" (t_search * 1000))**",
+        "### Query: _«$qtext»_",
+        "Search time: **$(@sprintf "%.2f ms" (t_search * 1000))**",
         "",
-        "| # | Título | Puntuación BM25 | Fragmento |",
-        "|---|--------|-----------------|-----------|"
+        "| # | Article Title | BM25 Score | Snippet |",
+        "|---|---------------|------------|---------|"
     ]
 
     for (j, p) in enumerate(IdDistView(res))
         doc_id = p.id
-        score  = -p.dist   # BM25 almacena distancias negativas internamente
+        score  = -p.dist   # BM25 stores negated scores internally
         tit    = titles[doc_id]
         url    = urls[doc_id]
         txt    = replace(texts[doc_id], "\n" => " ")
@@ -102,52 +98,52 @@ function buscar_wikipedia(invfile, ctx, qtext::String, k::Int=5; t::Int=1, polic
 end
 ```
 
-## Ejemplos de Búsqueda Temática
+## Thematic Search Examples
 
-Probamos diversas consultas conceptuales y temáticas:
-
-```{julia}
-#| output: true
-buscar_wikipedia(idx, ctx, "agujero negro gravitacional horizonte de sucesos") |> display
-```
+We test several conceptual queries on Spanish Wikipedia:
 
 ```{julia}
 #| output: true
-buscar_wikipedia(idx, ctx, "revolución industrial máquina de vapor ferrocarril") |> display
+search_wikipedia(idx, ctx, "agujero negro gravitacional horizonte de sucesos") |> display
 ```
 
 ```{julia}
 #| output: true
-buscar_wikipedia(idx, ctx, "genética ADN estructura doble hélice") |> display
+search_wikipedia(idx, ctx, "revolución industrial máquina de vapor ferrocarril") |> display
 ```
 
 ```{julia}
 #| output: true
-buscar_wikipedia(idx, ctx, "imperio romano julio césar senado") |> display
+search_wikipedia(idx, ctx, "genética ADN estructura doble hélice") |> display
 ```
 
-## Búsqueda Literal vs Expansión de Consultas
-
-La red de expansión de consultas derivada del LSI permite encontrar documentos relevantes incluso cuando la consulta utiliza términos sinónimos o variantes léxicas no presentes literalmente en el texto original.
-
-Podemos controlar la política de consulta mediante `QueryPolicy(expansion=...)`:
-
 ```{julia}
-consulta = "astronomía planetas celestes"
-
-display(Markdown.parse("#### Con Expansión Semántica (`expansion=true`):"))
-buscar_wikipedia(idx, ctx, consulta, 4; policy=QueryPolicy(expansion=true)) |> display
-
-display(Markdown.parse("#### Búsqueda Literal (`expansion=false`):"))
-buscar_wikipedia(idx, ctx, consulta, 4; policy=QueryPolicy(expansion=false)) |> display
+#| output: true
+search_wikipedia(idx, ctx, "imperio romano julio césar senado") |> display
 ```
 
-## Rendimiento y Capacidad de Respuesta
+## Literal Search vs. Query Expansion
 
-Evaluamos el rendimiento en ráfagas de consultas para medir el throughput:
+The query expansion network derived from LSI enables matching documents even when the query uses synonyms or related terms not literally present in the document.
+
+We can adjust query behavior via `QueryPolicy(expansion=...)`:
 
 ```{julia}
-consultas_test = [
+query = "astronomía planetas celestes"
+
+display(Markdown.parse("#### With Semantic Expansion (`expansion=true`):"))
+search_wikipedia(idx, ctx, query, 4; policy=QueryPolicy(expansion=true)) |> display
+
+display(Markdown.parse("#### Literal Search (`expansion=false`):"))
+search_wikipedia(idx, ctx, query, 4; policy=QueryPolicy(expansion=false)) |> display
+```
+
+## Search Throughput
+
+We evaluate batch query throughput in queries per second (QPS):
+
+```{julia}
+test_queries = [
     "inteligencia artificial", "mecánica cuántica", "arquitectura gótica",
     "filosofía presocrática", "teorema de pitágoras", "cambio climático",
     "sistema nervioso central", "economía de mercado", "energía nuclear",
@@ -156,19 +152,19 @@ consultas_test = [
 
 res = knnqueue(KnnSorted, 5)
 t_total = @elapsed begin
-    for q in consultas_test
+    for q in test_queries
         reuse!(res, 5)
         search(idx, ctx, q, res)
     end
 end
 
-qps = length(consultas_test) / t_total
+qps = length(test_queries) / t_total
 Markdown.parse("""
-**Throughput:** $(@sprintf "%.1f" qps) consultas por segundo en un índice de $(length(idx)) documentos.
+**Throughput:** $(@sprintf "%.1f" qps) queries per second on an index of $(length(idx)) documents.
 """)
 ```
 
-## Entorno y dependencias
+## Environment and dependencies
 
 ```{julia}
 #| echo: false

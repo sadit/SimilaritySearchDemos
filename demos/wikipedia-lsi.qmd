@@ -1,22 +1,16 @@
 ---
-title: "Word embeddings de Wikipedia con LSI"
+title: "Wikipedia Word Embeddings with LSI"
 engine: julia
-lang: es
+lang: en-US
 ---
 
 by: Eric S. Téllez
 
-Este demo muestra cómo usar **Latent Semantic Indexing (LSI)** para generar word embeddings
-densos a partir de la Wikipedia en español e inglés, y cómo usar esos embeddings para búsqueda de
-sinónimos, analogías y visualizaciones UMAP.
+This demonstration shows how to use **Latent Semantic Indexing (LSI)** to generate dense word embeddings from Spanish and English Wikipedia, and how to use those embeddings for synonym search, arithmetic analogies, and UMAP visualisations.
 
-Los embeddings se generan con [`TextSearch.jl`](https://github.com/sadit/TextSearch.jl) a partir
-del corpus de Wikipedia (primeros 3 párrafos por artículo). El perfil de vocabulario y pesos TF-IDF
-fue entrenado sobre el corpus completo (~14M párrafos en ES, ~46M en EN), pero el SVD se calcula
-sobre el subconjunto introductorio — dando más peso al contenido definicional de cada artículo.
+Embeddings are generated with [`TextSearch.jl`](https://github.com/sadit/TextSearch.jl) from Wikipedia's introductory corpus (the first 3 paragraphs per article). The vocabulary profile and global TF-IDF weights were trained on the full corpus (~14M paragraphs in ES, ~46M in EN), but the SVD is computed on the introductory subset—giving more weight to the definitional content of each article.
 
-> **Nota**: Este demo requiere haber ejecutado `generate_wiki_embeddings.jl` para generar los
-> archivos de embeddings en `demos/data/`.
+> **Note**: This demo requires having run `generate_wiki_embeddings.jl` to produce the embedding files in `demos/data/`.
 
 ```{julia}
 #| output: false
@@ -25,18 +19,16 @@ using TextSearch, TextSearch.LSI
 using Plots, StatsBase, LinearAlgebra, Markdown, Random, Printf, JSON3
 ```
 
-## Carga de los embeddings
+## Loading the embeddings
 
-Los embeddings se guardaron en formato texto similar a GloVe: una línea por token, con el token
-seguido de los valores del vector separados por espacios.
+The embeddings are stored in a GloVe-like text format: one line per token, with the token followed by whitespace-separated vector components.
 
 ```{julia}
 #| output: false
 """
-Carga embeddings en formato GloVe-texto.
-Devuelve (matrix Float16 dim×n, vocab Vector{String}).
-Usamos Float16 para reducir uso de memoria; el sufijo `_asf32` en la
-distancia convierte a Float32 justo antes de los cálculos.
+Loads embeddings in GloVe text format.
+Returns (matrix Float16 dim×n, vocab Vector{String}).
+We use Float16 to reduce memory usage; distance functions convert to Float32 dynamically during computation.
 """
 function load_glove_format(path::String; dtype=Float16, max_words=100_000)
     @info "Loading embeddings from $path (max $max_words words)"
@@ -55,10 +47,10 @@ function load_glove_format(path::String; dtype=Float16, max_words=100_000)
     M, vocab
 end
 
-# Cargamos los embeddings en español (top 100k tokens)
+# Load Spanish embeddings (top 100k tokens)
 emb_es, vocab_es = load_glove_format(joinpath(@__DIR__, "data", "wiki-es-lsi.txt"); max_words=100_000)
 
-# Mapa inverso: palabra → índice
+# Inverse mapping: token → index
 vocab2id_es = Dict(w => i for (i, w) in enumerate(vocab_es))
 
 @info "ES: $(length(vocab_es)) tokens, dim=$(size(emb_es, 1))"
@@ -66,30 +58,28 @@ vocab2id_es = Dict(w => i for (i, w) in enumerate(vocab_es))
 
 ```{julia}
 #| output: false
-# Embeddings en inglés (top 100k tokens)
+# Load English embeddings (top 100k tokens)
 emb_en, vocab_en = load_glove_format(joinpath(@__DIR__, "data", "wiki-en-lsi.txt"); max_words=100_000)
 vocab2id_en = Dict(w => i for (i, w) in enumerate(vocab_en))
 @info "EN: $(length(vocab_en)) tokens, dim=$(size(emb_en, 1))"
 ```
 
-## Construcción del índice de búsqueda
+## Building the search index
 
-Usamos `SearchGraph` con distancia coseno normalizada para buscar tokens similares de manera
-aproximada. Como los vectores ya están normalizados (norma 1), `NormCosine` es equivalente
-a la distancia coseno pero sin recalcular normas.
+We use `SearchGraph` with normalized cosine distance to perform fast approximate nearest neighbor search. Since all LSI vectors are unit-normalized ($\|v\|_2 = 1$), `Dist.NormCosine()` computes cosine distance without recalculating vector norms.
 
 ```{julia}
 #| output: false
-dist = Dist.NormCosine()   # convierte Float16 → Float32 antes de aritmética
+dist = Dist.NormCosine()
 
-# Índice español
+# Spanish index
 db_es  = MatrixDatabase(emb_es)
 G_es   = SearchGraph(dist, db_es)
 ctx_es = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
 index!(G_es, ctx_es)
 optimize_index!(G_es, ctx_es, MinRecall(0.9))
 
-# Índice inglés
+# English index
 db_en  = MatrixDatabase(emb_en)
 G_en   = SearchGraph(dist, db_en)
 ctx_en = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.99)))
@@ -97,18 +87,20 @@ index!(G_en, ctx_en)
 optimize_index!(G_en, ctx_en, MinRecall(0.9))
 ```
 
-## Búsqueda de sinónimos / palabras similares
+## Synonym and related word search
+
+Nearest neighbors in the LSI vector space identify semantically related words and synonyms:
 
 ```{julia}
-function buscar_similares(G, ctx, vocab, vocab2id, palabra::String, k::Int=10)
-    haskey(vocab2id, palabra) || return Markdown.parse("> ⚠️ Palabra '$palabra' no encontrada")
-    qid  = vocab2id[palabra]
-    res  = knnqueue(ctx, k)
+function search_similar(G, ctx, vocab, vocab2id, word::String, k::Int=10)
+    haskey(vocab2id, word) || return Markdown.parse("> ⚠️ Word '$word' not found in vocabulary")
+    qid = vocab2id[word]
+    res = knnqueue(ctx, k)
     search(G, ctx, G[qid], res)
 
     L = [
-        """## Similares a _$(palabra)_""",
-        """| # | Token | Distancia coseno |""",
+        """## Similar to _$(word)_""",
+        """| # | Token | Cosine distance |""",
         """|---|-------|-----------------|"""
     ]
     for (j, p) in enumerate(IdDistView(res))
@@ -118,57 +110,53 @@ function buscar_similares(G, ctx, vocab, vocab2id, palabra::String, k::Int=10)
     Markdown.parse(join(L, "\n"))
 end
 
-# Español
-for palabra in ["física", "historia", "computación", "música", "planeta"]
-    buscar_similares(G_es, ctx_es, vocab_es, vocab2id_es, palabra, 8) |> display
+# Spanish examples
+for word in ["física", "historia", "computación", "música", "planeta"]
+    search_similar(G_es, ctx_es, vocab_es, vocab2id_es, word, 8) |> display
 end
 ```
 
 ```{julia}
-# Inglés
-for palabra in ["physics", "history", "computer", "music", "planet"]
-    buscar_similares(G_en, ctx_en, vocab_en, vocab2id_en, palabra, 8) |> display
+# English examples
+for word in ["physics", "history", "computer", "music", "planet"]
+    search_similar(G_en, ctx_en, vocab_en, vocab2id_en, word, 8) |> display
 end
 ```
 
-## Red de sinónimos / query expansion
+## Query expansion and synonym network
 
-Los embeddings LSI permiten construir una red de expansión de consultas: para cada token,
-sus `k` vecinos más cercanos en el espacio semántico forman una red de sinónimos aproximados.
+The LSI embeddings allow precomputing a **query expansion network**: for each token, its $k$ nearest neighbors in semantic space form an expansion set.
 
 ```{julia}
-# Cargamos la red pre-computada
+# Load pre-computed query expansion network
 qexp_obj = JSON3.read(read(joinpath(@__DIR__, "data", "wiki-es-qexp.json"), String))
 qexp_es  = qexp_obj.query_expansion
 
-function mostrar_red(qexp, palabra)
-    sym = Symbol(palabra)
-    haskey(qexp, sym) || return Markdown.parse("> ⚠️ '$palabra' no en la red")
-    vecinos = qexp[sym]
-    isempty(vecinos) && return Markdown.parse("> '$palabra' sin expansión (token muy frecuente)")
+function show_expansion(qexp, word)
+    sym = Symbol(word)
+    haskey(qexp, sym) || return Markdown.parse("> ⚠️ '$word' not found in expansion network")
+    neighbors = qexp[sym]
+    isempty(neighbors) && return Markdown.parse("> '$word' has no expansion (high-frequency token)")
     Markdown.parse("""
-    **$palabra** → $(join(["_$(v)_" for v in vecinos], ", "))
+    **$word** → $(join(["_$(v)_" for v in neighbors], ", "))
     """)
 end
 
 for p in ["ciencia", "guerra", "amor", "tecnología", "ciudad", "arte", "economía"]
-    mostrar_red(qexp_es, p) |> display
+    show_expansion(qexp_es, p) |> display
 end
 ```
 
-## ¿Funcionan las analogías?
+## Do arithmetic analogies work?
 
-Las analogías del estilo _"rey es a hombre como reina es a mujer"_ son clásicas en word2vec.
-En LSI, el espacio semántico es lineal pero derivado de co-ocurrencia documental — no de
-contextos de ventana deslizante. Las analogías pueden funcionar si los conceptos tienen
-distribuciones documentales similares.
+Analogies of the form _"king is to man as queen is to woman"_ are well known in word2vec models. In LSI, the semantic space is linear and derived from document-level co-occurrence. Linear analogy arithmetic works when concepts share similar document distributions:
 
-La aritmética es: `vec(a) - vec(b) + vec(d) ≈ vec(c)`, donde `a:b :: c:d`.
+$$\vec{v}_{\text{target}} \approx \vec{v}_a - \vec{v}_b + \vec{v}_d \quad \text{where } a:b :: c:d$$
 
 ```{julia}
-function analogia(G, ctx, vocab, vocab2id, a, b, d, k=10)
+function analogy(G, ctx, vocab, vocab2id, a, b, d, k=10)
     for w in (a, b, d)
-        haskey(vocab2id, w) || return Markdown.parse("> ⚠️ Palabra '$w' no encontrada")
+        haskey(vocab2id, w) || return Markdown.parse("> ⚠️ Word '$w' not found in vocabulary")
     end
     va = Float32.(G[vocab2id[a]])
     vb = Float32.(G[vocab2id[b]])
@@ -176,19 +164,19 @@ function analogia(G, ctx, vocab, vocab2id, a, b, d, k=10)
     vc = va - vb + vd
     normalize!(vc)
 
-    res = knnqueue(ctx, k + 3)  # pedimos más para poder filtrar a, b, d
+    res = knnqueue(ctx, k + 3)  # request extra candidates to filter out inputs
     search(G, ctx, Float16.(vc), res)
 
-    excluir = Set([a, b, d])
+    exclude = Set([a, b, d])
     L = [
-        """### Analogía: _$(a)_ es a _$(b)_ como _?_ es a _$(d)_""",
-        """| # | Token | Dist |""",
-        """|---|-------|------|"""
+        """### Analogy: _$(a)_ is to _$(b)_ as _?_ is to _$(d)_""",
+        """| # | Token | Distance |""",
+        """|---|-------|----------|"""
     ]
     j = 0
     for p in IdDistView(res)
         w = vocab[p.id]
-        w in excluir && continue
+        w in exclude && continue
         j += 1
         j > k && break
         push!(L, """| $j | **$w** | $(@sprintf "%.4f" p.dist) |""")
@@ -196,34 +184,32 @@ function analogia(G, ctx, vocab, vocab2id, a, b, d, k=10)
     Markdown.parse(join(L, "\n"))
 end
 
-# Analogías clásicas en español
-analogia(G_es, ctx_es, vocab_es, vocab2id_es, "rey", "hombre", "mujer") |> display
-analogia(G_es, ctx_es, vocab_es, vocab2id_es, "París", "Francia", "España") |> display
-analogia(G_es, ctx_es, vocab_es, vocab2id_es, "Madrid", "España", "Francia") |> display
-analogia(G_es, ctx_es, vocab_es, vocab2id_es, "perro", "animal", "planta") |> display
+# Classic analogies in Spanish
+analogy(G_es, ctx_es, vocab_es, vocab2id_es, "rey", "hombre", "mujer") |> display
+analogy(G_es, ctx_es, vocab_es, vocab2id_es, "París", "Francia", "España") |> display
+analogy(G_es, ctx_es, vocab_es, vocab2id_es, "Madrid", "España", "Francia") |> display
+analogy(G_es, ctx_es, vocab_es, vocab2id_es, "perro", "animal", "planta") |> display
 ```
 
 ```{julia}
-# Analogías en inglés
-analogia(G_en, ctx_en, vocab_en, vocab2id_en, "king", "man", "woman") |> display
-analogia(G_en, ctx_en, vocab_en, vocab2id_en, "Paris", "France", "Spain") |> display
-analogia(G_en, ctx_en, vocab_en, vocab2id_en, "Madrid", "Spain", "France") |> display
+# Analogies in English
+analogy(G_en, ctx_en, vocab_en, vocab2id_en, "king", "man", "woman") |> display
+analogy(G_en, ctx_en, vocab_en, vocab2id_en, "Paris", "France", "Spain") |> display
+analogy(G_en, ctx_en, vocab_en, vocab2id_en, "Madrid", "Spain", "France") |> display
 ```
 
-## Visualización UMAP
+## UMAP visualization
 
-Proyectamos una muestra de tokens en 2D con UMAP, usando el `SearchGraph` para el grafo kNN.
-Coloreamos los puntos según el primero componente del embedding 3D (para dar color RGB).
+We project a sample of the most frequent vocabulary tokens into 2D using UMAP, using `SearchGraph` for the kNN neighborhood graph. We color the points using a 3D UMAP embedding normalized to RGB channels.
 
 ```{julia}
 #| output: false
-# Tomamos una muestra de los tokens más frecuentes para la visualización
-# (los más frecuentes en el corpus son también los más representativos)
+# Sample the most frequent vocabulary tokens for visualization
 sample_size = min(15_000, length(vocab_es))
-sample_idx  = 1:sample_size   # los primeros son los más frecuentes tras el sort del vocabulario
+sample_idx  = 1:sample_size
 
-db_sample = SubDatabase(db_es, collect(sample_idx))
-G_sample  = SearchGraph(dist, db_sample)
+db_sample  = SubDatabase(db_es, collect(sample_idx))
+G_sample   = SearchGraph(dist, db_sample)
 ctx_sample = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95)))
 index!(G_sample, ctx_sample)
 
@@ -253,9 +239,9 @@ X, Y = view(e2, 1, :), view(e2, 2, :)
 scatter(X, Y; color=C, fmt=:png, alpha=0.15, size=(700, 700),
         ma=0.2, ms=2, msw=0, label="",
         yticks=nothing, xticks=nothing, xaxis=false, yaxis=false,
-        title="Wikipedia ES — LSI 256d proyectado con UMAP")
+        title="Wikipedia ES — 256d LSI projected with UMAP")
 
-# Anotamos ~80 tokens al azar
+# Annotate ~80 random tokens
 for _ in 1:80
     j = rand(1:sample_size)
     annotate!(X[j], Y[j], text(vocab_es[sample_idx[j]], :blue, :right, 5, "sans-serif"))
@@ -263,19 +249,16 @@ end
 plot!()
 ```
 
-## Notas finales
+## Concluding remarks
 
-Este demo muestra cómo los embeddings LSI derivados de Wikipedia capturan **estructura semántica
-real**: palabras relacionadas por co-ocurrencia documental se agrupan en el espacio vectorial.
+This demonstration shows how LSI embeddings derived from Wikipedia capture **semantic structure**: words associated through document co-occurrence naturally cluster in vector space.
 
-Diferencias respecto a GloVe/word2vec:
-- LSI usa co-ocurrencia a nivel de **documento completo** (no ventana deslizante), por lo que
-  captura mejor relaciones temáticas amplias que relaciones sintácticas locales.
-- Las analogías de tipo `rey - hombre + mujer ≈ reina` suelen funcionar **cuando los conceptos
-  son temáticamente cohesivos** en Wikipedia (países, capitales, categorías científicas).
-- Funciona peor para relaciones morfológicas o sintácticas (plural/singular, conjugaciones).
+Key differences from GloVe/word2vec:
+- LSI captures **full-document co-occurrence** rather than local sliding windows, making it particularly strong for broad topical affinities.
+- Analogies of the form `king - man + woman ≈ queen` work well when concepts are **topically distinct** in Wikipedia (countries, capitals, scientific domains).
+- Morphological or syntactic relations (e.g., plurals, verb tenses) are less emphasized than topical semantics.
 
-## Entorno y dependencias
+## Environment and dependencies
 
 ```{julia}
 #| echo: false
