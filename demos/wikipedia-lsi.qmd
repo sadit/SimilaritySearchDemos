@@ -38,15 +38,15 @@ Devuelve (matrix Float16 dim×n, vocab Vector{String}).
 Usamos Float16 para reducir uso de memoria; el sufijo `_asf32` en la
 distancia convierte a Float32 justo antes de los cálculos.
 """
-function load_glove_format(path::String; dtype=Float16)
-    @info "Loading embeddings from $path"
-    lines  = readlines(path)
-    n      = length(lines)
-    dim    = length(split(lines[1])) - 1
-    M      = Matrix{dtype}(undef, dim, n)
-    vocab  = Vector{String}(undef, n)
-    for (i, line) in enumerate(lines)
-        parts    = split(line)
+function load_glove_format(path::String; dtype=Float16, max_words=100_000)
+    @info "Loading embeddings from $path (max $max_words words)"
+    lines = readlines(path)
+    n     = min(length(lines), max_words)
+    dim   = length(split(lines[1])) - 1
+    M     = Matrix{dtype}(undef, dim, n)
+    vocab = Vector{String}(undef, n)
+    for i in 1:n
+        parts    = split(lines[i])
         vocab[i] = parts[1]
         for (j, v) in enumerate(@view parts[2:end])
             M[j, i] = parse(Float32, v)
@@ -55,8 +55,8 @@ function load_glove_format(path::String; dtype=Float16)
     M, vocab
 end
 
-# Cargamos los embeddings en español
-emb_es, vocab_es = load_glove_format(joinpath(@__DIR__, "data", "wiki-es-lsi.txt"))
+# Cargamos los embeddings en español (top 100k tokens)
+emb_es, vocab_es = load_glove_format(joinpath(@__DIR__, "data", "wiki-es-lsi.txt"); max_words=100_000)
 
 # Mapa inverso: palabra → índice
 vocab2id_es = Dict(w => i for (i, w) in enumerate(vocab_es))
@@ -66,8 +66,8 @@ vocab2id_es = Dict(w => i for (i, w) in enumerate(vocab_es))
 
 ```{julia}
 #| output: false
-# Embeddings en inglés
-emb_en, vocab_en = load_glove_format(joinpath(@__DIR__, "data", "wiki-en-lsi.txt"))
+# Embeddings en inglés (top 100k tokens)
+emb_en, vocab_en = load_glove_format(joinpath(@__DIR__, "data", "wiki-en-lsi.txt"); max_words=100_000)
 vocab2id_en = Dict(w => i for (i, w) in enumerate(vocab_en))
 @info "EN: $(length(vocab_en)) tokens, dim=$(size(emb_en, 1))"
 ```
@@ -80,7 +80,7 @@ a la distancia coseno pero sin recalcular normas.
 
 ```{julia}
 #| output: false
-dist = Dist.NormCosine(Float16)   # convierte Float16 → Float32 antes de aritmética
+dist = Dist.NormCosine()   # convierte Float16 → Float32 antes de aritmética
 
 # Índice español
 db_es  = MatrixDatabase(emb_es)
@@ -138,16 +138,16 @@ sus `k` vecinos más cercanos en el espacio semántico forman una red de sinóni
 
 ```{julia}
 # Cargamos la red pre-computada
-qexp_es = let d = JSON3.read(read(joinpath(@__DIR__, "data", "wiki-es-qexp.json"), String))
-    Dict{String,Vector{String}}(String(k) => String.(v) for (k, v) in d["query_expansion"])
-end
+qexp_obj = JSON3.read(read(joinpath(@__DIR__, "data", "wiki-es-qexp.json"), String))
+qexp_es  = qexp_obj.query_expansion
 
 function mostrar_red(qexp, palabra)
-    haskey(qexp, palabra) || return Markdown.parse("> ⚠️ '$palabra' no en la red")
-    vecinos = qexp[palabra]
+    sym = Symbol(palabra)
+    haskey(qexp, sym) || return Markdown.parse("> ⚠️ '$palabra' no en la red")
+    vecinos = qexp[sym]
     isempty(vecinos) && return Markdown.parse("> '$palabra' sin expansión (token muy frecuente)")
     Markdown.parse("""
-    **$palabra** → $(join(["_$v_" for v in vecinos], ", "))
+    **$palabra** → $(join(["_$(v)_" for v in vecinos], ", "))
     """)
 end
 
@@ -219,7 +219,7 @@ Coloreamos los puntos según el primero componente del embedding 3D (para dar co
 #| output: false
 # Tomamos una muestra de los tokens más frecuentes para la visualización
 # (los más frecuentes en el corpus son también los más representativos)
-sample_size = min(30_000, length(vocab_es))
+sample_size = min(15_000, length(vocab_es))
 sample_idx  = 1:sample_size   # los primeros son los más frecuentes tras el sort del vocabulario
 
 db_sample = SubDatabase(db_es, collect(sample_idx))

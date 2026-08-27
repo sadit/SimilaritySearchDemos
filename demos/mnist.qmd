@@ -22,7 +22,7 @@ using SimilaritySearch, SimilaritySearch.Dist, SimSearchManifoldLearning, Plots,
 db, y, dist = let data = MNIST(split=:train)
     T, y = data.features, data.targets
     n = size(T, 3)
-    MatrixDatabase(Float32.(reshape(T, (28*28, n)))), y, Dist.SqL2(Float16)
+    MatrixDatabase(Float32.(reshape(T, (28*28, n)))), y, Dist.SqL2()
 end
 
 ```
@@ -47,7 +47,7 @@ function search_and_render(index, ctx, q, res)
 	res = reuse!(res)
     @time search(index, ctx, q, res)
 	qinverted = 1 .- reshape(q, (28, 28))' # distinguishability
-	h = hcat(qinverted, [reshape(index[id_], (28, 28))' for id_ in res.ids]...)
+	h = hcat(qinverted, [reshape(index[p.id], (28, 28))' for p in IdDistView(res)]...)
 	
     Gray.(h)
 end

@@ -82,7 +82,7 @@ or for selecting representative prototypes.
 ```{julia}
 #| output: false
 m = 30
-sel_fft = fft(G2d, ctx2d, m)
+sel_fft = fft(dist2d, db2d, m)
 centers_fft = sel_fft.centers   # indices of selected centers
 ```
 
@@ -100,7 +100,7 @@ representatives and sparse regions fewer.
 
 ```{julia}
 #| output: false
-sel_dnet = dnet(G2d, ctx2d, m)
+sel_dnet = dnet(dist2d, db2d, m)
 centers_dnet = sel_dnet.centers
 ```
 
@@ -115,8 +115,8 @@ plot!(p; title="Density Net ($m centers)")
 
 ```{julia}
 #| output: false
-sel_rand  = randsel(G2d, ctx2d, m)
-sel_multi = multirandsel(G2d, ctx2d, m)
+sel_rand  = randsel(dist2d, db2d, m)
+sel_multi = multirandsel(dist2d, db2d, m)
 ```
 
 ```{julia}
@@ -144,7 +144,7 @@ Useful for dataset deduplication and compression.
 _, nn1_dists = searchbatch(G2d, ctx2d, db2d, 2)
 ε = quantile(vec(nn1_dists[2, :]), 0.02)
 
-sel_nd = neardup(G2d, ctx2d; ε)
+sel_nd = neardup(dist2d, db2d, ε)
 println("ε = $(round(ε, digits=4))")
 println("Unique groups: $(length(sel_nd.centers)) / $n2d items")
 ```
@@ -170,7 +170,7 @@ X_fmn  = Float32.(reshape(fmnist.features, 784, :)) ./ 255f0
 labels = fmnist.targets
 
 db_fmn  = MatrixDatabase(X_fmn)
-dist_fmn = Dist.SqL2(Float16)
+dist_fmn = Dist.SqL2()
 
 G_fmn   = SearchGraph(dist_fmn, db_fmn)
 ctx_fmn = SearchGraphContext(hyperparameters_callback=OptimizeParameters(MinRecall(0.95)))
@@ -181,7 +181,7 @@ index!(G_fmn, ctx_fmn)
 #| output: false
 # Select 100 prototypes via FFT — these are the most diverse/representative images
 m_fmn    = 100
-sel_fmn  = fft(G_fmn, ctx_fmn, m_fmn)
+sel_fmn  = fft(dist_fmn, db_fmn, m_fmn)
 proto_ids = sel_fmn.centers
 ```
 
@@ -203,7 +203,7 @@ show_grid(X_fmn, proto_ids[1:48])
 _, nn1_dists_fmn = searchbatch(G_fmn, ctx_fmn, SubDatabase(db_fmn, rand(1:60_000, 2000)), 2)
 ε_fmn = quantile(vec(nn1_dists_fmn[2, :]), 0.005)
 
-sel_nd_fmn = neardup(G_fmn, ctx_fmn; ε=ε_fmn)
+sel_nd_fmn = neardup(dist_fmn, db_fmn, ε_fmn)
 println("Fashion-MNIST ε = $(round(ε_fmn, digits=5))")
 println("Near-dup groups: $(length(sel_nd_fmn.centers)) / 60_000")
 ```

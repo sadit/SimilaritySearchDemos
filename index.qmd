@@ -8,44 +8,25 @@ engine: julia
 
 Here you will find several examples for the  [SimilaritySearch.jl](https://github.com/sadit/SimilaritySearch.jl) package.
 
+## Tutorials and Documentation
+
+For step-by-step API tutorials and guides, please visit the official documentation:
+- [SimilaritySearch.jl Documentation and Tutorial](https://sadit.github.io/SimilaritySearch.jl/dev/tutorial/)
+- [TextSearch.jl Documentation](https://sadit.github.io/TextSearch.jl/dev/)
+
+The demonstrations on this website focus on richer and larger datasets (using vision, full-text Wikipedia, manifolds, and prime factorization).
+
 ## Installation
 
-You need a Julia installation <https://julialang.org/downloads/>, in particular, we recommend to use Julia $v1.10$ since $v1.11$ has several performance regressions with respect to `SimilaritySearch`.
+You need a modern Julia installation (Julia $\ge 1.10$, including Julia $v1.12$).
 
-We present our examples just to copy and paste on the REPL but also provide some in Jupyter and Pluto notebooks; you must install `IJulia` and `Pluto` packages, just run the following commands in the REPL
-
-```julia
-using Pkg; Pkg.add(["IJulia", "Pluto"])
-```
-
-Please check their documentation:
-
-- [IJulia](https://julialang.github.io/IJulia.jl).
-- [Jupyter](https://jupyter.org/).
-- [Pluto](https://plutojl.org/)
-
-This website was made with [Quarto](https://quarto.org/) with the Julia engine.
-
-
-## Notes about multithreading
-Nearest neighbor search can be computationally expensive, therefore `SimilaritySearch` has multithreading support.
-You should want to run jupyter or julia using all available threads, that is
+To run and explore the examples locally, clone the repository and instantiate the environment:
 
 ```bash
-JULIA_NUM_THREADS=auto jupyter-lab .
+git clone https://github.com/sadit/SimilaritySearchDemos.git
+cd SimilaritySearchDemos
+julia -t auto --project=. -e 'using Pkg; Pkg.instantiate()'
 ```
-
-or
-```bash
-JULIA_NUM_THREADS=auto julia
-```
-
-Perhaps all your threads may become your computer useless for a while, so you can replace `auto` by some other more conservative number that allow you to work on the same computer.
-
-## News
-
-- _march 20th, 2025_: the site is behind the `SimilaritySearch` API; I will be working on updating examples and moving the site to Quarto.
-- _june 5th, 2023:_ adds news section, some installation requirements, Jupyter notebookes were updated to work with the `v0.10` and with the current julia release `v1.9`. I also moved most plots to `Makie`.
 
 
 ## Problem statement

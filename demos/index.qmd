@@ -39,6 +39,8 @@ Demos on word embeddings and full-text search.
 
 - [**Wikipedia LSI Word Embeddings**](wikipedia-lsi.qmd) — LSI embeddings from Wikipedia ES/EN;
   synonym search; analogy test; UMAP projection of the lexicon.
+- [**Wikipedia BM25 Search**](wikipedia-bm25.qmd) — High-performance full-text BM25 search
+  with TextSearch 1.1 Inverted Files and query expansion on 60k Wikipedia paragraphs.
 - [**Emoji-Space**](emojispace.qmd) — Tweet embeddings with TextSearch 1.1 TF-IDF; UMAP.
 
 ---

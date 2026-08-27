@@ -12,9 +12,8 @@ This example creates a vector space model for classify emojis in Twitter message
 
 ```{julia}
 #| output: false
-using SimilaritySearch, SimilaritySearch.Dist, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON, DataFrames, Plots, StatsBase
+using SimilaritySearch, SimilaritySearch.Dist, SimSearchManifoldLearning, TextSearch, CodecZlib, JSON3, DataFrames, Plots, StatsBase
 using Downloads: download
-
 ```
 
 downloading the dataset, parsing and vectorizing functions
@@ -32,7 +31,7 @@ Now, we load the dataset
 #| output: true
 
 D = DataFrame(open(GzipDecompressorStream, dbfile) do f
-    JSON.parse.(eachline(f))
+    [JSON3.read(line) for line in eachline(f)]
 end)
 
 collect(countmap(D.klass))
@@ -45,31 +44,21 @@ D = filter(D) do r
 end
 
 collect(countmap(D.klass))
-#H = sort!(collect(countmap(D.klass)), by=first)
-#bar(first.(H), last.(H))
 ```
 
-Functions create to encode texto into bag-of-word vectors
+Functions create to encode text into bag-of-word vectors
 ```{julia}
 #| output: false
 
-# TextSearch 1.1: flat kwargs are still supported as a convenience interface.
-# Equivalent structured form:
-#   textconfig = TextConfig(
-#       norm=NormalizationConfig(del_diac=true, lc=true),
-#       tok=TokenizationConfig(group_usr=true, group_url=true, group_num=true, nlist=[1], qlist=[3]))
 textconfig = TextConfig(
     group_usr=true,
     group_url=true,
     del_diac=true,
     lc=true,
     group_num=true,
-    nlist=[1],
-    qlist=[3])
+    nlist=[1])
 
-# corpus here can be a sample to avoid double parsing
 voc = Vocabulary(textconfig, D.text) 
-# model = VectorModel(IdfWeighting(), TfWeighting(), voc)
 model = VectorModel(EntropyWeighting(), BinaryLocalWeighting(), voc, D.text, D.klass; smooth=1.0)
 #model = VectorModel(IdfWeighting(), TfWeighting(), voc)
 model = filter_tokens(model) do t

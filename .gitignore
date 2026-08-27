@@ -27,3 +27,9 @@ Project.toml
 /.quarto/
 
 /_*.local
+
+**/*.quarto_ipynb
+
+# Large generated data files (Wikipedia LSI embeddings, large JSONs)
+demos/data/
+demos/tmp/

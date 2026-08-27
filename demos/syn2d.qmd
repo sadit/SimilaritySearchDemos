@@ -21,7 +21,7 @@ using SimilaritySearch, SimSearchManifoldLearning, Plots, StatsBase, LinearAlgeb
 n = 100_000
 M = randn(Float16, 2, n)
 db = MatrixDatabase(M)
-dist = Dist.SqL2(Float16)   # evaluates in Float32 internally
+dist = Dist.SqL2()   # evaluates in Float32 internally
 size(M)
 ```
 
@@ -103,7 +103,7 @@ distribution.
 sample_ids, sample_dists = searchbatch(G, ctx, SubDatabase(db, rand(1:n, 500)), 2)
 ε = quantile(vec(sample_dists[2, :]), 0.01)   # very tight: ~1% of pairs
 
-sel = neardup(G, ctx; ε)
+sel = neardup(dist, db, ε)
 println("Groups (centers): ", length(sel.centers))
 println("ε = ", ε)
 ```
